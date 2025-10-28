@@ -1,4 +1,4 @@
-CREATE TABLE members (
+CREATE TABLE IF NOT EXISTS members (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     membership_type VARCHAR(255) NOT NULL,
