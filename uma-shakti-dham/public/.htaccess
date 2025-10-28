@@ -1,0 +1,19 @@
+# .htaccess for uma-shakti-dham public folder
+<IfModule mod_authz_core.c>
+    Require all granted
+</IfModule>
+
+DirectoryIndex index.php index.html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # If a real file or directory exists, serve it
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Otherwise forward requests to index.php
+    RewriteRule ^ index.php [L]
+</IfModule>
