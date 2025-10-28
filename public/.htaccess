@@ -1,0 +1,26 @@
+# Recommended .htaccess for Apache document root
+# Allows access and rewrites all requests to index.php if file doesn't exist
+<IfModule mod_authz_core.c>
+    # Apache 2.4+
+    Require all granted
+</IfModule>
+<IfModule !mod_authz_core.c>
+    # Apache 2.2
+    Order allow,deny
+    Allow from all
+</IfModule>
+
+DirectoryIndex index.php index.html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Serve existing files directly
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Otherwise route to index.php
+    RewriteRule ^ index.php [L]
+</IfModule>
