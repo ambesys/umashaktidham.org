@@ -1,4 +1,4 @@
-CREATE TABLE families (
+CREATE TABLE IF NOT EXISTS families (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     family_member_name VARCHAR(255) NOT NULL,
