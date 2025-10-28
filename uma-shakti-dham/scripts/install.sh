@@ -7,9 +7,9 @@ sudo apt update
 sudo apt install -y php php-mysql php-xml php-mbstring php-curl
 
 # Set up the database
-DB_NAME="uma_shakti_dham"
-DB_USER="root"
-DB_PASS="your_password" # Change this to your database password
+DB_NAME="u103964107_uma"
+DB_USER="u103964107_uma"
+DB_PASS="Cn?o4zw:sT!0"
 
 # Create the database
 mysql -u $DB_USER -p$DB_PASS -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;"

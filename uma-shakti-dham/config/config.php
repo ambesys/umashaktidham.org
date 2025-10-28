@@ -3,9 +3,9 @@
 
 // Database configuration
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'uma_shakti_dham');
-define('DB_USER', 'root');
-define('DB_PASS', 'your_password_here');
+define('DB_NAME', 'u103964107_uma');
+define('DB_USER', 'u103964107_uma');
+define('DB_PASS', 'Cn?o4zw:sT!0');
 
 // Base URL of the application
 define('BASE_URL', 'http://localhost/uma-shakti-dham/public');
