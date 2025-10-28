@@ -1,0 +1,111 @@
+/* Minimal main styles for Uma Shakti Dham - expand as needed */
+:root{--brand:#0b5a3a;--muted:#666}
+*{box-sizing:border-box}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;color:#222}
+.container{max-width:1100px;margin:0 auto;padding:0 16px}
+.site-header{background:#fff;border-bottom:1px solid #eee}
+.header-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
+.logo{display:flex;align-items:center}
+.site-logo{height:44px;margin-right:10px}
+.site-title{font-weight:700;color:var(--brand)}
+.main-nav ul{list-style:none;margin:0;padding:0;display:flex;gap:12px;align-items:center}
+.main-nav a{color:#222;text-decoration:none;padding:6px 8px}
+.nav-right{display:flex;align-items:center}
+.btn{background:var(--brand);color:#fff;padding:8px 12px;border-radius:4px;text-decoration:none;display:inline-block}
+.btn-register{background:transparent;border:1px solid var(--brand);color:var(--brand);padding:6px 10px;border-radius:4px}
+.login-container{max-width:420px;margin:32px auto;padding:24px;border:1px solid #eee;border-radius:6px;background:#fff}
+.form-group{margin-bottom:12px}
+input,textarea{width:100%;padding:8px;border:1px solid #ccc;border-radius:4px}
+.footer-bottom{margin-top:18px;padding-top:12px;border-top:1px solid #eee;text-align:center;color:var(--muted);font-size:14px}
+.nav-toggle{display:none;background:transparent;border:0;font-size:22px}
+
+/* small helpers */
+.dropdown-menu{display:none;position:absolute;background:#fff;border:1px solid #eee;padding:8px}
+.dropdown:hover .dropdown-menu{display:block}
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+header {
+    background: #4CAF50;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+}
+
+nav {
+    margin: 10px 0;
+}
+
+nav a {
+    color: white;
+    padding: 14px 20px;
+    text-decoration: none;
+}
+
+nav a:hover {
+    background-color: #45a049;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+}
+
+footer {
+    background: #4CAF50;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+.donation-form, .membership-form {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.donation-form input, .membership-form input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.button:hover {
+    background: #45a049;
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+    }
+
+    nav {
+        display: flex;
+        flex-direction: column;
+    }
+
+    nav a {
+        padding: 10px;
+        text-align: center;
+    }
+}
