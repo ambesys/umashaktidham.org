@@ -8,6 +8,9 @@ require_once '../vendor/autoload.php';
 require_once '../config/config.php';
 require_once '../config/database.php';
 
+// Load our custom App class
+require_once '../src/App.php';
+
 // Initialize the application
 $app = new App();
 

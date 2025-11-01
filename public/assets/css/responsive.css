@@ -3,12 +3,12 @@
     .main-nav ul.nav-left{display:none}
     .nav-toggle{display:inline-block}
     .header-inner{gap:8px}
-    .site-logo{height:36px}
 }
 
 @media (max-width: 480px){
     .container{padding:0 10px}
-    .site-title{display:none}
+    /* Ensure site title remains visible on very small screens; sizing is handled in main.css */
+    .site-title{display:block}
 }
 body {
     margin: 0;
@@ -20,7 +20,7 @@ body {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    /* padding: 20px; */
 }
 
 .header, .footer {

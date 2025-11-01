@@ -1,20 +1,3 @@
-<?php
-session_start();
-require_once '../../config/database.php';
-require_once '../../src/Models/User.php';
-require_once '../../src/Controllers/AdminController.php';
-
-$adminController = new AdminController();
-$users = $adminController->getAllUsers();
-
-if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
-    header('Location: /uma-shakti-dham/public/index.php');
-    exit();
-}
-
-include '../layouts/header.php';
-?>
-
 <div class="container">
     <h1>Manage Users</h1>
     <table class="table">
@@ -44,5 +27,3 @@ include '../layouts/header.php';
     </table>
     <a href="add.php" class="btn btn-success">Add New User</a>
 </div>
-
-<?php include '../layouts/footer.php'; ?>

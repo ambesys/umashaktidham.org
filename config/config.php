@@ -12,10 +12,12 @@ define('BASE_URL', 'http://localhost/uma-shakti-dham/public');
 
 // Site settings
 define('SITE_NAME', 'Uma Shakti Dham');
-define('SITE_EMAIL', 'info@umashaktidham.org');
+define('SITE_EMAIL', 'umashaktidham@gmail.com');
 
 // Session settings
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 define('SESSION_TIMEOUT', 3600); // 1 hour
 
 // Error reporting
