@@ -1,19 +1,60 @@
 #############################################
 # UMA SHAKTI DHAM - Repository root .htaccess
-# This file is intended to block direct web access to the repository root
-# (if someone accidentally places the project root inside webroot).
+# Strict root-level protection. This file prevents accidental exposure of
+# repository files if the project root is placed inside the webroot. It also
+# routes requests to the `public/` front controller where appropriate.
 #############################################
 
-# Deny all access to files in the repository root (Apache 2.4+ / 2.2 fallback)
-<IfModule mod_authz_core.c>
-    Require all denied
-</IfModule>
-<IfModule !mod_authz_core.c>
-    Order deny,allow
-    Deny from all
+# --- Rewrite to the public front controller when possible ---
+# If the request maps to an existing file or directory under /public, serve it.
+# Otherwise internally rewrite all requests to /public/index.php so the app
+# can remain URL-root friendly while keeping source files non-public.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # If the request is already for the public folder, allow normal processing
+    RewriteRule ^public/ - [L]
+
+    # If a corresponding file exists under public/, serve that file
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f
+    RewriteRule ^(.*)$ /public%{REQUEST_URI} [L]
+
+    # If a corresponding directory exists under public/, serve that directory (helps DirectoryIndex)
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
+    RewriteRule ^(.*)$ /public%{REQUEST_URI} [L]
+
+    # Otherwise route everything to the public front controller
+    RewriteRule ^ /public/index.php [L]
 </IfModule>
 
-# If this file is accidentally deployed into the site webroot it will prevent
-# exposure of non-public files. If you purposely serve this repo root, remove
-# this file and instead place a tailored public/.htaccess under your webroot.
+# --- Deny direct access to repository files and sensitive patterns ---
+# Block dotfiles and common secrets at the root level (Apache 2.4+ / 2.2 fallback)
+<IfModule mod_authz_core.c>
+    <FilesMatch "^\.|(composer\.json|composer\.lock|README|\.git)($|\.)">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+    <FilesMatch "^\.|(composer\.json|composer\.lock|README|\.git)($|\.)">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
+
+# Additional safety: deny direct execution of PHP files in the repo root
+<IfModule mod_authz_core.c>
+    <FilesMatch "^(?!public/index\.php$).+\.php$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+    <FilesMatch "^(?!public/index\.php$).+\.php$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
+
+# If you intentionally want to serve this directory as the site root, remove
+# or adapt this file. Otherwise keep it to protect non-public sources.
 
