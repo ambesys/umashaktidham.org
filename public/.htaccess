@@ -20,9 +20,39 @@ Options -Indexes
 
 # Basic security headers (only if mod_headers enabled)
 <IfModule mod_headers.c>
-    Header set X-Frame-Options "SAMEORIGIN"
-    Header set X-Content-Type-Options "nosniff"
-    Header set Referrer-Policy "no-referrer-when-downgrade"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "no-referrer-when-downgrade"
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # Allow font files to be loaded cross-origin (useful for CDN or font hosting)
+    <FilesMatch "\.(ttf|otf|eot|woff|woff2|svg)$">
+        Header set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+</IfModule>
+
+# Optional: Force HTTPS and canonical host (www)
+# Enable this in production. This forces requests to https://www.umashaktidham.org
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # If the host is not the canonical one or HTTPS is off, redirect.
+    RewriteCond %{HTTP_HOST} !^www\.umashaktidham\.org$ [NC,OR]
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^ https://www.umashaktidham.org%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# Restrict direct access to PHP files except index.php
+# Prevents serving internal PHP scripts directly (Apache 2.4+ and 2.2 fallback)
+<IfModule mod_authz_core.c>
+    <FilesMatch "^(?!index\.php$).+\.php$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+    <FilesMatch "^(?!index\.php$).+\.php$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
 </IfModule>
 
 # Deny requests for dotfiles (like .git/, .env, .htpasswd) and other sensitive files
