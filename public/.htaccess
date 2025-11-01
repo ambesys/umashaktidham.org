@@ -1,3 +1,61 @@
+#############################################
+# UMA SHAKTI DHAM - Public .htaccess
+# Front-controller rewrite and basic hardening
+#############################################
+
+# Enable rewrite engine
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    # Ensure index.php is treated as a directory index
+    DirectoryIndex index.php index.html
+
+    # Deny direct access to sensitive project folders if accidentally uploaded to webroot
+    RewriteRule ^(src|config|vendor|database|tests|\.git)($|/) - [F,NC,L]
+
+    # If the request is for an existing file or directory, serve it directly
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Otherwise rewrite all requests to the front controller
+    RewriteRule ^ index.php [L,QSA]
+</IfModule>
+
+# Security headers (if mod_headers available)
+<IfModule mod_headers.c>
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-Content-Type-Options "nosniff"
+    Header set Referrer-Policy "no-referrer-when-downgrade"
+    Header always append X-Frame-Options SAMEORIGIN
+</IfModule>
+
+# Disable directory listing
+Options -Indexes
+
+# Caching for static assets (if mod_expires available)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType font/woff2 "access plus 1 month"
+    ExpiresByType font/woff "access plus 1 month"
+    ExpiresByType font/ttf "access plus 1 month"
+</IfModule>
+
+# Prevent MIME-type sniffing
+<IfModule mod_headers.c>
+    <FilesMatch "\.(js|css|xml|gz)$">
+        Header set Content-Type "%{MIME_TYPE}e" env=MIME_TYPE
+    </FilesMatch>
+</IfModule>
+
+# END .htaccess
 # Recommended .htaccess for Apache document root
 # Allows access and rewrites all requests to index.php if file doesn't exist
 <IfModule mod_authz_core.c>
