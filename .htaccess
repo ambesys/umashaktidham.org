@@ -42,14 +42,16 @@
     </FilesMatch>
 </IfModule>
 
-# Additional safety: deny direct execution of PHP files in the repo root
+# Additional safety: deny direct execution of PHP files in the repo root,
+# but explicitly allow the front controller filename `index.php` so the
+# internal rewrite to /public/index.php can succeed.
 <IfModule mod_authz_core.c>
-    <FilesMatch "^(?!public/index\.php$).+\.php$">
+    <FilesMatch "^(?!index\.php$).+\.php$">
         Require all denied
     </FilesMatch>
 </IfModule>
 <IfModule !mod_authz_core.c>
-    <FilesMatch "^(?!public/index\.php$).+\.php$">
+    <FilesMatch "^(?!index\.php$).+\.php$">
         Order allow,deny
         Deny from all
     </FilesMatch>
