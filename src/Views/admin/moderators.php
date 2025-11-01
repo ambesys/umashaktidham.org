@@ -1,20 +1,3 @@
-<?php
-session_start();
-require_once '../../config/config.php';
-require_once '../../src/Controllers/AdminController.php';
-
-$adminController = new AdminController();
-
-if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
-    header('Location: /uma-shakti-dham/public/index.php');
-    exit();
-}
-
-$moderators = $adminController->getModerators();
-
-include '../layouts/header.php';
-?>
-
 <div class="container">
     <h1>Manage Moderators</h1>
     <a href="add_moderator.php" class="btn btn-primary">Add Moderator</a>
@@ -42,5 +25,3 @@ include '../layouts/header.php';
         </tbody>
     </table>
 </div>
-
-<?php include '../layouts/footer.php'; ?>

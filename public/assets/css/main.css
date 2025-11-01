@@ -1,111 +1,2692 @@
-/* Minimal main styles for Uma Shakti Dham - expand as needed */
-:root{--brand:#0b5a3a;--muted:#666}
-*{box-sizing:border-box}
-body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;color:#222}
-.container{max-width:1100px;margin:0 auto;padding:0 16px}
-.site-header{background:#fff;border-bottom:1px solid #eee}
-.header-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
-.logo{display:flex;align-items:center}
-.site-logo{height:44px;margin-right:10px}
-.site-title{font-weight:700;color:var(--brand)}
-.main-nav ul{list-style:none;margin:0;padding:0;display:flex;gap:12px;align-items:center}
-.main-nav a{color:#222;text-decoration:none;padding:6px 8px}
-.nav-right{display:flex;align-items:center}
-.btn{background:var(--brand);color:#fff;padding:8px 12px;border-radius:4px;text-decoration:none;display:inline-block}
-.btn-register{background:transparent;border:1px solid var(--brand);color:var(--brand);padding:6px 10px;border-radius:4px}
-.login-container{max-width:420px;margin:32px auto;padding:24px;border:1px solid #eee;border-radius:6px;background:#fff}
-.form-group{margin-bottom:12px}
-input,textarea{width:100%;padding:8px;border:1px solid #ccc;border-radius:4px}
-.footer-bottom{margin-top:18px;padding-top:12px;border-top:1px solid #eee;text-align:center;color:var(--muted);font-size:14px}
-.nav-toggle{display:none;background:transparent;border:0;font-size:22px}
+/* Uma Shakti Dham Website Styles - Hindu Temple Design */
 
-/* small helpers */
-.dropdown-menu{display:none;position:absolute;background:#fff;border:1px solid #eee;padding:8px}
-.dropdown:hover .dropdown-menu{display:block}
+/* Import Google Fonts - Umiya Mataji Style */
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Cinzel:wght@400;600;700&display=swap");
+
+/* CSS Variables */
+:root {
+  /* Primary Colors - Umiya Mataji Palette */
+  --primary-color: #eb3337; /* Main Red */
+  --primary-hover: #dc151a; /* Hover Red */
+  --secondary-color: #96bcd1; /* Light Blue */
+  --accent-color: #9dc99b; /* Light Green */
+  --brand-color: #eb3337; /* Brand Red */
+
+  /* Text Colors */
+  --text-color: #333;
+  --text-secondary: #424242;
+  --muted-color: #595959;
+
+  /* Background Colors */
+  --background-color: #ffffff; /* White */
+  --light-gray: #f4f4f4; /* Light Gray */
+  --border-color: #e7e7e7; /* Border Gray */
+  --white: #fff;
+
+  /* Shadow */
+  --shadow-color: rgba(0, 0, 0, 0.1);
+
+  /* Fonts */
+  --font-primary: "Open Sans", sans-serif;
+  --font-heading: "Cinzel", serif;
+}
+
+/* Reset and Base Styles */
+* {
+  box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-}
-
-header {
-    background: #4CAF50;
-    color: white;
-    padding: 10px 0;
-    text-align: center;
-}
-
-nav {
-    margin: 10px 0;
-}
-
-nav a {
-    color: white;
-    padding: 14px 20px;
-    text-decoration: none;
-}
-
-nav a:hover {
-    background-color: #45a049;
+  font-family: var(--font-primary);
+  margin: 0;
+  padding: 0;
+  color: var(--text-color);
+  background-color: var(--white);
+  line-height: 1.6;
+  width: 100%;
 }
 
 .container {
-    width: 80%;
-    margin: auto;
-    overflow: hidden;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
 }
 
-footer {
-    background: #4CAF50;
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-    position: relative;
-    bottom: 0;
-    width: 100%;
+/* Header Styles - Three-Tier Temple Design */
+
+/* Top Contact Bar */
+.top-contact-bar {
+  background: #2c4a5e; /* Darker gradient */
+  color: white;
+  font-size: 14px;
+  line-height: 1.4;
+  min-height: 45px;
+  display: flex;
+  align-items: center;
+  padding: 0.4% 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.donation-form, .membership-form {
-    background: white;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.top-contact-content,
+.contact-social-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.donation-form input, .membership-form input {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+.contact-info,
+.contact-quick {
+  display: flex;
+  gap: 25px;
+  align-items: center;
 }
 
-.button {
-    background: #4CAF50;
-    color: white;
-    border: none;
+.contact-info span,
+.contact-quick span {
+  display: inline-block;
+  color: white;
+  font-weight: 500;
+  font-size: 13px;
+  transition: color 0.3s ease;
+}
+
+.contact-quick span:hover {
+  color: #f0f0f0;
+}
+
+.social-links {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.social-links a {
+  color: white;
+  font-size: 12px;
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.social-links a:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.top-auth {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.top-login,
+.top-register {
+  color: white;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.top-login {
+  background: transparent;
+}
+
+.top-login:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.top-register {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.top-register:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.top-user {
+  color: #f0f0f0;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* Main Header - Umiya Mataji Style */
+.main-header {
+  background: var(--white);
+  color: var(--text-color);
+  padding: 0.8em;
+  border-bottom: 1px solid var(--border-color);
+  width: 100%;
+}
+
+.main-header-content,
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1%;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  width: 80%;
+  float: left;
+}
+
+.logo-section a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  outline: none;
+  position: relative;
+  z-index: 1;
+}
+
+.logo,
+.site-logo {
+  height: 120px;
+  width: auto;
+  margin-right: 20px;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.temple-title {
+  display: flex;
+  flex-direction: column;
+}
+
+.site-title {
+  color: var(--primary-color);
+  font-size: 2.2em;
+  font-weight: 700;
+  margin: 0;
+  font-family: var(--font-heading);
+  line-height: 1.1;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.site-subtitle,
+.temple-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+  margin: 0;
+  margin-top: 5px;
+  font-style: italic;
+  font-family: var(--font-primary);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.auth-links,
+.user-section {
+  display: flex;
+  align-items: center;
+  width: 20%;
+  float: right;
+  margin-top: -0.7em;
+  padding-bottom: 0.5em;
+}
+
+/* Header Actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  /* width: 20%; */
+  float: right;
+  margin-top: -0.7em;
+  padding-bottom: 0.5em;
+}
+
+/* Donation Button */
+.donate-btn {
+  background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 13px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(238, 90, 82, 0.3);
+  transition: all 0.3s ease;
+  animation: pulse-glow 2s infinite;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.donate-btn:hover {
+  background: linear-gradient(45deg, #ee5a52, #e84142);
+  box-shadow: 0 4px 15px rgba(238, 90, 82, 0.5);
+  transform: translateY(-1px);
+}
+
+.donate-btn i {
+  animation: heartbeat 1.5s infinite;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 2px 8px rgba(238, 90, 82, 0.3);
+  }
+  50% {
+    box-shadow: 0 2px 15px rgba(238, 90, 82, 0.6);
+  }
+}
+
+@keyframes heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.auth-links a,
+.user-welcome {
+  color: var(--primary-color);
+  text-decoration: none;
+  padding: 8px 16px;
+  border: 1px solid var(--primary-color);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 14px;
+  text-align: center;
+}
+
+.auth-links a:hover,
+.user-welcome:hover {
+  background: var(--primary-color);
+  color: var(--white);
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  box-shadow: 0 4px 8px var(--shadow-color);
+  min-width: 150px;
+  z-index: 1000;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.dropdown-menu li {
+  list-style: none;
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 8px 16px;
+  color: var(--text-color);
+  text-decoration: none;
+  transition: background 0.3s ease;
+  font-family: var(--font-primary);
+}
+
+.dropdown-menu a:hover {
+  background: var(--light-gray);
+}
+
+/* Main Content Styles - Umiya Mataji Inspired */
+.main-content {
+  background: var(--white);
+  min-height: 500px;
+  padding: 3em 0;
+}
+
+.hero-section {
+  background-image: url("../images/main-bg.jpg");
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: cover;
+  padding: 3em;
+  padding-top: 12em;
+  height: 400px;
+  text-align: center;
+}
+
+.hero-section h1 {
+  font-family: var(--font-heading);
+  color: var(--white);
+  font-size: 38px;
+  font-weight: 700;
+  margin-top: 3px;
+}
+
+.hero-section h2 {
+  font-family: var(--font-primary);
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* Section Styles */
+.section {
+  padding: 3em 0;
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  color: var(--primary-color);
+  font-size: 2.6em;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 1px;
+  margin-bottom: 1em;
+}
+
+.section-content {
+  font-family: var(--font-primary);
+  color: var(--text-color);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.7em;
+  text-align: center;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 3%;
+}
+
+/* Card Styles */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 2em;
+  margin-bottom: 2em;
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.card h3 {
+  font-family: var(--font-heading);
+  color: var(--primary-color);
+  font-size: 1.5em;
+  font-weight: 600;
+  margin-bottom: 1em;
+}
+
+.card p {
+  font-family: var(--font-primary);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* Footer Styles - Umiya Mataji Inspired */
+.footer-main {
+  background-image: url("../images/footer-bg.jpg");
+  background-repeat: repeat;
+  padding: 2em 0;
+  margin-top: 0;
+}
+
+.footer-main h2 {
+  font-family: var(--font-heading);
+  color: #4c4c4c;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.1em;
+}
+
+.footer-main p {
+  font-family: var(--font-primary);
+  color: var(--muted-color);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.7em;
+}
+
+/* Site Header Container */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 10px var(--shadow-color);
+}
+
+/* Sticky header & nav behavior (used by JS which toggles .scrolled on <html> and .shrunk on .main-header) */
+
+.main-header {
+  position: sticky;
+  top: 0;
+  z-index: 1050;
+  transition: padding 250ms ease, background-color 250ms ease;
+  background: var(--white);
+}
+
+.main-header.shrunk,
+.scrolled .main-header {
+  padding: 0.4em 0; /* reduced padding when shrunk */
+}
+
+.main-header.shrunk .site-logo,
+.scrolled .main-header .site-logo {
+  height: 56px;
+  margin-right: 12px;
+}
+
+.main-header.shrunk .temple-title .site-title,
+.scrolled .main-header .temple-title .site-title {
+  font-size: 1.25em;
+}
+
+/* Hide top contact bar when scrolled */
+.scrolled .top-contact-bar {
+  transform: translateY(-100%);
+  opacity: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Make nav sticky and allow JS to adjust top to sit below header */
+.main-navigation {
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+.scrolled .main-navigation {
+  position: sticky;
+  top: 70px; /* JS will override with inline top to match header height */
+  z-index: 1100;
+  transition: top 150ms ease;
+  /* // add boder bottom with box box-shadow: ; */
+}
+
+.contact-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 150px;
+}
+
+.contact-label {
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 3px;
+}
+
+.contact-item a {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.contact-item a:hover {
+  color: var(--white);
+}
+
+.user-section,
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-welcome {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-login {
+  background: transparent;
+  border: 2px solid var(--accent-color);
+  color: var(--accent-color);
+  padding: 8px 16px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-login:hover {
+  background: var(--accent-color);
+  color: var(--brand-color);
+}
+
+/* Main Navigation Bar - Umiya Mataji Style */
+.main-navigation {
+  background: var(--light-gray);
+  font-family: var(--font-primary);
+  text-transform: uppercase;
+  width: 100%;
+  /* padding: 0.8em 0; */
+  padding-bottom: 0.1em;
+}
+
+/* Ensure navigation dropdowns appear above other page content */
+.main-navigation {
+  position: relative;
+  z-index: 1100; /* above header and stats sections */
+}
+
+.nav-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  width: 100%;
+}
+
+.nav-menu li {
+  margin: 0;
+  font-family: var(--font-primary);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  list-style: none;
+  display: inline-block;
+  padding-right: 1.5em;
+}
+
+.nav-menu a {
+  display: block;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 14px 16px;
+  font-weight: 700;
+  font-size: 12px;
+  transition: color 0.3s ease;
+  position: relative;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.nav-menu a:hover {
+  color: var(--primary-color);
+}
+
+.nav-toggle {
+  display: none;
+  background: var(--primary-color);
+  border: none;
+  color: var(--white);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 12px 20px;
+  border-radius: 5px;
+  margin: 10px 0;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+/* Ensure dropbtn buttons in the nav receive similar styling to anchors */
+.nav-menu .dropbtn,
+.nav-menu button.dropbtn {
+  display: inline-block;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  padding: 14px 16px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.1;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.nav-menu .dropbtn:hover,
+.nav-menu button.dropbtn:hover,
+.nav-menu .dropbtn:focus,
+.nav-menu button.dropbtn:focus {
+  color: var(--primary-color);
+  outline: none;
+}
+
+/* Button Styles - Umiya Mataji Style */
+.btn {
+  background: var(--primary-color);
+  color: var(--white);
+  padding: 10px 15px;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-block;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.btn:hover {
+  background: var(--secondary-color);
+}
+
+.btn-register {
+  background: var(--primary-color);
+  border: 2px solid var(--accent-color);
+  color: var(--accent-color);
+  padding: 10px 16px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.btn-register:hover {
+  background: var(--accent-color);
+  color: var(--brand-color);
+}
+
+/* Main Content - Temple Card Design */
+.content {
+  background: var(--white);
+  margin: 30px auto;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px var(--shadow-color);
+  border: 3px solid var(--border-color);
+  position: relative;
+}
+
+.content::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  background: linear-gradient(
+    45deg,
+    var(--primary-color),
+    var(--secondary-color),
+    var(--accent-color)
+  );
+  border-radius: 15px;
+  z-index: -1;
+}
+
+/* Hero Section - Temple Welcome */
+.hero {
+  text-align: center;
+  padding: 50px 0;
+  margin-bottom: 40px;
+  background: linear-gradient(
+    135deg,
+    rgba(211, 47, 47, 0.05) 0%,
+    rgba(255, 143, 0, 0.05) 100%
+  );
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+}
+
+.hero h1 {
+  font-size: 3em;
+  margin-bottom: 20px;
+  color: var(--primary-color);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: "Georgia", serif;
+}
+
+.hero p {
+  font-size: 1.3em;
+  margin-bottom: 30px;
+  color: var(--muted-color);
+  font-style: italic;
+}
+
+/* Sections - Temple Layout */
+.upcoming-events {
+  padding: 40px 0;
+  text-align: center;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.1) 0%,
+    rgba(255, 143, 0, 0.1) 100%
+  );
+  border-radius: 10px;
+  margin: 30px 0;
+  border: 1px solid var(--border-color);
+}
+
+.upcoming-events h2 {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  font-size: 2.2em;
+  font-family: "Georgia", serif;
+}
+
+/* Section Cards */
+.section-card {
+  background: var(--white);
+  border-radius: 10px;
+  padding: 30px;
+  margin: 20px 0;
+  box-shadow: 0 4px 15px var(--shadow-color);
+  border-left: 5px solid var(--primary-color);
+  transition: transform 0.3s ease;
+}
+
+.section-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px var(--shadow-color);
+}
+
+.section-card h3 {
+  color: var(--primary-color);
+  margin-bottom: 15px;
+  font-family: "Georgia", serif;
+}
+
+/* Forms - Temple Style */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--brand-color);
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 8px rgba(211, 47, 47, 0.2);
+}
+
+/* Authentication Forms - Modern Design */
+.auth-container {
+  max-width: 500px;
+  margin: 40px auto;
+  background: var(--white);
+  border-radius: 15px;
+  box-shadow: 0 10px 30px var(--shadow-color);
+  overflow: hidden;
+  border: 2px solid var(--border-color);
+}
+
+.auth-header {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color) 0%,
+    var(--brand-color) 100%
+  );
+  color: var(--white);
+  padding: 30px;
+  text-align: center;
+}
+
+.auth-header h1 {
+  margin: 0 0 10px 0;
+  font-size: 2em;
+  font-family: "Georgia", serif;
+}
+
+.auth-header p {
+  margin: 0;
+  opacity: 0.9;
+  font-style: italic;
+}
+
+.auth-form-container {
+  padding: 30px;
+}
+
+/* Social Login Buttons */
+.social-login-section {
+  margin-bottom: 25px;
+}
+
+.social-login-section h3 {
+  text-align: center;
+  color: var(--text-color);
+  margin-bottom: 15px;
+  font-size: 1.1em;
+}
+
+.social-btn {
+  width: 100%;
+  padding: 12px 20px;
+  margin-bottom: 10px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--text-color);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.google-btn {
+  border-color: #4285f4;
+  color: #4285f4;
+}
+
+.google-btn:hover {
+  background: #4285f4;
+  color: var(--white);
+}
+
+.facebook-btn {
+  border-color: #1877f2;
+  color: #1877f2;
+}
+
+.facebook-btn:hover {
+  background: #1877f2;
+  color: var(--white);
+}
+
+.social-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Divider */
+.divider {
+  text-align: center;
+  position: relative;
+  margin: 25px 0;
+}
+
+.divider::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border-color);
+}
+
+.divider span {
+  background: var(--white);
+  padding: 0 15px;
+  color: var(--muted-color);
+  font-size: 0.9em;
+  position: relative;
+  z-index: 1;
+}
+
+/* Form Styles */
+.auth-form {
+  margin-bottom: 25px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--brand-color);
+  font-size: 0.95em;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: #fafafa;
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background: var(--white);
+  box-shadow: 0 0 8px rgba(211, 47, 47, 0.1);
+}
+
+.auth-form input::placeholder {
+  color: #aaa;
+  font-style: italic;
+}
+
+/* Checkbox Styling */
+.checkbox-group {
+  margin: 20px 0;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.9em;
+  color: var(--text-color);
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin-right: 10px;
+  transform: scale(1.2);
+}
+
+.password-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 0.85em;
+}
+
+.forgot-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+/* Auth Button */
+.auth-btn {
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 8px;
+  margin-top: 10px;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color) 0%,
+    var(--brand-color) 100%
+  );
+  border: none;
+  color: var(--white);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: none;
+}
+
+.auth-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(211, 47, 47, 0.3);
+}
+
+.auth-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Auth Footer */
+.auth-footer {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.auth-footer p {
+  margin: 10px 0;
+  color: var(--muted-color);
+}
+
+.auth-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.help-links {
+  margin-top: 15px;
+  font-size: 0.85em;
+}
+
+.help-links a {
+  color: var(--muted-color);
+  text-decoration: none;
+  margin: 0 5px;
+}
+
+.help-links a:hover {
+  color: var(--primary-color);
+}
+
+.help-links span {
+  color: var(--border-color);
+  margin: 0 5px;
+}
+
+.help-text {
+  font-size: 0.9em;
+  color: var(--muted-color);
+  margin-top: 15px;
+}
+
+.help-text a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+/* Responsive for Auth Forms */
+@media (max-width: 768px) {
+  .auth-container {
+    margin: 20px 15px;
+    border-radius: 10px;
+  }
+
+  .auth-header {
+    padding: 25px 20px;
+  }
+
+  .auth-header h1 {
+    font-size: 1.7em;
+  }
+
+  .auth-form-container {
+    padding: 25px 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .social-btn {
+    font-size: 13px;
     padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 5px;
+  }
+
+  .password-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 }
 
-.button:hover {
-    background: #45a049;
+/* Footer - Temple Design */
+.site-footer {
+  background: #ededed;
+  color: var(--text-color);
+  padding: 50px 0 30px;
+  margin-top: 50px;
+  position: relative;
+}
+
+.site-footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(
+    90deg,
+    var(--primary-color),
+    var(--secondary-color),
+    var(--accent-color)
+  );
+}
+
+.footer-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 40px;
+  margin-bottom: 30px;
+}
+
+.footer-columns .col h4 {
+  margin-bottom: 20px;
+  color: var(--primary-color);
+  font-size: 1.3em;
+  font-family: "Georgia", serif;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 10px;
+}
+
+.footer-columns .col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-columns .col ul li {
+  margin-bottom: 10px;
+}
+
+.footer-columns .col a {
+  color: var(--text-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+  padding: 5px 0;
+  display: inline-block;
+}
+
+.footer-columns .col a:hover {
+  color: var(--primary-color);
+}
+
+.footer-columns .col p {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.footer-columns .col p strong {
+  color: var(--text-color);
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 30px;
+  border-top: 2px solid #ddd;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Nonprofit Information Styling */
+.nonprofit-info {
+  background: rgba(150, 188, 209, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  /* border-left: 4px solid var(--secondary-color); */
+}
+
+.nonprofit-info p {
+  margin: 8px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.nonprofit-info strong {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.location {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+/* Footer Font Awesome Icon Styling */
+.footer-columns .col h4 i {
+  margin-right: 8px;
+  color: var(--primary-color);
+  width: 20px;
+  text-align: center;
+}
+
+.footer-columns .col ul li i {
+  margin-right: 8px;
+  color: var(--primary-color);
+  width: 16px;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+.footer-columns .col p i {
+  margin-right: 6px;
+  color: var(--primary-color);
+  width: 16px;
+  text-align: center;
+}
+
+.footer-columns .social-link {
+  display: inline-block;
+  margin-right: 15px;
+  margin-bottom: 8px;
+  padding: 6px 12px;
+  background: var(--light-gray);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: var(--text-color);
+  font-size: 0.9em;
+}
+
+.footer-columns .social-link:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.footer-columns .social-link i {
+  margin-right: 6px;
+  color: inherit;
+}
+
+.footer-bottom i.fa-om {
+  color: var(--primary-color);
+  margin: 0 8px;
+  font-size: 1.1em;
+}
+
+/* Navigation Dropdown - Umiya Mataji Style */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--white);
+  border: 1px solid #ddd;
+  border-top: 2px solid var(--primary-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10050 !important;
+  /* min-width: 180px; */
+  width: auto;
+  border-radius: 0 0 3px 3px;
+  white-space: nowrap;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Allow JS-toggle (.active) to show dropdowns on all viewports (click to open) */
+.dropdown.active .dropdown-content {
+  display: block;
+}
+
+.dropdown-content a {
+  display: block;
+  padding: 8px 15px !important;
+  color: var(--text-secondary) !important;
+  text-decoration: none;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  border-bottom: 1px solid #f5f5f5;
+  transition: all 0.2s ease;
+  background: transparent !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  line-height: 1.2;
+}
+
+.dropdown-content a:last-child {
+  border-bottom: none;
+}
+
+.dropdown-content a:hover {
+  background: var(--primary-color) !important;
+  color: var(--white) !important;
+  padding-left: 18px !important;
+}
+
+.dropbtn {
+  position: relative;
+}
+
+.dropbtn::after {
+  content: " ▼";
+  font-size: 8px;
+  margin-left: 4px;
+  color: var(--text-secondary);
+  transition: transform 0.3s ease;
+}
+
+.dropdown:hover .dropbtn::after {
+  transform: rotate(180deg);
+}
+
+/* Mobile Toggle */
+.nav-toggle {
+  display: none;
+  background: var(--secondary-color);
+  border: none;
+  color: var(--white);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 0;
+    width: 100%;
+  }
+
+  /* Mobile Top Contact Bar */
+  .top-contact-bar {
+    min-height: 60px;
+    padding: 0.8% 0;
+  }
+
+  .top-contact-content,
+  .contact-social-row {
+    flex-direction: column;
+    /* gap: 12px; */
+    text-align: center;
+    padding: 0;
+  }
+
+  .contact-info,
+  .contact-quick {
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: 12px;
+  }
+
+  .social-links {
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .social-links a {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+
+  .top-auth {
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .top-login,
+  .top-register {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  /* Mobile Main Header */
+  .main-header-content,
+  .header-content {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .logo-section {
+    width: 100%;
+    justify-content: center;
+    flex-direction: column;
+    /* gap: 10px; */
+  }
+
+  .site-title {
+    font-size: 1.5rem;
+  }
+
+  .site-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .auth-links {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .auth-links a {
+    text-align: center;
+  }
+
+  /* Mobile Header Actions */
+  .header-actions {
+    /* flex-direction: column;
+    width: 100%;
+    gap: 10px;
+    margin-top: 0;
+    padding-bottom: 0; */
+    display: none;
+  }
+
+  .donate-btn {
+    font-size: 12px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    justify-content: center;
+  }
+
+  .user-section {
+    width: 100%;
+    justify-content: center;
+    margin-top: 0;
+    padding-bottom: 0;
+  } /* Mobile Navigation */
+  .nav-toggle {
+    display: block;
+    z-index: 1350;
+  }
+
+  /* Mobile auth next to hamburger */
+  .mobile-auth {
+    display: none; /* default off, show on mobile below */
+    gap: 8px;
+    align-items: center;
+    margin-left: 12px;
+  }
+
+  .mobile-auth .top-login,
+  .mobile-auth .top-register {
+    display: inline-flex;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 13px;
+    text-decoration: none;
+  }
+
+  .mobile-auth .top-login {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .mobile-auth .top-register {
+    background: var(--white);
+    color: var(--primary-color);
+    border: 1px solid var(--white);
+  }
+
+  /* Show mobile auth inline with nav toggle */
+  .main-navigation .mobile-auth {
+    display: flex;
+    position: absolute;
+    right: 12px;
+    top: 8px;
+    z-index: 1200;
+  }
+
+  /* Hide the top contact auth block to avoid duplication */
+  .top-auth {
+    display: none !important;
+  }
+
+  /* Make logo slightly larger on mobile and ensure title visible */
+  .site-logo {
+    height: 80px; /* increase from 50 to 80 */
+  }
+
+  .site-title {
+    display: block;
+    font-size: 1.6rem;
+    color: var(--primary-color);
+  }
+
+  /* Ensure logo and title stack and are visible/centered on mobile */
+  .logo-section a {
+    display: flex;
+    /* flex-direction: column; */
+    align-items: center;
+    gap: 6px;
+  }
+
+  .temple-title {
+    display: block;
+    text-align: center;
+    margin-top: 0;
+  }
+
+  .site-subtitle, .temple-subtitle {
+    display: block;
+    font-size: 0.85rem;
+    color: rgba(0,0,0,0.6);
+  }
+
+  /* Prevent mobile-auth from overlapping the center header content */
+  .main-navigation .mobile-auth {
+    right: 8px;
+    top: 6px;
+  }
+
+  /* Mobile slide-in side panel: up to 70% viewport or max 300px */
+  .nav-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: fixed;
+    top: 0;
+    left: -100%; /* hidden by default */
+    height: 100vh;
+    width: min(70vw, 300px);
+    max-width: 300px;
+    background: var(--white);
+    color: var(--text-color);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    padding-top: 64px; /* space for header */
+    z-index: 1300;
+    transition: left 280ms ease;
+    overflow-y: auto;
+  }
+
+  /* When active, slide into view */
+  .nav-menu.active {
+    left: 0;
+  }
+
+  /* Close button inside the slide-in panel - positioned relative to the panel */
+  .nav-menu {
+    position: fixed; /* ensure positioned ancestor for absolute close btn */
+  }
+
+  .nav-menu .close-btn,
+  .nav-menu #navClose {
+    display: block;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    z-index: 1310;
+    padding: 4px 8px;
+  }
+
+  .nav-menu li {
+    display: block; /* ensure full-width list items */
+    width: 100%;
+    text-align: left;
+    box-sizing: border-box;
+  }
+
+  .nav-menu a {
+    display: block;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f1f1;
+    text-align: left;
+    transform: none;
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 15px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .nav-menu a:hover {
+    background: var(--light-gray);
+    color: var(--primary-color);
+  }
+
+  /* Make dropdown toggles full width and push caret to the far right */
+  .nav-menu .dropbtn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding-right: 44px; /* space for caret */
+    position: relative;
+  }
+
+  /* Override global caret to place absolutely at right inside the panel */
+  .nav-menu .dropbtn::after {
+    content: '▾';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  /* Ensure mobile dropdowns open when JS adds .active */
+  .dropdown .dropdown-content {
+    display: none;
+    /* In the slide-in panel we don't want absolute positioning (top:100%)
+       which would push other items down unexpectedly. Make dropdowns
+       flow inline in the panel. */
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    padding-left: 8px;
+  }
+
+  .dropdown.active .dropdown-content {
+    display: block;
+  }
+
+  /* Style dropdown children to look like nested items */
+  .dropdown .dropdown-content a {
+    padding-left: 28px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    background: transparent;
+    border-bottom: 1px solid #f4f4f4;
+  }
+
+  /* Donate button in nav (full-width) */
+  .nav-menu .nav-donate {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(100% - 40px);
+    margin: 12px 20px;
+    padding: 10px 16px;
+    background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 800;
+  }
+
+  /* Content adjustments */
+  .hero h1 {
+    font-size: 2.2em;
+  }
+
+  .content {
+    margin: 15px;
+    padding: 25px 20px;
+  }
+
+  .site-logo {
+    height: 70px;
+    margin-right: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-info {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .site-title {
+    font-size: 1.5em;
+  }
+
+  .hero h1 {
+    font-size: 1.8em;
+  }
+}
+
+/* ============================================
+   NEW HOME PAGE STYLES
+   ============================================ */
+
+/* Hero Banner - Full Width */
+.hero-banner {
+  position: relative;
+  min-height: 70vh;
+  background: linear-gradient(135deg, #ef1c22 0%, #d32f2f 50%, #b71c1c 100%);
+  background-image: url("../images/umiya-mataji-temple-unjha.jpg"),
+    linear-gradient(
+      135deg,
+      rgba(239, 28, 34, 0.9) 0%,
+      rgba(211, 47, 47, 0.8) 50%,
+      rgba(183, 28, 28, 0.9) 100%
+    );
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: multiply;
+  display: flex;
+  align-items: center;
+  color: white;
+  overflow: hidden;
+}
+
+.hero-banner::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    rgba(239, 28, 34, 0.1) 25%,
+    transparent 25%,
+    transparent 75%,
+    rgba(239, 28, 34, 0.1) 75%
+  );
+  background-size: 60px 60px;
+  animation: movePattern 20s linear infinite;
+}
+
+@keyframes movePattern {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 60px 60px;
+  }
+}
+
+.hero-overlay {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.hero-content {
+  text-align: center;
+  /* max-width: 800px; */
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.hero-content h1 {
+  font-size: 3.5rem;
+  font-family: var(--font-heading);
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 1s ease-out;
+}
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #ffeb3b;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 1s ease-out 0.2s both;
+}
+
+.hero-description {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+  opacity: 0.95;
+  animation: fadeInUp 1s ease-out 0.4s both;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeInUp 1s ease-out 0.6s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced Button Styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: 600;
+  font-family: var(--font-primary);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn-primary {
+  background: var(--white);
+  color: var(--primary-color);
+  border-color: var(--white);
+}
+
+.btn-primary:hover {
+  background: transparent;
+  color: var(--white);
+  border-color: var(--white);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--white);
+  border-color: var(--white);
+}
+
+.btn-secondary:hover {
+  background: var(--white);
+  color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-outline:hover {
+  background: var(--primary-color);
+  color: var(--white);
+}
+
+.btn-large {
+  padding: 16px 32px;
+  font-size: 1.1rem;
+}
+
+.btn-small {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+/* Stats Section */
+.stats-section {
+  padding: 80px 0;
+  background: var(--white);
+  margin-top: -40px;
+  position: relative;
+  z-index: 3;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 25px 15px;
+  background: var(--white);
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  min-width: 0; /* Allow items to shrink */
+}
+
+.stat-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 15px;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+  font-family: var(--font-heading);
+}
+
+.stat-label {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Section Headers */
+.section-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.section-header h2 {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 15px;
+  font-family: var(--font-heading);
+}
+
+.section-header .section-subtitle {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* About Section */
+.about-section {
+  padding: 80px 0;
+  background: #f8f9fa;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.about-content h3 {
+  font-size: 1.8rem;
+  color: var(--primary-color);
+  margin-bottom: 15px;
+  font-family: var(--font-heading);
+}
+
+.about-content p {
+  margin-bottom: 25px;
+  line-height: 1.7;
+  color: var(--text-color);
+}
+
+.about-features {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin: 30px 0;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  background: var(--white);
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.feature-item i {
+  color: var(--primary-color);
+  font-size: 1.2rem;
+}
+
+.about-image {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.feature-image {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.about-image:hover .feature-image {
+  transform: scale(1.05);
+}
+
+.image-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  color: white;
+  padding: 30px;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.about-image:hover .image-overlay {
+  transform: translateY(0);
+}
+
+.overlay-content i {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.overlay-content h4 {
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+
+/* Services Section */
+.services-section {
+  padding: 80px 0;
+  background: var(--white);
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.service-card {
+  background: var(--white);
+  border-radius: 15px;
+  padding: 40px 30px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid #f0f0f0;
+}
+
+.service-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  border-color: var(--secondary-color);
+}
+
+.service-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--primary-color), #e53935);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 25px;
+  color: white;
+  font-size: 2rem;
+}
+
+.service-card h3 {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  margin-bottom: 15px;
+  font-family: var(--font-heading);
+}
+
+.service-card p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.service-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.service-card ul li {
+  padding: 8px 0;
+  color: var(--text-color);
+  position: relative;
+  padding-left: 20px;
+}
+
+.service-card ul li::before {
+  content: "✓";
+  color: var(--primary-color);
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}
+
+.service-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.3s ease;
+}
+
+.service-link:hover {
+  gap: 10px;
+  color: #d32f2f;
+}
+
+/* Events Section */
+.events-section {
+  padding: 80px 0;
+  position: relative;
+}
+
+.events-background {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.events-background::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(150, 188, 209, 0.1) 1px,
+    transparent 1px
+  );
+  background-size: 30px 30px;
+  animation: float 20s linear infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate(-30px, -30px) rotate(360deg);
+  }
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 50px;
+}
+
+.event-card {
+  background: var(--white);
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  display: flex;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.event-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--primary-color);
+}
+
+.event-card.featured {
+  grid-row: span 2;
+  flex-direction: column;
+  background: linear-gradient(135deg, var(--primary-color), #d32f2f);
+  color: white;
+}
+
+.event-card.featured::before {
+  background: var(--white);
+}
+
+.event-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.event-date {
+  text-align: center;
+  min-width: 60px;
+}
+
+.date-day {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  font-family: var(--font-heading);
+}
+
+.event-card.featured .date-day {
+  color: var(--white);
+  font-size: 2.5rem;
+}
+
+.date-month {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.event-card.featured .date-month {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.event-content h3 {
+  font-size: 1.3rem;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+  font-family: var(--font-heading);
+}
+
+.event-card.featured .event-content h3 {
+  color: var(--white);
+  font-size: 1.6rem;
+}
+
+.event-description {
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+
+.event-card.featured .event-description {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.event-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.9rem;
+}
+
+.event-details span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+}
+
+.event-card.featured .event-details span {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.event-action {
+  margin-top: 20px;
+}
+
+/* Arti Schedule */
+.arti-schedule {
+  background: var(--white);
+  border-radius: 15px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.arti-schedule h3 {
+  color: var(--primary-color);
+  margin-bottom: 30px;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+}
+
+.schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.schedule-item {
+  text-align: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.schedule-item:hover {
+  background: var(--secondary-color);
+  color: white;
+  transform: translateY(-3px);
+}
+
+.schedule-time {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 5px;
+}
+
+.schedule-item:hover .schedule-time {
+  color: white;
+}
+
+.schedule-event {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.schedule-item:hover .schedule-event {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.schedule-note {
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-top: 15px;
+}
+
+/* Gallery Preview */
+.gallery-preview {
+  padding: 80px 0;
+  background: var(--white);
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.gallery-item {
+  position: relative;
+  border-radius: 15px;
+  overflow: hidden;
+  height: 250px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover {
+  transform: scale(1.05);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.1);
+}
+
+.gallery-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  color: white;
+  padding: 20px;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover .gallery-overlay {
+  transform: translateY(0);
+}
+
+.gallery-overlay h4 {
+  margin-bottom: 5px;
+  font-size: 1.1rem;
+}
+
+.gallery-action {
+  text-align: center;
+}
+
+/* Call to Action Section */
+.cta-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-background {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #d32f2f 100%);
+  background-image: url("https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80");
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: multiply;
+  padding: 80px 0;
+  color: white;
+  text-align: center;
+}
+
+.cta-content h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  font-family: var(--font-heading);
+}
+
+.cta-content p {
+  font-size: 1.2rem;
+  margin-bottom: 40px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+  opacity: 0.95;
+}
+
+.cta-actions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Responsive Design for New Sections */
+@media (max-width: 1024px) {
+  .stats-grid {
+    gap: 15px;
+    max-width: 900px;
+  }
+
+  .stat-item {
+    padding: 20px 12px;
+  }
+
+  .stat-number {
+    font-size: 2.2rem;
+  }
+
+  /* Tablet section spacing */
+  .stats-section,
+  .about-section,
+  .services-section,
+  .events-section,
+  .gallery-preview {
+    padding: 70px 0;
+  }
+
+  .stats-section {
+    margin-top: -35px;
+  }
+
+  .cta-section .cta-background {
+    padding: 70px 0;
+  }
 }
 
 @media (max-width: 768px) {
-    .container {
-        width: 95%;
-    }
+  .hero-content h1 {
+    font-size: 2.5rem;
+  }
 
-    nav {
-        display: flex;
-        flex-direction: column;
-    }
+  .hero-subtitle {
+    font-size: 1.2rem;
+  }
 
-    nav a {
-        padding: 10px;
-        text-align: center;
-    }
+  .hero-description {
+    font-size: 1rem;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Consistent mobile section spacing */
+  .stats-section,
+  .about-section,
+  .services-section,
+  .events-section,
+  .gallery-preview {
+    padding: 60px 0;
+  }
+
+  .stats-section {
+    margin-top: -30px;
+  }
+
+  .cta-section .cta-background {
+    padding: 60px 0;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .about-features {
+    grid-template-columns: 1fr;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .events-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .schedule-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cta-content h2 {
+    font-size: 2rem;
+  }
+
+  .cta-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .section-header h2 {
+    font-size: 2rem;
+  }
+}
+
+/* Extra Small Devices (very small phones) */
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .stat-item {
+    padding: 15px 10px;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+  }
+
+  .stat-label {
+    font-size: 0.9rem;
+  }
+
+  /* Extra small mobile section spacing */
+  .stats-section,
+  .about-section,
+  .services-section,
+  .events-section,
+  .gallery-preview {
+    padding: 50px 0;
+  }
+
+  .stats-section {
+    margin-top: -25px;
+  }
+
+  .cta-section .cta-background {
+    padding: 50px 0;
+  }
 }
