@@ -1,44 +1,75 @@
 #############################################
 # UMA SHAKTI DHAM - Public .htaccess
-# Front-controller rewrite and basic hardening
+# Front-controller rewrite and basic hardening (public webroot)
 #############################################
 
-# Enable rewrite engine
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /
-    # Ensure index.php is treated as a directory index
-    DirectoryIndex index.php index.html
+# Treat index.php as the default document
+DirectoryIndex index.php index.html
 
-    # Deny direct access to sensitive project folders if accidentally uploaded to webroot
-    RewriteRule ^(src|config|vendor|database|tests|\.git)($|/) - [F,NC,L]
+# Disable directory listing for security
+Options -Indexes
 
-    # If the request is for an existing file or directory, serve it directly
-    RewriteCond %{REQUEST_FILENAME} -f [OR]
-    RewriteCond %{REQUEST_FILENAME} -d
-    RewriteRule ^ - [L]
-
-    # Otherwise rewrite all requests to the front controller
-    RewriteRule ^ index.php [L,QSA]
+# Allow the site to be served (Apache 2.4+ / 2.2 fallback)
+<IfModule mod_authz_core.c>
+    Require all granted
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Allow from all
 </IfModule>
 
-# Security headers (if mod_headers available)
+# Basic security headers (only if mod_headers enabled)
 <IfModule mod_headers.c>
     Header set X-Frame-Options "SAMEORIGIN"
     Header set X-Content-Type-Options "nosniff"
     Header set Referrer-Policy "no-referrer-when-downgrade"
-    Header always append X-Frame-Options SAMEORIGIN
 </IfModule>
 
-# Disable directory listing
-Options -Indexes
+# Deny requests for dotfiles (like .git/, .env, .htpasswd) and other sensitive files
+# This prevents exposing repo metadata or environment files when the repo lives in webroot.
+<IfModule mod_authz_core.c>
+    <FilesMatch "^\.">
+        Require all denied
+    </FilesMatch>
+    <FilesMatch "(^debug-access\.php$|\.(env|sql|sql\.gz|bak|log|ini|sh|ps1|pem|crt|key|lock))$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+    <FilesMatch "^\.">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+    <FilesMatch "(^debug-access\.php$|\.(env|sql|sql\.gz|bak|log|ini|sh|ps1|pem|crt|key|lock))$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
 
-# Caching for static assets (if mod_expires available)
+# Serve existing files/directories directly, otherwise route to index.php
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # If request matches an existing file or directory, do nothing
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Otherwise rewrite to front controller
+    RewriteRule ^ index.php [L,QSA]
+</IfModule>
+
+# Deny access to commonly sensitive directories if accidentally present
+<IfModule mod_rewrite.c>
+    RewriteRule ^(src|config|vendor|database|tests|\.git)(/|$) - [F,NC,L]
+</IfModule>
+
+# Simple caching for static assets (optional)
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresByType text/css "access plus 1 month"
     ExpiresByType application/javascript "access plus 1 month"
-    ExpiresByType image/jpg "access plus 1 month"
     ExpiresByType image/jpeg "access plus 1 month"
     ExpiresByType image/png "access plus 1 month"
     ExpiresByType image/gif "access plus 1 month"
@@ -48,37 +79,4 @@ Options -Indexes
     ExpiresByType font/ttf "access plus 1 month"
 </IfModule>
 
-# Prevent MIME-type sniffing
-<IfModule mod_headers.c>
-    <FilesMatch "\.(js|css|xml|gz)$">
-        Header set Content-Type "%{MIME_TYPE}e" env=MIME_TYPE
-    </FilesMatch>
-</IfModule>
-
-# END .htaccess
-# Recommended .htaccess for Apache document root
-# Allows access and rewrites all requests to index.php if file doesn't exist
-<IfModule mod_authz_core.c>
-    # Apache 2.4+
-    Require all granted
-</IfModule>
-<IfModule !mod_authz_core.c>
-    # Apache 2.2
-    Order allow,deny
-    Allow from all
-</IfModule>
-
-DirectoryIndex index.php index.html
-
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /
-
-    # Serve existing files directly
-    RewriteCond %{REQUEST_FILENAME} -f [OR]
-    RewriteCond %{REQUEST_FILENAME} -d
-    RewriteRule ^ - [L]
-
-    # Otherwise route to index.php
-    RewriteRule ^ index.php [L]
-</IfModule>
+# End of public .htaccess
