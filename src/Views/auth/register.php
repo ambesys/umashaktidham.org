@@ -101,15 +101,13 @@
 
 <script>
 function signInWithGoogle() {
-    // Placeholder for Google OAuth integration
-    alert('Google Sign-In will be implemented with OAuth 2.0');
-    // window.location.href = '/auth/google';
+    // Redirect to Google OAuth
+    window.location.href = '/auth/google';
 }
 
 function signInWithFacebook() {
-    // Placeholder for Facebook OAuth integration
-    alert('Facebook Sign-In will be implemented with Facebook SDK');
-    // window.location.href = '/auth/facebook';
+    // Redirect to Facebook OAuth
+    window.location.href = '/auth/facebook';
 }
 
 // Password strength validation
