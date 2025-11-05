@@ -55,16 +55,22 @@ class AuthService
             return false;
         }
 
-        $username = $data['username'] ?? null;
+        $username = $data['username'] ?? $data['email']; // Use email as username if not provided
         $name = $data['name'] ?? $username;
         $email = $data['email'];
         $hashed = password_hash($data['password'], PASSWORD_BCRYPT);
+        $firstName = $data['first_name'] ?? null;
+        $lastName = $data['last_name'] ?? null;
+        $phoneE164 = $data['phone_e164'] ?? null;
 
-        $stmt = $this->pdo->prepare("INSERT INTO users (username, name, email, password, created_at) VALUES (:username, :name, :email, :password, CURRENT_TIMESTAMP)");
+        $stmt = $this->pdo->prepare("INSERT INTO users (username, name, email, password, first_name, last_name, phone_e164, created_at) VALUES (:username, :name, :email, :password, :first_name, :last_name, :phone_e164, CURRENT_TIMESTAMP)");
         $stmt->bindParam(':username', $username);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':password', $hashed);
+        $stmt->bindParam(':first_name', $firstName);
+        $stmt->bindParam(':last_name', $lastName);
+        $stmt->bindParam(':phone_e164', $phoneE164);
 
         if (!$stmt->execute()) {
             return false;
@@ -85,13 +91,12 @@ class AuthService
         }
 
         // create canonical family_member for this user
-        $fm = $this->pdo->prepare("INSERT INTO family_members (user_id, first_name, last_name, email, created_at) VALUES (:user_id, :first_name, :last_name, :email, CURRENT_TIMESTAMP)");
-        $first = $data['first_name'] ?? $name;
-        $last = $data['last_name'] ?? null;
+        $fm = $this->pdo->prepare("INSERT INTO family_members (user_id, first_name, last_name, email, phone_e164, created_at) VALUES (:user_id, :first_name, :last_name, :email, :phone_e164, CURRENT_TIMESTAMP)");
         $fm->bindParam(':user_id', $userId, PDO::PARAM_INT);
-        $fm->bindParam(':first_name', $first);
-        $fm->bindParam(':last_name', $last);
+        $fm->bindParam(':first_name', $firstName);
+        $fm->bindParam(':last_name', $lastName);
         $fm->bindParam(':email', $email);
+        $fm->bindParam(':phone_e164', $phoneE164);
         $fm->execute();
 
         // return created user row

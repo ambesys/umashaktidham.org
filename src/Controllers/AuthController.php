@@ -16,23 +16,33 @@ class AuthController
     public function register()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'username' => $_POST['email'], // Use email as username
-                'name' => trim($_POST['first_name'] . ' ' . $_POST['last_name']),
-                'email' => $_POST['email'],
-                'password' => $_POST['password'],
-                'first_name' => $_POST['first_name'],
-                'last_name' => $_POST['last_name'],
-            ];
-
-            $result = $this->authService->register($data);
-            if ($result) {
-                // Redirect to login page with success message
-                header('Location: /login?message=Registration successful! Please log in.');
-                exit;
+            // Validate required fields
+            if (empty($_POST['email']) || empty($_POST['password']) || empty($_POST['first_name']) || empty($_POST['last_name'])) {
+                $error = "All required fields must be filled.";
+            } elseif ($_POST['password'] !== $_POST['confirm_password']) {
+                $error = "Passwords do not match.";
+            } elseif (!isset($_POST['terms']) || $_POST['terms'] !== 'on') {
+                $error = "You must agree to the Terms & Conditions.";
             } else {
-                // Handle registration error
-                $error = "Registration failed. Please try again.";
+                $data = [
+                    'username' => trim($_POST['email']), // Use email as username
+                    'name' => trim($_POST['first_name'] . ' ' . $_POST['last_name']),
+                    'email' => $_POST['email'],
+                    'password' => $_POST['password'],
+                    'first_name' => $_POST['first_name'],
+                    'last_name' => $_POST['last_name'],
+                    'phone_e164' => !empty($_POST['phone']) ? $this->formatPhoneNumber($_POST['phone']) : null,
+                ];
+
+                $result = $this->authService->register($data);
+                if ($result) {
+                    // Redirect to login page with success message
+                    header('Location: /login?message=Registration successful! Please log in.');
+                    exit;
+                } else {
+                    // Handle registration error
+                    $error = "Registration failed. Please try again.";
+                }
             }
         }
 
@@ -71,5 +81,32 @@ class AuthController
         session_destroy();
         header('Location: /public/index.php');
         exit;
+    }
+
+    /**
+     * Format phone number to E.164 format
+     */
+    private function formatPhoneNumber($phone)
+    {
+        // Remove all non-digit characters
+        $phone = preg_replace('/\D/', '', $phone);
+
+        // If it starts with country code, assume it's already formatted
+        if (strlen($phone) > 10 && $phone[0] === '1') {
+            return '+' . $phone;
+        }
+
+        // For US numbers, add +1 prefix
+        if (strlen($phone) === 10) {
+            return '+1' . $phone;
+        }
+
+        // For numbers with country code but no +, add +
+        if (strlen($phone) === 11 && $phone[0] === '1') {
+            return '+' . $phone;
+        }
+
+        // Return as-is if we can't determine format
+        return '+' . $phone;
     }
 }
