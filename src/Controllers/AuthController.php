@@ -64,7 +64,7 @@ class AuthController
                 $_SESSION['user_role_id'] = $user['role_id'];
 
                 // Redirect to dashboard
-                header('Location: /public/dashboard.php');
+                header('Location: /dashboard');
                 exit;
             } else {
                 // Handle login error
@@ -79,7 +79,7 @@ class AuthController
     {
         session_start();
         session_destroy();
-        header('Location: /public/index.php');
+        header('Location: /');
         exit;
     }
 

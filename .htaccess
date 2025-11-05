@@ -1,62 +1,22 @@
-#############################################
-# UMA SHAKTI DHAM - Repository root .htaccess
-# Strict root-level protection. This file prevents accidental exposure of
-# repository files if the project root is placed inside the webroot. It also
-# routes requests to the `public/` front controller where appropriate.
-#############################################
+# Uma Shakti Dham - Repository Root .htaccess
+# This file protects repository files when DOCUMENT_ROOT is set to public/
+# It should NOT contain rewrite rules as it's outside the web root
 
-# --- Rewrite to the public front controller when possible ---
-# If the request maps to an existing file or directory under /public, serve it.
-# Otherwise internally rewrite all requests to /public/index.php so the app
-# can remain URL-root friendly while keeping source files non-public.
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /
+# Deny access to sensitive repository files
+<FilesMatch "^\.|(composer\.json|composer\.lock|README|\.git|\.env)(.*)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
 
-    # If the request is already for the public folder, allow normal processing
-    RewriteRule ^public/ - [L]
+# Deny access to PHP files in repository root (but allow if explicitly needed)
+<FilesMatch "\.php$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
 
-    # If a corresponding file exists under public/, serve that file
-    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f
-    RewriteRule ^(.*)$ /public%{REQUEST_URI} [L]
-
-    # If a corresponding directory exists under public/, serve that directory (helps DirectoryIndex)
-    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
-    RewriteRule ^(.*)$ /public%{REQUEST_URI} [L]
-
-    # Otherwise route everything to the public front controller
-    RewriteRule ^ /public/index.php [L]
-</IfModule>
-
-# --- Deny direct access to repository files and sensitive patterns ---
-# Block dotfiles and common secrets at the root level (Apache 2.4+ / 2.2 fallback)
-<IfModule mod_authz_core.c>
-    <FilesMatch "^\.|(composer\.json|composer\.lock|README|\.git)($|\.)">
-        Require all denied
-    </FilesMatch>
-</IfModule>
-<IfModule !mod_authz_core.c>
-    <FilesMatch "^\.|(composer\.json|composer\.lock|README|\.git)($|\.)">
-        Order allow,deny
-        Deny from all
-    </FilesMatch>
-</IfModule>
-
-# Additional safety: deny direct execution of PHP files in the repo root,
-# but explicitly allow the front controller filename `index.php` so the
-# internal rewrite to /public/index.php can succeed.
-<IfModule mod_authz_core.c>
-    <FilesMatch "^(?!index\.php$).+\.php$">
-        Require all denied
-    </FilesMatch>
-</IfModule>
-<IfModule !mod_authz_core.c>
-    <FilesMatch "^(?!index\.php$).+\.php$">
-        Order allow,deny
-        Deny from all
-    </FilesMatch>
-</IfModule>
-
-# If you intentionally want to serve this directory as the site root, remove
-# or adapt this file. Otherwise keep it to protect non-public sources.
+# Allow access to public directory
+<FilesMatch "^$">
+    Order allow,deny
+    Allow from all
+</FilesMatch>
 
