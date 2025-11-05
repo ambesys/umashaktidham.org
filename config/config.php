@@ -1,6 +1,9 @@
 <?php
 // Configuration settings for the Uma Shakti Dham application
 
+// Load Composer autoloader for dependencies
+require_once __DIR__ . '/../vendor/autoload.php';
+
 // Load environment variables if .env file exists
 if (file_exists(__DIR__ . '/../.env')) {
     $envFile = __DIR__ . '/../.env';
@@ -64,3 +67,5 @@ if (APP_DEBUG) {
     ini_set('display_startup_errors', 0);
     error_reporting(0);
 }
+
+// Logging configuration is handled in bootstrap.php

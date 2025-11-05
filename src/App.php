@@ -535,7 +535,16 @@ class App
             $oauthController->redirect($provider);
         } catch (\Exception $e) {
             // Log the error and redirect to login with error message
-            error_log("OAuth redirect error for $provider: " . $e->getMessage());
+            if (function_exists('getLogger')) {
+                $logger = getLogger();
+                $logger->error("OAuth redirect error for $provider", [
+                    'error' => $e->getMessage(),
+                    'provider' => $provider,
+                    'trace' => $e->getTraceAsString()
+                ]);
+            } else {
+                error_log("OAuth redirect error for $provider: " . $e->getMessage());
+            }
             header('Location: /login?error=' . urlencode('OAuth configuration error. Please try again later.'));
             exit;
         }
@@ -557,7 +566,16 @@ class App
             $oauthController->callback($provider);
         } catch (\Exception $e) {
             // Log the error and redirect to login with error message
-            error_log("OAuth callback error for $provider: " . $e->getMessage());
+            if (function_exists('getLogger')) {
+                $logger = getLogger();
+                $logger->error("OAuth callback error for $provider", [
+                    'error' => $e->getMessage(),
+                    'provider' => $provider,
+                    'trace' => $e->getTraceAsString()
+                ]);
+            } else {
+                error_log("OAuth callback error for $provider: " . $e->getMessage());
+            }
             header('Location: /login?error=' . urlencode('OAuth authentication failed. Please try again.'));
             exit;
         }
