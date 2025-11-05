@@ -474,8 +474,8 @@ class App
                 'includes' => ['Models/User.php', 'Controllers/AdminController.php'],
                 'options' => ['title' => 'Manage Users - Admin'],
                 'logic' => function() {
-                    $adminController = new AdminController();
-                    return ['users' => $adminController->getAllUsers()];
+                    $adminController = new \App\Controllers\AdminController();
+                    return ['users' => []]; // Placeholder - AdminController::listUsers() renders view directly
                 }
             ],
             'admin/moderators' => [
@@ -483,8 +483,8 @@ class App
                 'includes' => ['Models/User.php', 'Controllers/AdminController.php'],
                 'options' => ['title' => 'Manage Moderators - Admin'],
                 'logic' => function() {
-                    $adminController = new AdminController();
-                    return ['moderators' => $adminController->getModerators()];
+                    $adminController = new \App\Controllers\AdminController();
+                    return ['moderators' => []]; // Placeholder - AdminController::listModerators() renders view directly
                 }
             ],
             'dashboard/index' => [
@@ -492,7 +492,7 @@ class App
                 'includes' => ['Controllers/DashboardController.php'],
                 'options' => ['scripts' => ['dashboard.js'], 'title' => 'Dashboard - Uma Shakti Dham'],
                 'logic' => function() {
-                    $dashboardController = new DashboardController();
+                    $dashboardController = new \App\Controllers\DashboardController();
                     return ['dashboardData' => $dashboardController->getDashboardData()];
                 }
             ],
@@ -501,8 +501,8 @@ class App
                 'includes' => ['Models/Member.php', 'Controllers/MemberController.php'],
                 'options' => ['title' => 'Profile - Uma Shakti Dham'],
                 'logic' => function() {
-                    $memberController = new MemberController();
-                    return ['member' => $memberController->getCurrentMember()];
+                    $memberController = new \App\Controllers\MemberController();
+                    return ['member' => null]; // Placeholder - MemberController methods render views directly
                 }
             ],
             'members/family' => [
@@ -510,8 +510,8 @@ class App
                 'includes' => ['Models/Family.php', 'Controllers/FamilyController.php'],
                 'options' => ['title' => 'Family - Uma Shakti Dham'],
                 'logic' => function() {
-                    $familyController = new FamilyController();
-                    return ['family' => $familyController->getCurrentFamily()];
+                    $familyController = new \App\Controllers\FamilyController();
+                    return ['family' => []]; // Placeholder - FamilyController methods render views directly
                 }
             ]
         ];
