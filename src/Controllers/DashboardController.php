@@ -57,28 +57,26 @@ class DashboardController
         include_once __DIR__ . '/../Views/members/profile.php';
     }
 
-    public function manageFamily()
+    public function getDashboardData()
     {
         // Check if user is authenticated
         if (!$this->authService->isAuthenticated()) {
-            header('Location: /login.php');
+            header('Location: /login');
             exit();
         }
 
+        // Get user details
         $userId = $_SESSION['user_id'];
+        $user = User::find($userId);
+        $members = Member::where('user_id', $userId)->get();
         $families = Family::where('user_id', $userId)->get();
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Handle family details submission
-            $family = new Family();
-            $family->user_id = $userId;
-            $family->fill($_POST);
-            $family->save();
-            header('Location: /dashboard.php');
-            exit();
-        }
-
-        // Load the family management view
-        include_once __DIR__ . '/../Views/members/family.php';
+        return [
+            'user' => $user,
+            'members' => $members,
+            'families' => $families,
+            'memberCount' => count($members),
+            'familyCount' => count($families)
+        ];
     }
 }
