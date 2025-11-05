@@ -89,14 +89,20 @@ class OAuthController
             // Start session and log user in using SessionService
             if ($this->sessionService) {
                 $this->sessionService->setAuthenticatedUser($user['id'], $user['role_id'] ?? null);
-                file_put_contents($debugFile, "Session created successfully\n", FILE_APPEND);
+                file_put_contents($debugFile, "Session created successfully via SessionService\n", FILE_APPEND);
             } else {
                 // Fallback to direct session handling
                 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_role'] = $user['role_id'] ?? null;
-                file_put_contents($debugFile, "Fallback session created\n", FILE_APPEND);
+                file_put_contents($debugFile, "Fallback session created - user_id: " . $_SESSION['user_id'] . ", session_id: " . session_id() . "\n", FILE_APPEND);
             }
+
+            // Additional session debugging
+            file_put_contents($debugFile, "Session status after login: " . session_status() . "\n", FILE_APPEND);
+            file_put_contents($debugFile, "Session ID: " . session_id() . "\n", FILE_APPEND);
+            file_put_contents($debugFile, "Session save path: " . session_save_path() . "\n", FILE_APPEND);
+            file_put_contents($debugFile, "All session data: " . print_r($_SESSION, true) . "\n", FILE_APPEND);
 
             file_put_contents($debugFile, "Redirecting to dashboard...\n", FILE_APPEND);
             // Redirect to dashboard

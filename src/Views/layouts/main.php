@@ -7,6 +7,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Debug session information
+if (isset($_GET['debug_session'])) {
+    error_log("Session Debug - Status: " . session_status() . ", ID: " . session_id() . ", Save Path: " . session_save_path());
+    error_log("Session Data: " . print_r($_SESSION, true));
+}
+
 // Include necessary files using absolute path from project root
 $databasePath = __DIR__ . '/../../../config/database.php';
 if (file_exists($databasePath)) {
