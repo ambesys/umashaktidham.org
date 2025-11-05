@@ -787,23 +787,6 @@ class App
         return $pdo;
     }
 
-    private function getOAuthConfig()
-    {
-        // OAuth configuration (should be in config file in production)
-        return [
-            'google' => [
-                'clientId' => getenv('GOOGLE_CLIENT_ID') ?: '615568269281-ic8pkglea46cm0emchr0s4s23kemha72.apps.googleusercontent.com',
-                'clientSecret' => getenv('GOOGLE_CLIENT_SECRET') ?: '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',
-                'redirectUri' => 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/auth/google/callback',
-            ],
-            'facebook' => [
-                'clientId' => getenv('FACEBOOK_CLIENT_ID') ?: 'your-facebook-client-id',
-                'clientSecret' => getenv('FACEBOOK_CLIENT_SECRET') ?: 'your-facebook-client-secret',
-                'redirectUri' => 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/auth/facebook/callback',
-            ]
-        ];
-    }
-
     private function serve404()
     {
         http_response_code(404);
