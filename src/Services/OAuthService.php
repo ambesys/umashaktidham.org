@@ -93,8 +93,16 @@ class OAuthService
                 throw new \InvalidArgumentException("Unsupported provider: $provider");
         }
 
+        // Validate required user data
+        if (empty($userData['email'])) {
+            throw new \RuntimeException('Email is required from OAuth provider');
+        }
+
+        // Get provider-specific user ID
+        $providerId = $this->getProviderUserId($provider, $userData);
+
         // Check if user already exists via provider
-        $existingUser = $this->findUserByProvider($provider, $userData['id']);
+        $existingUser = $this->findUserByProvider($provider, $providerId);
 
         if ($existingUser) {
             // Link existing user
@@ -106,13 +114,38 @@ class OAuthService
 
         if ($existingUser) {
             // Link provider to existing user
-            $this->linkProviderToUser($existingUser['id'], $provider, $userData['id'], $userData);
+            $this->linkProviderToUser($existingUser['id'], $provider, $providerId, $userData);
             return $existingUser;
         }
 
         // Create new user
         $newUser = $this->createUserFromProvider($provider, $userData);
         return $newUser;
+    }
+
+    /**
+     * Get provider-specific user ID from OAuth user data
+     */
+    private function getProviderUserId(string $provider, array $userData): string
+    {
+        switch ($provider) {
+            case 'google':
+                // Google uses 'sub' (subject) as the unique identifier
+                if (!isset($userData['sub'])) {
+                    throw new \RuntimeException('Google OAuth did not return a valid user ID (sub field)');
+                }
+                return (string)$userData['sub'];
+
+            case 'facebook':
+                // Facebook uses 'id' as the unique identifier
+                if (!isset($userData['id'])) {
+                    throw new \RuntimeException('Facebook OAuth did not return a valid user ID (id field)');
+                }
+                return (string)$userData['id'];
+
+            default:
+                throw new \InvalidArgumentException("Unsupported provider: $provider");
+        }
     }
 
     /**
@@ -206,7 +239,7 @@ class OAuthService
         $fmStmt->execute();
 
         // Link provider
-        $this->linkProviderToUser($userId, $provider, $userData['id'], $userData);
+        $this->linkProviderToUser($userId, $provider, $this->getProviderUserId($provider, $userData), $userData);
 
         // Return user data
         $userStmt = $this->pdo->prepare("SELECT * FROM users WHERE id = :id LIMIT 1");
