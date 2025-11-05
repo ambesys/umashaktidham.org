@@ -76,8 +76,20 @@ class OAuthController
             exit;
 
         } catch (\Exception $e) {
+            // Log the detailed error
             error_log('OAuth callback error: ' . $e->getMessage());
-            header('Location: /login?error=oauth_callback');
+            
+            // Provide user-friendly error message based on exception type
+            $errorMessage = 'oauth_callback';
+            if (strpos($e->getMessage(), 'redirect_uri_mismatch') !== false) {
+                $errorMessage = 'oauth_redirect_mismatch';
+            } elseif (strpos($e->getMessage(), 'invalid_client') !== false) {
+                $errorMessage = 'oauth_invalid_client';
+            } elseif (strpos($e->getMessage(), 'access_denied') !== false) {
+                $errorMessage = 'oauth_access_denied';
+            }
+            
+            header('Location: /login?error=' . $errorMessage);
             exit;
         }
     }

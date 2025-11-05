@@ -10,6 +10,53 @@
         </div>
 
         <div class="auth-form-container">
+            <!-- Error Messages -->
+            <?php if (isset($_GET['error'])): ?>
+                <div class="error-message" id="errorMessage">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <?php
+                    $error = $_GET['error'];
+                    switch ($error) {
+                        case 'oauth_config':
+                            echo 'OAuth configuration error. Please try again later or contact support.';
+                            break;
+                        case 'oauth_access_denied':
+                            echo 'Access denied. You cancelled the login or denied permissions.';
+                            break;
+                        case 'oauth_invalid_request':
+                            echo 'Invalid OAuth request. Please try again.';
+                            break;
+                        case 'oauth_callback':
+                            echo 'Authentication failed. Please try again or contact support if the problem persists.';
+                            break;
+                        case 'oauth_no_code':
+                            echo 'Authentication code missing. Please try again.';
+                            break;
+                        case 'oauth_redirect_mismatch':
+                            echo 'Authentication redirect error. The redirect URI may not be properly configured in Google Cloud Console.';
+                            break;
+                        case 'oauth_invalid_client':
+                            echo 'Authentication client error. The OAuth client credentials may be incorrect.';
+                            break;
+                        default:
+                            if (strpos($error, 'oauth_') === 0) {
+                                echo 'Social login error. Please try again or use email/password login.';
+                            } else {
+                                echo htmlspecialchars($error);
+                            }
+                    }
+                    ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- Success Messages -->
+            <?php if (isset($_GET['success'])): ?>
+                <div class="success-message" id="successMessage">
+                    <i class="fas fa-check-circle"></i>
+                    <?php echo htmlspecialchars($_GET['success']); ?>
+                </div>
+            <?php endif; ?>
+
             <!-- Social Login Options -->
             <div class="social-login-section">
                 <h3>Quick Sign In</h3>
