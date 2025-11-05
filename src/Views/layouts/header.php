@@ -17,29 +17,6 @@ $pageTitle = $pageTitle ?? 'Uma Shakti Dham';
     <link rel="stylesheet" href="/assets/css/main.css">
     <link rel="stylesheet" href="/assets/css/responsive.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Facebook SDK -->
-    <script>
-        window.fbAsyncInit = function() {
-            FB.init({
-                appId      : '{your-app-id}',
-                cookie     : true,
-                xfbml      : true,
-                version    : '{api-version}'
-            });
-
-            FB.AppEvents.logPageView();
-
-        };
-
-        (function(d, s, id){
-            var js, fjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) {return;}
-            js = d.createElement(s); js.id = id;
-            js.src = "https://connect.facebook.net/en_US/sdk.js";
-            fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));
-    </script>
 </head>
 
 <body>
@@ -91,12 +68,12 @@ $pageTitle = $pageTitle ?? 'Uma Shakti Dham';
                     <!-- Mobile donate button shown in nav row on small screens (Donate + Hamburger layout) -->
 
                     <div class="nav-center">
-
-                        <div class="temple-title">
-                            <span class="site-title">Uma Shakti Dham</span>
-                            <span class="temple-subtitle">Kadva Patidar Community Center, NC</span>
-                        </div>
-
+                        
+                            <div class="temple-title">
+                                <span class="site-title">Uma Shakti Dham</span>
+                                <span class="temple-subtitle">Kadva Patidar Community Center, NC</span>
+                            </div>
+                        
                     </div>
 
                     <div class="nav-right">
