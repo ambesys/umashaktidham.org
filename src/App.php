@@ -521,32 +521,46 @@ class App
     
     private function handleOAuthRedirect(string $provider)
     {
-        require_once __DIR__ . '/Services/OAuthService.php';
-        require_once __DIR__ . '/Services/SessionService.php';
-        require_once __DIR__ . '/Controllers/OAuthController.php';
+        try {
+            require_once __DIR__ . '/Services/OAuthService.php';
+            require_once __DIR__ . '/Services/SessionService.php';
+            require_once __DIR__ . '/Controllers/OAuthController.php';
 
-        // Initialize services (simplified - in production use DI container)
-        $pdo = $this->getPDO();
-        $sessionService = new \App\Services\SessionService($pdo);
-        $oauthService = new \App\Services\OAuthService($pdo, $this->getOAuthConfig(), $sessionService);
-        $oauthController = new \App\Controllers\OAuthController($oauthService, $sessionService);
+            // Initialize services (simplified - in production use DI container)
+            $pdo = $this->getPDO();
+            $sessionService = new \App\Services\SessionService($pdo);
+            $oauthService = new \App\Services\OAuthService($pdo, $this->getOAuthConfig(), $sessionService);
+            $oauthController = new \App\Controllers\OAuthController($oauthService, $sessionService);
 
-        $oauthController->redirect($provider);
+            $oauthController->redirect($provider);
+        } catch (\Exception $e) {
+            // Log the error and redirect to login with error message
+            error_log("OAuth redirect error for $provider: " . $e->getMessage());
+            header('Location: /login?error=' . urlencode('OAuth configuration error. Please try again later.'));
+            exit;
+        }
     }
 
     private function handleOAuthCallback(string $provider)
     {
-        require_once __DIR__ . '/Services/OAuthService.php';
-        require_once __DIR__ . '/Services/SessionService.php';
-        require_once __DIR__ . '/Controllers/OAuthController.php';
+        try {
+            require_once __DIR__ . '/Services/OAuthService.php';
+            require_once __DIR__ . '/Services/SessionService.php';
+            require_once __DIR__ . '/Controllers/OAuthController.php';
 
-        // Initialize services
-        $pdo = $this->getPDO();
-        $sessionService = new \App\Services\SessionService($pdo);
-        $oauthService = new \App\Services\OAuthService($pdo, $this->getOAuthConfig(), $sessionService);
-        $oauthController = new \App\Controllers\OAuthController($oauthService, $sessionService);
+            // Initialize services
+            $pdo = $this->getPDO();
+            $sessionService = new \App\Services\SessionService($pdo);
+            $oauthService = new \App\Services\OAuthService($pdo, $this->getOAuthConfig(), $sessionService);
+            $oauthController = new \App\Controllers\OAuthController($oauthService, $sessionService);
 
-        $oauthController->callback($provider);
+            $oauthController->callback($provider);
+        } catch (\Exception $e) {
+            // Log the error and redirect to login with error message
+            error_log("OAuth callback error for $provider: " . $e->getMessage());
+            header('Location: /login?error=' . urlencode('OAuth authentication failed. Please try again.'));
+            exit;
+        }
     }
 
     private function handleWebAuthnRegistrationChallenge()
@@ -798,7 +812,8 @@ class App
                 }
             }
             // Fallback - create PDO directly (for development)
-            $pdo = new PDO('sqlite::memory:'); // In production, use real DB config
+            // In production, this should not happen - database config should be available
+            throw new \RuntimeException('Database configuration not found. Please check config/database.php');
         }
         return $pdo;
     }
@@ -811,16 +826,26 @@ class App
 
     private function getOAuthConfig()
     {
-        // OAuth configuration using environment variables
+        // OAuth configuration using environment variables with fallbacks
+        $googleClientId = getenv('GOOGLE_CLIENT_ID') ?: GOOGLE_CLIENT_ID;
+        $googleClientSecret = getenv('GOOGLE_CLIENT_SECRET') ?: GOOGLE_CLIENT_SECRET;
+        $facebookClientId = getenv('FACEBOOK_CLIENT_ID') ?: FACEBOOK_CLIENT_ID;
+        $facebookClientSecret = getenv('FACEBOOK_CLIENT_SECRET') ?: FACEBOOK_CLIENT_SECRET;
+
+        // Validate required OAuth credentials
+        if (empty($googleClientId) || empty($googleClientSecret)) {
+            throw new \RuntimeException('Google OAuth credentials not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.');
+        }
+
         return [
             'google' => [
-                'clientId' => GOOGLE_CLIENT_ID,
-                'clientSecret' => GOOGLE_CLIENT_SECRET,
+                'clientId' => $googleClientId,
+                'clientSecret' => $googleClientSecret,
                 'redirectUri' => BASE_URL . '/auth/google/callback',
             ],
             'facebook' => [
-                'clientId' => FACEBOOK_CLIENT_ID,
-                'clientSecret' => FACEBOOK_CLIENT_SECRET,
+                'clientId' => $facebookClientId,
+                'clientSecret' => $facebookClientSecret,
                 'redirectUri' => BASE_URL . '/auth/facebook/callback',
             ]
         ];
