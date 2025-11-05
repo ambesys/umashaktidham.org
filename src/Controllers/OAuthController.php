@@ -35,6 +35,16 @@ class OAuthController
 
         } catch (\Exception $e) {
             // Handle error - redirect to login with error
+            if (function_exists('getLogger')) {
+                $logger = getLogger();
+                $logger->error("OAuth redirect error for $provider", [
+                    'error' => $e->getMessage(),
+                    'provider' => $provider,
+                    'trace' => $e->getTraceAsString(),
+                    'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+                    'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+                ]);
+            }
             header('Location: /login?error=oauth_config');
             exit;
         }
@@ -76,8 +86,20 @@ class OAuthController
             exit;
 
         } catch (\Exception $e) {
-            // Log the detailed error
-            error_log('OAuth callback error: ' . $e->getMessage());
+            // Log the detailed error using LoggerService
+            if (function_exists('getLogger')) {
+                $logger = getLogger();
+                $logger->error("OAuth callback error for $provider", [
+                    'error' => $e->getMessage(),
+                    'provider' => $provider,
+                    'trace' => $e->getTraceAsString(),
+                    'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+                    'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+                    'request_uri' => $_SERVER['REQUEST_URI'] ?? 'unknown'
+                ]);
+            } else {
+                error_log('OAuth callback error: ' . $e->getMessage());
+            }
             
             // Provide user-friendly error message based on exception type
             $errorMessage = 'oauth_callback';

@@ -73,20 +73,52 @@ class OAuthService
                 if (!$this->googleProvider) {
                     throw new \RuntimeException('Google OAuth not configured');
                 }
+                
+                if (function_exists('getLogger')) {
+                    $logger = getLogger();
+                    $logger->info("Starting Google OAuth callback", ['code_length' => strlen($code)]);
+                }
+                
                 $token = $this->googleProvider->getAccessToken('authorization_code', [
                     'code' => $code
                 ]);
                 $userData = $this->googleProvider->getResourceOwner($token)->toArray();
+                
+                if (function_exists('getLogger')) {
+                    $logger = getLogger();
+                    $logger->info("Google OAuth user data received", [
+                        'has_email' => isset($userData['email']),
+                        'has_sub' => isset($userData['sub']),
+                        'has_name' => isset($userData['name']),
+                        'email' => $userData['email'] ?? 'missing'
+                    ]);
+                }
                 break;
 
             case 'facebook':
                 if (!$this->facebookProvider) {
                     throw new \RuntimeException('Facebook OAuth not configured');
                 }
+                
+                if (function_exists('getLogger')) {
+                    $logger = getLogger();
+                    $logger->info("Starting Facebook OAuth callback", ['code_length' => strlen($code)]);
+                }
+                
                 $token = $this->facebookProvider->getAccessToken('authorization_code', [
                     'code' => $code
                 ]);
                 $userData = $this->facebookProvider->getResourceOwner($token)->toArray();
+                
+                if (function_exists('getLogger')) {
+                    $logger = getLogger();
+                    $logger->info("Facebook OAuth user data received", [
+                        'has_email' => isset($userData['email']),
+                        'has_id' => isset($userData['id']),
+                        'has_name' => isset($userData['name']),
+                        'email' => $userData['email'] ?? 'missing'
+                    ]);
+                }
                 break;
 
             default:
@@ -106,6 +138,15 @@ class OAuthService
 
         if ($existingUser) {
             // Link existing user
+            if (function_exists('getLogger')) {
+                $logger = getLogger();
+                $logger->info("Found existing user via OAuth provider", [
+                    'provider' => $provider,
+                    'provider_id' => $providerId,
+                    'user_id' => $existingUser['id'],
+                    'email' => $existingUser['email']
+                ]);
+            }
             return $existingUser;
         }
 
@@ -115,10 +156,28 @@ class OAuthService
         if ($existingUser) {
             // Link provider to existing user
             $this->linkProviderToUser($existingUser['id'], $provider, $providerId, $userData);
+            if (function_exists('getLogger')) {
+                $logger = getLogger();
+                $logger->info("Linked OAuth provider to existing user", [
+                    'provider' => $provider,
+                    'provider_id' => $providerId,
+                    'user_id' => $existingUser['id'],
+                    'email' => $existingUser['email']
+                ]);
+            }
             return $existingUser;
         }
 
         // Create new user
+        if (function_exists('getLogger')) {
+            $logger = getLogger();
+            $logger->info("Creating new user from OAuth provider", [
+                'provider' => $provider,
+                'provider_id' => $providerId,
+                'email' => $userData['email'],
+                'name' => $userData['name'] ?? 'unknown'
+            ]);
+        }
         $newUser = $this->createUserFromProvider($provider, $userData);
         return $newUser;
     }
