@@ -1,13 +1,20 @@
 <?php
-$host = 'localhost';
-$dbname = 'u103964107_uma';
-$username = 'u103964107_uma';
-$password = 'Cn?o4zw:sT!0';
+$host = getenv('DB_HOST') ?: 'localhost';
+$dbname = getenv('DB_NAME') ?: 'umashakti_dham';
+$username = getenv('DB_USER') ?: 'root';
+$password = getenv('DB_PASS') ?: '';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    echo "Connection failed: " . $e->getMessage();
+    // For development, don't fail if database is not available
+    if (getenv('APP_ENV') === 'development') {
+        $pdo = null; // Allow app to run without database
+        error_log("Database connection failed (development mode): " . $e->getMessage());
+    } else {
+        echo "Connection failed: " . $e->getMessage();
+        exit(1);
+    }
 }
 ?>

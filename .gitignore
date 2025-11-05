@@ -1,0 +1,85 @@
+# Dependencies
+vendor/
+vendor/**
+node_modules/
+node_modules/**
+
+# Environment files
+.env
+.env.local
+.env.prod
+.env.staging
+.env.*
+
+# Logs
+*.log
+/logs/
+/storage/logs/
+*.log.*
+
+# Cache
+/cache/
+/storage/cache/
+/storage/views/
+
+# Sessions
+/storage/sessions/
+
+# Uploads (uncomment if you want to ignore uploaded files)
+# public/assets/uploads/
+# storage/uploads/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# PHPUnit
+/phpunit.xml
+/tests/coverage/
+
+# Composer
+# composer.lock  # Uncomment to ignore composer.lock (not recommended for production)
+
+# Database
+# Uncomment if you want to ignore database files
+# database/*.sqlite
+# database/*.db
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+
+# Deployment
+/deploy/
+/deployment/
+
+# Documentation builds
+/docs/build/
+/docs/.doctrees/
+
+# Local development
+/local/
+/dev/
