@@ -183,6 +183,13 @@ class App
             case '/auth/login':
                 $this->serveView('auth/login');
                 break;
+            case '/register':
+                if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+                    $this->serveView('auth/register');
+                } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $this->handleRegistration();
+                }
+                break;
             case '/auth/google':
                 $this->handleOAuthRedirect('google');
                 break;
@@ -635,6 +642,15 @@ class App
         $passwordResetController = new \App\Controllers\PasswordResetController($passwordResetService);
 
         $passwordResetController->handleForgotPassword();
+    }
+
+    private function handleRegistration()
+    {
+        require_once __DIR__ . '/Controllers/AuthController.php';
+
+        // Initialize controller
+        $authController = new \App\Controllers\AuthController();
+        $authController->register();
     }
 
     private function handleResetPasswordForm()

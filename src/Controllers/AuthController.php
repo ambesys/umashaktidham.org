@@ -17,16 +17,18 @@ class AuthController
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
-                'username' => $_POST['username'],
-                'name' => $_POST['username'],
+                'username' => $_POST['email'], // Use email as username
+                'name' => trim($_POST['first_name'] . ' ' . $_POST['last_name']),
                 'email' => $_POST['email'],
                 'password' => $_POST['password'],
+                'first_name' => $_POST['first_name'],
+                'last_name' => $_POST['last_name'],
             ];
 
             $result = $this->authService->register($data);
             if ($result) {
-                // Redirect to login page or dashboard
-                header('Location: /public/dashboard.php');
+                // Redirect to login page with success message
+                header('Location: /login?message=Registration successful! Please log in.');
                 exit;
             } else {
                 // Handle registration error
