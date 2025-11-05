@@ -5,8 +5,11 @@ $pageTitle = 'Leadership Committee - Uma Shakti Dham';
 <div class="under-construction-page">
     <div class="container">
         <div class="construction-content">
-           
-            <h1><i class="fas fa-users-cog"></i> Leadership Committee</h1>
+            <div class="page-heading">
+                <div class="container">
+                    <h1><i class="fas fa-users-cog"></i> Leadership Committee</h1>
+                </div>
+            </div>
 
             <div class="construction-message">
                 <h2>Page Under Construction</h2>

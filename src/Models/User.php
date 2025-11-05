@@ -14,13 +14,25 @@ class User
         $this->db = $database;
     }
 
+    /**
+     * Create a new user. $data may contain 'role' (role name) or 'role_id'.
+     */
     public function create($data)
     {
-        $stmt = $this->db->prepare("INSERT INTO $this->table (name, email, password, role) VALUES (:name, :email, :password, :role)");
+        // resolve role_id if role name provided
+        $roleId = null;
+        if (!empty($data['role_id'])) {
+            $roleId = (int)$data['role_id'];
+        } elseif (!empty($data['role'])) {
+            $roleId = $this->getRoleIdByName($data['role']);
+        }
+
+        $stmt = $this->db->prepare("INSERT INTO $this->table (name, email, password, role_id) VALUES (:name, :email, :password, :role_id)");
         $stmt->bindParam(':name', $data['name']);
         $stmt->bindParam(':email', $data['email']);
-        $stmt->bindParam(':password', password_hash($data['password'], PASSWORD_DEFAULT));
-        $stmt->bindParam(':role', $data['role']);
+        $hashed = password_hash($data['password'], PASSWORD_DEFAULT);
+        $stmt->bindParam(':password', $hashed);
+        $stmt->bindParam(':role_id', $roleId, PDO::PARAM_INT);
         return $stmt->execute();
     }
 
@@ -34,10 +46,23 @@ class User
 
     public function update($id, $data)
     {
-        $stmt = $this->db->prepare("UPDATE $this->table SET name = :name, email = :email, role = :role WHERE id = :id");
+        // resolve role_id if provided
+        $roleId = null;
+        if (!empty($data['role_id'])) {
+            $roleId = (int)$data['role_id'];
+        } elseif (!empty($data['role'])) {
+            $roleId = $this->getRoleIdByName($data['role']);
+        }
+
+        if ($roleId !== null) {
+            $stmt = $this->db->prepare("UPDATE $this->table SET name = :name, email = :email, role_id = :role_id WHERE id = :id");
+            $stmt->bindParam(':role_id', $roleId, PDO::PARAM_INT);
+        } else {
+            $stmt = $this->db->prepare("UPDATE $this->table SET name = :name, email = :email WHERE id = :id");
+        }
+
         $stmt->bindParam(':name', $data['name']);
         $stmt->bindParam(':email', $data['email']);
-        $stmt->bindParam(':role', $data['role']);
         $stmt->bindParam(':id', $id);
         return $stmt->execute();
     }
@@ -51,7 +76,21 @@ class User
 
     public function getAllUsers()
     {
-        $stmt = $this->db->query("SELECT * FROM $this->table");
+        // join roles to include role name
+        $sql = "SELECT u.*, r.name AS role_name FROM $this->table u LEFT JOIN roles r ON u.role_id = r.id";
+        $stmt = $this->db->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Resolve role id by role name. Returns null if not found.
+     */
+    private function getRoleIdByName($roleName)
+    {
+        $stmt = $this->db->prepare("SELECT id FROM roles WHERE name = :name LIMIT 1");
+        $stmt->bindParam(':name', $roleName);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['id'] ?? null;
     }
 }

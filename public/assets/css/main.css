@@ -6,11 +6,11 @@
 /* CSS Variables */
 :root {
   /* Primary Colors - Umiya Mataji Palette */
-  --primary-color: #eb3337; /* Main Red */
-  --primary-hover: #dc151a; /* Hover Red */
+  --primary-color: #a51619; /* Main Red */
+  --primary-hover: #d8494e; /* Hover Red */
   --secondary-color: #96bcd1; /* Light Blue */
   --accent-color: #9dc99b; /* Light Green */
-  --brand-color: #eb3337; /* Brand Red */
+  --brand-color: #a51619; /* Brand Red */
 
   /* Text Colors */
   --text-color: #333;
@@ -21,6 +21,7 @@
   --background-color: #ffffff; /* White */
   --light-gray: #f4f4f4; /* Light Gray */
   --border-color: #e7e7e7; /* Border Gray */
+  --warning-yellow: #ffbf00; /* Warning Yellow */
   --white: #fff;
 
   /* Shadow */
@@ -205,11 +206,10 @@ body {
   z-index: 1;
 }
 
-.logo,
+logo,
 .site-logo {
   height: 120px;
   width: auto;
-  margin-right: 20px;
   filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
 }
 
@@ -226,17 +226,29 @@ body {
   font-family: var(--font-heading);
   line-height: 1.1;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  @media screen and (max-width: 1080px) {
+    font-size: 1.6em;
+    display: block;
+  }
+  @media screen and (max-width: 440px) {
+    font-size: 1em;
+    display: block;
+  }
 }
 
 .site-subtitle,
 .temple-subtitle {
   color: var(--text-secondary);
-  font-size: 0.9em;
+  font-size: 12px;
   margin: 0;
-  margin-top: 5px;
+  /* margin-top: 5px; */
   font-style: italic;
   font-family: var(--font-primary);
   color: rgba(0, 0, 0, 0.7);
+  @media screen and (max-width: 440px) {
+    /* font-size: 1em; */
+    display: none;
+  }
 }
 
 .auth-links,
@@ -387,6 +399,10 @@ body {
   text-align: center;
 }
 
+h1 {
+  margin-top: 50px;
+}
+
 .hero-section h1 {
   font-family: var(--font-heading);
   color: var(--white);
@@ -487,7 +503,184 @@ body {
   box-shadow: 0 2px 10px var(--shadow-color);
 }
 
-/* Sticky header & nav behavior (used by JS which toggles .scrolled on <html> and .shrunk on .main-header) */
+/* Header wrapper + circular brand logo (overlap topbar and nav) */
+.site-header-wrapper {
+  /* Lightweight sticky header (CSS-only). Keep it simple so it stays in-flow
+     and avoids creating full-viewport overlays that can block scrolling. */
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1400;
+  background: var(--white);
+}
+
+.site-header-wrapper .main-navigation {
+  position: relative !important;
+  top: auto !important;
+}
+
+/* Ensure child nav isn't also sticky (we want the whole wrapper sticky) */
+.site-header-wrapper .main-navigation {
+  position: relative !important;
+  top: auto !important;
+}
+
+/* brand-logo lives inside the nav container so it aligns to the container start */
+.header-row .main-navigation .container {
+  position: relative;
+  padding-left: 115px; /* enough room for the round logo */
+}
+
+.header-row .main-navigation .container .brand-logo {
+  position: absolute;
+  left: 0; /* beginning of the container */
+  top: -45px; /* overlap above the nav and touch the top bar */
+  z-index: 1205;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--white);
+  border: 2px solid var(--white);
+  box-shadow: 0 5px 15px var(--primary-color);
+  /* border: 2px solid var(--white); */
+  /* box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); */
+  /* transition: top 220ms ease, transform 220ms ease; */
+}
+
+.header-row .main-navigation .container .brand-logo .site-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+/* Make header content and nav leave space for the circular logo */
+.top-contact-bar .contact-social-row {
+  position: relative;
+  display: flex;
+  /* align-items: center; */
+  align-items: flex-end;
+
+  /* padding: 8px 0; */
+}
+
+.contact-quick {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+  /* align-items: center; */
+}
+
+.topbar-donate {
+  display: none !important;
+}
+
+.top-auth {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.top-donate {
+  background: var(--primary-color);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 16px;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.top-logout {
+  margin-left: 8px;
+  color: #fff;
+  text-decoration: underline;
+  font-size: 13px;
+}
+
+/* Keep the nav container spacing already set; below tweaks keep menu on single row */
+.nav-row .nav-menu {
+  white-space: nowrap;
+  flex-wrap: nowrap;
+}
+
+.nav-row .nav-menu a {
+  /* increase vertical padding by ~10px to make the menu row taller */
+  padding: 15px 12px;
+  font-size: 13px;
+}
+
+/* Donate link styling (desktop & tablet) */
+.nav-menu a.nav-donate {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: #fff;
+  border-radius: 999px;
+  font-weight: 800;
+  text-transform: uppercase;
+  box-shadow: 0 6px 20px rgba(238, 90, 82, 0.18);
+  transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+  margin-left: 12px;
+
+  background: var(--warning-yellow);
+  color: var(--primary-color);
+  border: 1px solid var(--white);
+}
+
+.nav-menu a.nav-donate:hover,
+.nav-menu a.nav-donate:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(238, 90, 82, 0.28);
+  opacity: 0.98;
+}
+
+/* Move navigation items to the right (desktop) */
+.main-navigation .nav-menu {
+  justify-content: flex-end;
+}
+
+/* Slight vertical overlap so logo extends below nav */
+.brand-logo {
+  transform: translateY(10%);
+}
+
+/* Mobile / Tablet: center the brand logo and remove left padding (<=1080px) */
+@media (max-width: 1080px) {
+  .header-row .main-navigation .container .brand-logo {
+    /* left: 50%; */
+    left: 70px;
+    transform: translate(-50%, 15%);
+    top: -35px;
+    width: 100px;
+    height: 100px;
+    border-width: 4px;
+  }
+  .header-row .main-header .header-content,
+  .header-row .main-navigation .container {
+    padding-left: 0;
+  }
+  .main-navigation .nav-menu {
+    justify-content: flex-start;
+  }
+}
+
+/* Sticky header & nav - simplified CSS-only behavior (no JS-dependent classes)
+   We removed rules that depended on `.scrolled` and `.shrunk` because the
+   JS helper was removed. Keep the header and nav basic and sticky via CSS. */
 
 .main-header {
   position: sticky;
@@ -497,40 +690,8 @@ body {
   background: var(--white);
 }
 
-.main-header.shrunk,
-.scrolled .main-header {
-  padding: 0.4em 0; /* reduced padding when shrunk */
-}
-
-.main-header.shrunk .site-logo,
-.scrolled .main-header .site-logo {
-  height: 56px;
-  margin-right: 12px;
-}
-
-.main-header.shrunk .temple-title .site-title,
-.scrolled .main-header .temple-title .site-title {
-  font-size: 1.25em;
-}
-
-/* Hide top contact bar when scrolled */
-.scrolled .top-contact-bar {
-  transform: translateY(-100%);
-  opacity: 0;
-  height: 0;
-  pointer-events: none;
-}
-
-/* Make nav sticky and allow JS to adjust top to sit below header */
 .main-navigation {
   box-shadow: 0 2px 8px var(--shadow-color);
-}
-.scrolled .main-navigation {
-  position: sticky;
-  top: 70px; /* JS will override with inline top to match header height */
-  z-index: 1100;
-  transition: top 150ms ease;
-  /* // add boder bottom with box box-shadow: ; */
 }
 
 .contact-item {
@@ -596,7 +757,11 @@ body {
   text-transform: uppercase;
   width: 100%;
   /* padding: 0.8em 0; */
-  padding-bottom: 0.1em;
+  /* padding-bottom: 0.1em; */
+  padding: 0.8em;
+  @media screen and (max-width: 768px) {
+    padding: 0em;
+  }
 }
 
 /* Ensure navigation dropdowns appear above other page content */
@@ -617,18 +782,51 @@ body {
   width: 100%;
 }
 
-.nav-menu li {
-  margin: 0;
-  font-family: var(--font-primary);
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 700;
-  text-align: center;
-  list-style: none;
-  display: inline-block;
-  padding-right: 1.5em;
+/* Ensure desktop nav is a normal horizontal flex bar — mobile slide-in rules live inside the mobile media query
+   (this override protects against accidental mobile styles leaking to desktop). */
+@media (min-width: 1081px) {
+  .nav-menu {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    height: auto !important;
+    width: auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    transform: none !important;
+    padding-top: 0 !important;
+  }
+  .nav-menu.active {
+    left: auto;
+  }
+  /* Hide the mobile-only close button on desktop */
+  .nav-menu .close-btn,
+  .nav-menu #navClose {
+    display: none !important;
+  }
 }
 
+.nav-menu.active {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: min(70vw, 300px);
+  max-width: 300px;
+  background: var(--white);
+  color: var(--text-color);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  /* Add extra top padding so the close icon has breathing room and is
+       visually prominent when the panel opens on mobile */
+  padding-top: 36px;
+  /* ensure items start from the top of the panel */
+  justify-content: flex-start;
+  align-items: stretch;
+  z-index: 1300;
+  transition: left 280ms ease;
+  overflow-y: auto;
+}
 .nav-menu a {
   display: block;
   color: var(--text-secondary);
@@ -646,7 +844,7 @@ body {
   color: var(--primary-color);
 }
 
-.nav-toggle {
+/* .nav-toggle {
   display: none;
   background: var(--primary-color);
   border: none;
@@ -658,6 +856,52 @@ body {
   margin: 10px 0;
   font-weight: 600;
   transition: all 0.3s ease;
+} */
+
+/* Mobile-only controls should be hidden by default (desktop). They are
+   enabled inside the mobile media query below. This prevents the mobile
+   Donate button and the modal markup from showing on desktop. */
+.mobile-donate {
+  display: none;
+}
+
+/* Navigation row layout: keep nav as the second row (below top contact bar)
+   and make it sticky. The .nav-row container holds the toggle, the menu,
+   and the header actions (donate / user). */
+.main-navigation {
+  position: sticky;
+  top: 0; /* stick to top of viewport */
+  z-index: 1100;
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.nav-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  @media screen and (max-width: 1080px) {
+    justify-content: flex-end;
+  }
+}
+
+.nav-row .nav-toggle {
+  order: 1;
+}
+
+.nav-row .nav-menu {
+  order: 2;
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto; /* push menu to the right */
+  justify-content: flex-end;
+}
+
+.nav-actions {
+  order: 3;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-left: 12px;
 }
 
 /* Ensure dropbtn buttons in the nav receive similar styling to anchors */
@@ -1136,7 +1380,7 @@ select:focus {
 }
 
 /* Responsive for Auth Forms */
-@media (max-width: 768px) {
+@media (max-width: 1080px) {
   .auth-container {
     margin: 20px 15px;
     border-radius: 10px;
@@ -1404,44 +1648,121 @@ select:focus {
 }
 
 /* Mobile Toggle */
+.nav-center {
+  display: none;
+}
 .nav-toggle {
   display: none;
-  background: var(--secondary-color);
+  background: transparent;
   border: none;
   color: var(--white);
   font-size: 22px;
   cursor: pointer;
-  padding: 10px;
+  padding: 8px;
   border-radius: 5px;
 }
 
+/* Hamburger bars */
+.nav-toggle {
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 44px;
+  height: 36px;
+  padding: 6px;
+  background: transparent;
+}
+
+.nav-toggle .bar {
+  display: block;
+  width: 22px;
+  height: 2.5px;
+  background: var(--text-color);
+  border-radius: 2px;
+  transition: transform 220ms ease, opacity 180ms ease;
+}
+
+/* Active state: transform into an X */
+.nav-toggle.is-active .bar:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+.nav-toggle.is-active .bar:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.nav-toggle.is-active .bar:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 1080px) {
   .container {
     padding: 0;
     width: 100%;
   }
 
-  /* Mobile Top Contact Bar */
-  .top-contact-bar {
-    min-height: 60px;
-    padding: 0.8% 0;
+  /* Show hamburger toggle on small screens only */
+  .nav-center {
+    display: block;
+  }
+  .nav-toggle {
+    display: inline-flex;
   }
 
-  .top-contact-content,
-  .contact-social-row {
-    flex-direction: column;
-    /* gap: 12px; */
-    text-align: center;
+  /* Ensure topbar contact details are hidden on mobile (collapsed) so the
+     topbar remains compact; auth links remain visible. */
+  .contact-quick {
+    display: none !important;
+  }
+  .topbar-donate {
+    /* keep topbar donate hidden on mobile; mobile donate lives in the nav row */
+    display: none !important;
+  }
+
+  /* Force mobile nav to be hidden by default (defensive). The JS toggle
+     will add/remove the .active class to open/close the panel. */
+  .nav-menu {
+    display: none !important;
+  }
+
+  .nav-menu.active {
+    display: flex !important;
+  }
+
+  /* Mobile Top Contact Bar - compacted for small screens */
+  .top-contact-bar {
+    min-height: 0px; /* smaller height to save vertical space */
     padding: 0;
   }
 
-  .contact-info,
+  /* Keep items in a single row and center-aligned to avoid stacking which
+     increases height. Contact details are hidden to keep this bar compact. */
+  .top-contact-content,
+  .contact-social-row {
+    flex-direction: row;
+    /* align-items: flex-end; */
+    justify-content: right;
+    text-align: right;
+    padding: 0;
+    top: 12px;
+    gap: 0 !important;
+  }
+
+  .top-contact-bar .container {
+    padding: 5px 12px;
+  }
+
+  /* Hide verbose contact information on mobile to reduce the bar's height.
+     The auth links (.top-auth) remain visible and centered. */
+  .contact-info {
+    display: none !important;
+  }
+
   .contact-quick {
-    gap: 20px;
-    justify-content: center;
-    flex-wrap: wrap;
-    font-size: 12px;
+    display: none !important;
+  }
+  .topbar-donate {
+    display: block !important;
   }
 
   .social-links {
@@ -1481,10 +1802,6 @@ select:focus {
     /* gap: 10px; */
   }
 
-  .site-title {
-    font-size: 1.5rem;
-  }
-
   .site-subtitle {
     font-size: 0.8rem;
   }
@@ -1511,7 +1828,8 @@ select:focus {
 
   .donate-btn {
     font-size: 12px;
-    padding: 8px 16px;
+    padding: 5px;
+    margin: 0;
     border-radius: 20px;
     justify-content: center;
   }
@@ -1522,8 +1840,45 @@ select:focus {
     margin-top: 0;
     padding-bottom: 0;
   } /* Mobile Navigation */
-  .nav-toggle {
-    display: block;
+
+  /* Mobile donate button shown in the nav row beside the hamburger */
+  /* .mobile-donate {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 800;
+    margin-left: 8px;
+    cursor: pointer;
+    z-index: 1350;
+  } */
+
+  /* Ensure the hamburger (nav-toggle) is positioned at the far right on mobile,
+     with the mobile Donate button to its immediate left. */
+  .nav-row .nav-toggle {
+    margin-left: auto;
+  }
+
+  .nav-row .mobile-donate {
+    margin-left: 0;
+    margin-right: 8px;
+  }
+
+  /* Show a small mobile donate button immediately left of the hamburger */
+  .nav-row .mobile-donate {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-color);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 800;
+    margin-right: 8px;
     z-index: 1350;
   }
 
@@ -1557,6 +1912,12 @@ select:focus {
     border: 1px solid var(--white);
   }
 
+  .donate-btn {
+    background: var(--warning-yellow);
+    color: var(--primary-color);
+    border: 1px solid var(--white);
+  }
+
   /* Show mobile auth inline with nav toggle */
   .main-navigation .mobile-auth {
     display: flex;
@@ -1566,20 +1927,18 @@ select:focus {
     z-index: 1200;
   }
 
-  /* Hide the top contact auth block to avoid duplication */
+  /* Keep top contact auth block visible on mobile (user requested login/signup remain in topbar) */
   .top-auth {
-    display: none !important;
+    display: flex !important;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    position: relative;
   }
 
   /* Make logo slightly larger on mobile and ensure title visible */
   .site-logo {
     height: 80px; /* increase from 50 to 80 */
-  }
-
-  .site-title {
-    display: block;
-    font-size: 1.6rem;
-    color: var(--primary-color);
   }
 
   /* Ensure logo and title stack and are visible/centered on mobile */
@@ -1594,12 +1953,7 @@ select:focus {
     display: block;
     text-align: center;
     margin-top: 0;
-  }
-
-  .site-subtitle, .temple-subtitle {
-    display: block;
-    font-size: 0.85rem;
-    color: rgba(0,0,0,0.6);
+    line-height: 1;
   }
 
   /* Prevent mobile-auth from overlapping the center header content */
@@ -1608,49 +1962,82 @@ select:focus {
     top: 6px;
   }
 
-  /* Mobile slide-in side panel: up to 70% viewport or max 300px */
+  /* Mobile slide-in side panel: panel is hidden by default (not fixed). When opened (.active)
+     it becomes a fixed full-height panel that overlays the page. This avoids having a
+     persistent fixed/100vh element that could interfere with scrolling. */
   .nav-menu {
-    display: flex;
+    display: none; /* hidden by default on mobile until explicitly opened */
     flex-direction: column;
     gap: 0;
+    /* make sure items flow from the top (not centered vertically) */
+    justify-content: flex-start;
+    align-items: stretch;
+  }
+
+  /* When active, slide into view as a fixed overlay */
+  .nav-menu.active {
+    display: flex;
     position: fixed;
     top: 0;
-    left: -100%; /* hidden by default */
+    right: 0;
     height: 100vh;
     width: min(70vw, 300px);
     max-width: 300px;
     background: var(--white);
     color: var(--text-color);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-    padding-top: 64px; /* space for header */
+    padding-top: 12px; /* place items at the very top of the panel */
+    /* ensure items start from the top of the panel */
+    justify-content: flex-start;
+    align-items: stretch;
     z-index: 1300;
     transition: left 280ms ease;
     overflow-y: auto;
   }
 
-  /* When active, slide into view */
-  .nav-menu.active {
-    left: 0;
+  /* When the sidebar is open we add a backdrop via the root class so it
+     appears under the sidebar but above the page content. The JS toggles
+     `nav-open` on the documentElement. */
+  html.nav-open {
+    overflow: hidden; /* prevent background scrolling */
   }
 
-  /* Close button inside the slide-in panel - positioned relative to the panel */
-  .nav-menu {
-    position: fixed; /* ensure positioned ancestor for absolute close btn */
+  html.nav-open::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1290; /* sit below the sidebar (1300) but above page content */
+    pointer-events: auto; /* allow clicks to be caught by document listener */
   }
 
+  /* Mobile close button: make it a full-width top bar inside the slide panel
+     so the X is easy to find, has a larger hit area, and visually separates the
+     control from the menu items. Desktop still hides this element. */
   .nav-menu .close-btn,
   .nav-menu #navClose {
     display: block;
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: transparent;
+    position: relative; /* place in-flow at top of panel */
+    width: 100%;
+    top: 0;
+    right: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0));
     border: none;
-    font-size: 22px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 26px;
+    line-height: 1;
     cursor: pointer;
     color: var(--text-secondary);
     z-index: 1310;
-    padding: 4px 8px;
+    padding: 12px 18px; /* larger touch area */
+    text-align: right; /* keep the X on the right edge */
+  }
+
+  .nav-menu .close-btn:focus,
+  .nav-menu #navClose:focus {
+    outline: none;
+    background: rgba(0, 0, 0, 0.03);
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.03);
   }
 
   .nav-menu li {
@@ -1690,7 +2077,7 @@ select:focus {
 
   /* Override global caret to place absolutely at right inside the panel */
   .nav-menu .dropbtn::after {
-    content: '▾';
+    content: "▾";
     position: absolute;
     right: 16px;
     top: 50%;
@@ -1735,10 +2122,14 @@ select:focus {
     width: calc(100% - 40px);
     margin: 12px 20px;
     padding: 10px 16px;
-    background: linear-gradient(45deg, #ff6b6b, #ee5a52);
-    color: #fff;
+    /* background: linear-gradient(45deg, #ff6b6b, #ee5a52); */
+    /* color: #fff; */
     border-radius: 8px;
     font-weight: 800;
+
+    background: var(--warning-yellow);
+    color: var(--primary-color);
+    border: 1px solid var(--white);
   }
 
   /* Content adjustments */
@@ -1753,7 +2144,6 @@ select:focus {
 
   .site-logo {
     height: 70px;
-    margin-right: 5px;
   }
 }
 
@@ -1761,10 +2151,6 @@ select:focus {
   .contact-info {
     flex-direction: column;
     gap: 10px;
-  }
-
-  .site-title {
-    font-size: 1.5em;
   }
 
   .hero h1 {
@@ -2688,5 +3074,605 @@ select:focus {
 
   .cta-section .cta-background {
     padding: 50px 0;
+  }
+}
+
+/* Events Page Styles */
+.events-section {
+  padding: 2rem 0;
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.event-card {
+  background: var(--white);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px var(--shadow-color);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 20px var(--shadow-color);
+}
+
+.event-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  color: var(--white);
+  padding: 1.5rem;
+}
+
+.event-header h3 {
+  margin: 0 0 0.5rem 0;
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+}
+
+.event-date {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.event-details {
+  padding: 1.5rem;
+}
+
+.event-description {
+  margin: 0 0 1rem 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.event-location,
+.event-capacity,
+.event-deadline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--muted-color);
+}
+
+.event-actions {
+  padding: 1rem 1.5rem 1.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.event-actions .btn-primary,
+.event-actions .btn-secondary {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.event-actions .btn-primary {
+  background: var(--primary-color);
+  color: var(--white);
+}
+
+.event-actions .btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.event-actions .btn-secondary {
+  background: var(--light-gray);
+  color: var(--text-color);
+}
+
+.event-actions .btn-secondary:hover {
+  background: var(--border-color);
+}
+
+.no-events {
+  text-align: center;
+  padding: 3rem;
+  color: var(--muted-color);
+  font-style: italic;
+}
+
+/* Registration Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: var(--white);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-modal {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--muted-color);
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.close-modal:hover {
+  color: var(--primary-color);
+}
+
+.modal-content h2 {
+  margin: 0 0 1.5rem 0;
+  padding: 1.5rem 1.5rem 0 1.5rem;
+  font-family: var(--font-heading);
+  color: var(--primary-color);
+}
+
+#registration-form {
+  padding: 0 1.5rem 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: var(--font-primary);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(165, 22, 25, 0.1);
+}
+
+.form-group small {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--muted-color);
+  font-size: 0.8rem;
+}
+
+#apply-coupon {
+  margin-left: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--secondary-color);
+  color: var(--text-color);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#apply-coupon:hover {
+  background: #7da3b8;
+}
+
+.pricing-summary {
+  background: var(--light-gray);
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+.pricing-summary h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  color: var(--primary-color);
+}
+
+.pricing-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.pricing-total {
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 1.1rem;
+  color: var(--primary-color);
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.form-actions .btn-primary,
+.form-actions .btn-secondary {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.form-actions .btn-primary {
+  background: var(--primary-color);
+  color: var(--white);
+}
+
+.form-actions .btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.form-actions .btn-secondary {
+  background: var(--light-gray);
+  color: var(--text-color);
+}
+
+.form-actions .btn-secondary:hover {
+  background: var(--border-color);
+}
+
+/* Loading and Error States */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--muted-color);
+}
+
+.error-message {
+  background: #fee;
+  color: #c33;
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+  border-left: 4px solid #c33;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .events-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .event-actions {
+    flex-direction: column;
+  }
+
+  .modal-content {
+    width: 95%;
+    margin: 1rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+}
+
+/* Admin Events Styles */
+.admin-events-page {
+  padding: 2rem 0;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-header h1 {
+  margin: 0;
+  color: var(--primary-color);
+}
+
+.admin-section {
+  margin-bottom: 3rem;
+}
+
+.admin-section h2 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  font-family: var(--font-heading);
+}
+
+.events-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 1.5rem;
+}
+
+.event-admin-card {
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.event-admin-card:hover {
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.event-admin-header {
+  background: var(--primary-color);
+  color: var(--white);
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.event-admin-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-closed {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-past {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.status-checked-in {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.event-admin-details {
+  padding: 1.5rem;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.detail-row i {
+  color: var(--primary-color);
+  width: 16px;
+}
+
+.event-admin-actions {
+  padding: 1rem 1.5rem 1.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.event-admin-actions .btn {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.registrations-table {
+  background: var(--white);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px var(--shadow-color);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table th {
+  background: var(--light-gray);
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.admin-table tr:hover {
+  background: var(--light-gray);
+}
+
+.btn-xs {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.btn-sm {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.btn-success {
+  background: #28a745;
+  color: var(--white);
+}
+
+.btn-success:hover {
+  background: #218838;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: var(--white);
+}
+
+.btn-danger:hover {
+  background: #c82333;
+}
+
+.text-muted {
+  color: var(--muted-color);
+  font-style: italic;
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted-color);
+  font-style: italic;
+}
+
+/* Modal Enhancements */
+.large-modal .modal-content {
+  max-width: 800px;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-family: var(--font-primary);
+  resize: vertical;
+}
+
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(165, 22, 25, 0.1);
+}
+
+.event-details-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.detail-section {
+  background: var(--light-gray);
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.detail-section h3 {
+  margin: 0 0 1rem 0;
+  color: var(--primary-color);
+  font-family: var(--font-heading);
+}
+
+.detail-item {
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.detail-item strong {
+  color: var(--text-color);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Responsive Admin Styles */
+@media (max-width: 768px) {
+  .admin-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .events-admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .event-admin-actions {
+    flex-direction: column;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .admin-table {
+    font-size: 0.9rem;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 0.5rem;
   }
 }

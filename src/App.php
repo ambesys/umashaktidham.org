@@ -183,9 +183,62 @@ class App
             case '/auth/login':
                 $this->serveView('auth/login');
                 break;
-            case '/register':
-            case '/auth/register':
-                $this->serveView('auth/register');
+            case '/auth/google':
+                $this->handleOAuthRedirect('google');
+                break;
+            case '/auth/google/callback':
+                $this->handleOAuthCallback('google');
+                break;
+            case '/auth/facebook':
+                $this->handleOAuthRedirect('facebook');
+                break;
+            case '/auth/facebook/callback':
+                $this->handleOAuthCallback('facebook');
+                break;
+            case '/auth/webauthn/register/challenge':
+                $this->handleWebAuthnRegistrationChallenge();
+                break;
+            case '/auth/webauthn/register':
+                $this->handleWebAuthnRegistration();
+                break;
+            case '/auth/webauthn/authenticate/challenge':
+                $this->handleWebAuthnAuthenticationChallenge();
+                break;
+            case '/auth/webauthn/authenticate':
+                $this->handleWebAuthnAuthentication();
+                break;
+            case '/auth/webauthn/credentials':
+                $this->handleWebAuthnCredentials();
+                break;
+            case '/forgot-password':
+                $this->handleForgotPasswordForm();
+                break;
+            case '/auth/forgot-password':
+                $this->handleForgotPassword();
+                break;
+            case '/reset-password':
+                $this->handleResetPasswordForm();
+                break;
+            case '/auth/reset-password':
+                $this->handleResetPassword();
+                break;
+            case '/api/events':
+                $this->handleApiEvents();
+                break;
+            case '/api/events/my-registrations':
+                $this->handleApiMyEventRegistrations();
+                break;
+            case (preg_match('/^\/api\/events\/(\d+)$/', $uri, $matches) ? true : false):
+                $this->handleApiEvent($matches[1]);
+                break;
+            case (preg_match('/^\/api\/events\/(\d+)\/register$/', $uri, $matches) ? true : false):
+                $this->handleApiEventRegister($matches[1]);
+                break;
+            case (preg_match('/^\/api\/events\/(\d+)\/registrations$/', $uri, $matches) ? true : false):
+                $this->handleApiEventRegistrations($matches[1]);
+                break;
+            case (preg_match('/^\/api\/events\/registrations\/(\d+)\/checkin$/', $uri, $matches) ? true : false):
+                $this->handleApiEventCheckIn($matches[1]);
                 break;
             case '/dashboard':
                 $this->serveView('dashboard/index');
@@ -459,6 +512,298 @@ class App
         return $configs[$view] ?? ['middleware' => [], 'includes' => [], 'logic' => null, 'options' => []];
     }
     
+    private function handleOAuthRedirect(string $provider)
+    {
+        require_once __DIR__ . '/Services/OAuthService.php';
+        require_once __DIR__ . '/Services/SessionService.php';
+        require_once __DIR__ . '/Controllers/OAuthController.php';
+
+        // Initialize services (simplified - in production use DI container)
+        $pdo = $this->getPDO();
+        $sessionService = new \App\Services\SessionService($pdo);
+        $oauthService = new \App\Services\OAuthService($pdo, $this->getOAuthConfig(), $sessionService);
+        $oauthController = new \App\Controllers\OAuthController($oauthService, $sessionService);
+
+        $oauthController->redirect($provider);
+    }
+
+    private function handleOAuthCallback(string $provider)
+    {
+        require_once __DIR__ . '/Services/OAuthService.php';
+        require_once __DIR__ . '/Services/SessionService.php';
+        require_once __DIR__ . '/Controllers/OAuthController.php';
+
+        // Initialize services
+        $pdo = $this->getPDO();
+        $sessionService = new \App\Services\SessionService($pdo);
+        $oauthService = new \App\Services\OAuthService($pdo, $this->getOAuthConfig(), $sessionService);
+        $oauthController = new \App\Controllers\OAuthController($oauthService, $sessionService);
+
+        $oauthController->callback($provider);
+    }
+
+    private function handleWebAuthnRegistrationChallenge()
+    {
+        require_once __DIR__ . '/Services/WebAuthnService.php';
+        require_once __DIR__ . '/Controllers/WebAuthnController.php';
+
+        // Initialize services
+        $pdo = $this->getPDO();
+        $webauthnService = new \App\Services\WebAuthnService($pdo);
+        $webauthnController = new \App\Controllers\WebAuthnController($webauthnService);
+
+        $webauthnController->getRegistrationChallenge();
+    }
+
+    private function handleWebAuthnRegistration()
+    {
+        require_once __DIR__ . '/Services/WebAuthnService.php';
+        require_once __DIR__ . '/Controllers/WebAuthnController.php';
+
+        // Initialize services
+        $pdo = $this->getPDO();
+        $webauthnService = new \App\Services\WebAuthnService($pdo);
+        $webauthnController = new \App\Controllers\WebAuthnController($webauthnService);
+
+        $webauthnController->registerCredential();
+    }
+
+    private function handleWebAuthnAuthenticationChallenge()
+    {
+        require_once __DIR__ . '/Services/WebAuthnService.php';
+        require_once __DIR__ . '/Controllers/WebAuthnController.php';
+
+        // Initialize services
+        $pdo = $this->getPDO();
+        $webauthnService = new \App\Services\WebAuthnService($pdo);
+        $webauthnController = new \App\Controllers\WebAuthnController($webauthnService);
+
+        $webauthnController->getAuthenticationChallenge();
+    }
+
+    private function handleWebAuthnAuthentication()
+    {
+        require_once __DIR__ . '/Services/WebAuthnService.php';
+        require_once __DIR__ . '/Controllers/WebAuthnController.php';
+
+        // Initialize services
+        $pdo = $this->getPDO();
+        $webauthnService = new \App\Services\WebAuthnService($pdo);
+        $webauthnController = new \App\Controllers\WebAuthnController($webauthnService);
+
+        $webauthnController->authenticate();
+    }
+
+    private function handleWebAuthnCredentials()
+    {
+        require_once __DIR__ . '/Services/WebAuthnService.php';
+        require_once __DIR__ . '/Controllers/WebAuthnController.php';
+
+        // Initialize services
+        $pdo = $this->getPDO();
+        $webauthnService = new \App\Services\WebAuthnService($pdo);
+        $webauthnController = new \App\Controllers\WebAuthnController($webauthnService);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $webauthnController->getCredentials();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+            $webauthnController->removeCredential();
+        }
+    }
+
+    private function handleForgotPasswordForm()
+    {
+        require_once __DIR__ . '/Services/PasswordResetService.php';
+        require_once __DIR__ . '/Controllers/PasswordResetController.php';
+
+        // Initialize services
+        $pdo = $this->getPDO();
+        $passwordResetService = new \App\Services\PasswordResetService($pdo);
+        $passwordResetController = new \App\Controllers\PasswordResetController($passwordResetService);
+
+        $passwordResetController->showForgotPasswordForm();
+    }
+
+    private function handleForgotPassword()
+    {
+        require_once __DIR__ . '/Services/PasswordResetService.php';
+        require_once __DIR__ . '/Controllers/PasswordResetController.php';
+
+        // Initialize services
+        $pdo = $this->getPDO();
+        $passwordResetService = new \App\Services\PasswordResetService($pdo);
+        $passwordResetController = new \App\Controllers\PasswordResetController($passwordResetService);
+
+        $passwordResetController->handleForgotPassword();
+    }
+
+    private function handleResetPasswordForm()
+    {
+        require_once __DIR__ . '/Services/PasswordResetService.php';
+        require_once __DIR__ . '/Controllers/PasswordResetController.php';
+
+        // Initialize services
+        $pdo = $this->getPDO();
+        $passwordResetService = new \App\Services\PasswordResetService($pdo);
+        $passwordResetController = new \App\Controllers\PasswordResetController($passwordResetService);
+
+        $passwordResetController->showResetPasswordForm();
+    }
+
+    private function handleResetPassword()
+    {
+        require_once __DIR__ . '/Services/PasswordResetService.php';
+        require_once __DIR__ . '/Controllers/PasswordResetController.php';
+
+        // Initialize services
+        $pdo = $this->getPDO();
+        $passwordResetService = new \App\Services\PasswordResetService($pdo);
+        $passwordResetController = new \App\Controllers\PasswordResetController($passwordResetService);
+
+        $passwordResetController->handleResetPassword();
+    }
+
+    private function handleApiEvents()
+    {
+        require_once __DIR__ . '/Services/EventService.php';
+        require_once __DIR__ . '/Services/SessionService.php';
+        require_once __DIR__ . '/Controllers/EventController.php';
+
+        // Initialize services
+        $pdo = $this->getPDO();
+        $sessionService = new \App\Services\SessionService($pdo);
+        $eventService = new \App\Services\EventService($pdo);
+        $eventController = new \App\Controllers\EventController($eventService, $sessionService);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $eventController->index();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $eventController->create();
+        }
+    }
+
+    private function handleApiEvent($eventId)
+    {
+        require_once __DIR__ . '/Services/EventService.php';
+        require_once __DIR__ . '/Services/SessionService.php';
+        require_once __DIR__ . '/Controllers/EventController.php';
+
+        // Initialize services
+        $pdo = $this->getPDO();
+        $sessionService = new \App\Services\SessionService($pdo);
+        $eventService = new \App\Services\EventService($pdo);
+        $eventController = new \App\Controllers\EventController($eventService, $sessionService);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $eventController->show($eventId);
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+            $eventController->update($eventId);
+        }
+    }
+
+    private function handleApiEventRegister($eventId)
+    {
+        require_once __DIR__ . '/Services/EventService.php';
+        require_once __DIR__ . '/Services/SessionService.php';
+        require_once __DIR__ . '/Controllers/EventController.php';
+
+        // Initialize services
+        $pdo = $this->getPDO();
+        $sessionService = new \App\Services\SessionService($pdo);
+        $eventService = new \App\Services\EventService($pdo);
+        $eventController = new \App\Controllers\EventController($eventService, $sessionService);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $eventController->register($eventId);
+        }
+    }
+
+    private function handleApiMyEventRegistrations()
+    {
+        require_once __DIR__ . '/Services/EventService.php';
+        require_once __DIR__ . '/Services/SessionService.php';
+        require_once __DIR__ . '/Controllers/EventController.php';
+
+        // Initialize services
+        $pdo = $this->getPDO();
+        $sessionService = new \App\Services\SessionService($pdo);
+        $eventService = new \App\Services\EventService($pdo);
+        $eventController = new \App\Controllers\EventController($eventService, $sessionService);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $eventController->myRegistrations();
+        }
+    }
+
+    private function handleApiEventRegistrations($eventId)
+    {
+        require_once __DIR__ . '/Services/EventService.php';
+        require_once __DIR__ . '/Services/SessionService.php';
+        require_once __DIR__ . '/Controllers/EventController.php';
+
+        // Initialize services
+        $pdo = $this->getPDO();
+        $sessionService = new \App\Services\SessionService($pdo);
+        $eventService = new \App\Services\EventService($pdo);
+        $eventController = new \App\Controllers\EventController($eventService, $sessionService);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $eventController->getRegistrations($eventId);
+        }
+    }
+
+    private function handleApiEventCheckIn($registrationId)
+    {
+        require_once __DIR__ . '/Services/EventService.php';
+        require_once __DIR__ . '/Services/SessionService.php';
+        require_once __DIR__ . '/Controllers/EventController.php';
+
+        // Initialize services
+        $pdo = $this->getPDO();
+        $sessionService = new \App\Services\SessionService($pdo);
+        $eventService = new \App\Services\EventService($pdo);
+        $eventController = new \App\Controllers\EventController($eventService, $sessionService);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $eventController->checkIn($registrationId);
+        }
+    }
+
+    private function getPDO()
+    {
+        // Get PDO instance (reuse existing pattern from config)
+        static $pdo = null;
+        if ($pdo === null) {
+            $cfg = __DIR__ . '/../config/database.php';
+            if (file_exists($cfg)) {
+                require $cfg;
+                if (isset($pdo) && $pdo instanceof PDO) {
+                    return $pdo;
+                }
+            }
+            // Fallback - create PDO directly (for development)
+            $pdo = new PDO('sqlite::memory:'); // In production, use real DB config
+        }
+        return $pdo;
+    }
+
+    private function getOAuthConfig()
+    {
+        // OAuth configuration (should be in config file in production)
+        return [
+            'google' => [
+                'clientId' => getenv('GOOGLE_CLIENT_ID') ?: '615568269281-ic8pkglea46cm0emchr0s4s23kemha72.apps.googleusercontent.com',
+                'clientSecret' => getenv('GOOGLE_CLIENT_SECRET') ?: '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',
+                'redirectUri' => 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/auth/google/callback',
+            ],
+            'facebook' => [
+                'clientId' => getenv('FACEBOOK_CLIENT_ID') ?: 'your-facebook-client-id',
+                'clientSecret' => getenv('FACEBOOK_CLIENT_SECRET') ?: 'your-facebook-client-secret',
+                'redirectUri' => 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/auth/facebook/callback',
+            ]
+        ];
+    }
+
     private function serve404()
     {
         http_response_code(404);

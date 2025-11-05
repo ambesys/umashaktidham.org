@@ -34,7 +34,7 @@
                 <div class="stat-icon">
                     <i class="fas fa-calendar-alt"></i>
                 </div>
-                <div class="stat-number">25+</div>
+                <div class="stat-number">5+</div>
                 <div class="stat-label">Annual Events</div>
             </div>
             <div class="stat-item">

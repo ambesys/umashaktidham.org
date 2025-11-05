@@ -6,7 +6,11 @@ $pageTitle = 'Festival Celebrations - Uma Shakti Dham';
     <div class="container">
         <div class="construction-content">
 
-            <h1><i class="fas fa-pray"></i> Festival Celebrations</h1>
+            <div class="page-heading">
+                <div class="container">
+                    <h1><i class="fas fa-pray"></i> Festival Celebrations</h1>
+                </div>
+            </div>
 
             <div class="construction-message">
                 <h2>Page Under Construction</h2>

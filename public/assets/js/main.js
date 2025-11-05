@@ -4,6 +4,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mobile navigation toggle
     const navToggle = document.getElementById('navToggle');
     const navMenu = document.getElementById('mainNav');
+    // Defensive cleanup: ensure mobile sidebar is closed on initial load.
+    // This prevents any leftover class/state from opening the sidebar by default.
+    if (navMenu && navMenu.classList.contains('active')) {
+        navMenu.classList.remove('active');
+    }
+    if (document.documentElement.classList.contains('nav-open')) {
+        document.documentElement.classList.remove('nav-open');
+    }
+    if (navToggle) {
+        try {
+            navToggle.setAttribute('aria-expanded', 'false');
+            // Ensure hamburger visual state is reset on load
+            navToggle.classList.remove('is-active');
+        } catch (err) {}
+    }
     
     if (navToggle && navMenu) {
         navToggle.addEventListener('click', function() {
@@ -14,9 +29,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update aria-expanded attribute
             const expanded = this.getAttribute('aria-expanded') === 'true';
             this.setAttribute('aria-expanded', (!expanded).toString());
-            
-            // Update button text
-            this.textContent = navMenu.classList.contains('active') ? '✕ Close' : '☰ Menu';
+            // Toggle visual hamburger -> X
+            this.classList.toggle('is-active');
         });
         
         // Dropdown toggles: clicking the main dropbtn should open/close the submenu
@@ -24,31 +38,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const dropdownItems = document.querySelectorAll('.dropdown .dropbtn');
         dropdownItems.forEach(dropbtn => {
             dropbtn.addEventListener('click', function(e) {
-                // Prevent navigation and toggle the dropdown
-                e.preventDefault();
-                // Prevent other click handlers from closing the nav/menu
-                e.stopPropagation();
-                const dropdown = this.closest('.dropdown');
+                var isMobile = window.innerWidth <= 768;
+                // On mobile (sidebar) we want click to expand/collapse submenu without navigating.
+                if (isMobile) {
+                    // Prevent navigation and toggle the dropdown
+                    e.preventDefault();
+                    // Prevent other click handlers from closing the nav/menu
+                    e.stopPropagation();
+                    const dropdown = this.closest('.dropdown');
 
-                // Close all other dropdowns
-                document.querySelectorAll('.dropdown.active').forEach(d => {
-                    if (d !== dropdown) d.classList.remove('active');
-                });
+                    // Close all other dropdowns
+                    document.querySelectorAll('.dropdown.active').forEach(d => {
+                        if (d !== dropdown) d.classList.remove('active');
+                    });
 
-                // Toggle current dropdown
-                dropdown.classList.toggle('active');
+                    // Toggle current dropdown
+                    dropdown.classList.toggle('active');
 
-                // Update aria-expanded on the trigger for accessibility
-                const expanded = dropdown.classList.contains('active');
-                try { this.setAttribute('aria-expanded', expanded.toString()); } catch (err) {}
-                // If opening a dropdown inside the sidebar, ensure the sidebar stays open
-                if (expanded && navMenu && !navMenu.classList.contains('active')) {
-                    navMenu.classList.add('active');
-                    document.documentElement.classList.add('nav-open');
-                    if (navToggle) {
-                        navToggle.setAttribute('aria-expanded', 'true');
-                        navToggle.textContent = '✕ Close';
-                    }
+                    // Update aria-expanded on the trigger for accessibility
+                    const expanded = dropdown.classList.contains('active');
+                    try { this.setAttribute('aria-expanded', expanded.toString()); } catch (err) {}
+                } else {
+                    // On desktop allow normal navigation for parent links (if any)
+                    // but keep hover behavior for dropdowns. Do nothing special here.
                 }
             });
 
@@ -69,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // ensure nav-open removed and toggle updated
                 document.documentElement.classList.remove('nav-open');
                 navToggle.setAttribute('aria-expanded', 'false');
-                navToggle.textContent = '☰ Menu';
+                navToggle.classList.remove('is-active');
                 
                 // Close all dropdowns
                 document.querySelectorAll('.dropdown.active').forEach(d => {
@@ -85,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 navMenu.classList.remove('active');
                 document.documentElement.classList.remove('nav-open');
                 navToggle.setAttribute('aria-expanded', 'false');
-                navToggle.textContent = '☰ Menu';
+                navToggle.classList.remove('is-active');
             });
         }
 
@@ -96,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 navMenu.classList.remove('active');
                 document.documentElement.classList.remove('nav-open');
                 navToggle.setAttribute('aria-expanded', 'false');
-                navToggle.textContent = '☰ Menu';
+                navToggle.classList.remove('is-active');
             }
         });
     }

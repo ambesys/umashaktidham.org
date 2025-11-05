@@ -3,7 +3,11 @@ $pageTitle = 'Hindu Rituals - Uma Shakti Dham';
 ?>
 
 <div class="container">
-    <h1><i class="fas fa-praying-hands"></i> Hindu Rituals</h1>
+    <div class="page-heading">
+        <div class="container">
+            <h1><i class="fas fa-praying-hands"></i> Hindu Rituals</h1>
+        </div>
+    </div>
     <p>Explore the sacred rituals and ceremonies that form the foundation of Hindu spiritual practice.</p>
 
     <div class="under-construction-page">

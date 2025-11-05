@@ -80,7 +80,7 @@ if (!$isAccessPage) {
     include __DIR__ . '/header.php';
 }
 ?>
-
+<div class="main-container">
 <?php 
 // Render the content without automatic container wrapper
 // Each view can decide its own container strategy
@@ -90,6 +90,7 @@ if (isset($content)) {
     include $contentFile;
 }
 ?>
+</div>
 
 <?php if (!$isAccessPage) { include __DIR__ . '/footer.php'; } ?>
 

@@ -2,31 +2,123 @@
 
 namespace App\Services;
 
-use App\Models\User;
+use PDO;
 
+/**
+ * AuthService
+ *
+ * Responsible for registration/login flows. Accepts an optional PDO instance
+ * so tests can inject an in-memory DB. Falls back to the project's
+ * `config/database.php` when not provided.
+ */
 class AuthService
 {
-    public function register(array $data)
-    {
-        // Validate and create a new user
-        $user = new User();
-        $user->name = $data['name'];
-        $user->email = $data['email'];
-        $user->password = password_hash($data['password'], PASSWORD_BCRYPT);
-        $user->save();
+    private $pdo;
+    private $sessionService;
 
-        return $user;
+    public function __construct(PDO $pdo = null, SessionService $sessionService = null)
+    {
+        if ($pdo) {
+            $this->pdo = $pdo;
+            $this->sessionService = $sessionService;
+            return;
+        }
+
+        // fallback to project config (existing pattern)
+        $cfg = __DIR__ . '/../../config/database.php';
+        if (file_exists($cfg)) {
+            require $cfg; // expects $pdo
+            if (isset($pdo) && $pdo instanceof PDO) {
+                $this->pdo = $pdo;
+            }
+        }
+
+        if (!$this->pdo) {
+            throw new \RuntimeException('AuthService requires a PDO instance');
+        }
+
+        // Initialize session service if not provided
+        if (!$this->sessionService) {
+            require_once __DIR__ . '/SessionService.php';
+            $this->sessionService = new SessionService($this->pdo);
+        }
     }
 
+    /**
+     * Register a new user and create a canonical family_member record.
+     * Returns the created user row as associative array on success, false on failure.
+     */
+    public function register(array $data)
+    {
+        // minimal validation
+        if (empty($data['email']) || empty($data['password'])) {
+            return false;
+        }
+
+        $username = $data['username'] ?? null;
+        $name = $data['name'] ?? $username;
+        $email = $data['email'];
+        $hashed = password_hash($data['password'], PASSWORD_BCRYPT);
+
+        $stmt = $this->pdo->prepare("INSERT INTO users (username, name, email, password, created_at) VALUES (:username, :name, :email, :password, CURRENT_TIMESTAMP)");
+        $stmt->bindParam(':username', $username);
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':password', $hashed);
+
+        if (!$stmt->execute()) {
+            return false;
+        }
+
+        $userId = (int)$this->pdo->lastInsertId();
+
+        // set default role 'user' if exists
+        $r = $this->pdo->prepare("SELECT id FROM roles WHERE name = 'user' LIMIT 1");
+        $r->execute();
+        $roleRow = $r->fetch(PDO::FETCH_ASSOC);
+        if ($roleRow && !empty($roleRow['id'])) {
+            $roleId = (int)$roleRow['id'];
+            $u = $this->pdo->prepare("UPDATE users SET role_id = :role_id WHERE id = :id");
+            $u->bindParam(':role_id', $roleId, PDO::PARAM_INT);
+            $u->bindParam(':id', $userId, PDO::PARAM_INT);
+            $u->execute();
+        }
+
+        // create canonical family_member for this user
+        $fm = $this->pdo->prepare("INSERT INTO family_members (user_id, first_name, last_name, email, created_at) VALUES (:user_id, :first_name, :last_name, :email, CURRENT_TIMESTAMP)");
+        $first = $data['first_name'] ?? $name;
+        $last = $data['last_name'] ?? null;
+        $fm->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $fm->bindParam(':first_name', $first);
+        $fm->bindParam(':last_name', $last);
+        $fm->bindParam(':email', $email);
+        $fm->execute();
+
+        // return created user row
+        $q = $this->pdo->prepare("SELECT * FROM users WHERE id = :id LIMIT 1");
+        $q->bindParam(':id', $userId, PDO::PARAM_INT);
+        $q->execute();
+        return $q->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Basic login: returns user row on success, false otherwise.
+     */
     public function login(array $data)
     {
-        // Find user by email
-        $user = User::where('email', $data['email'])->first();
+        if (empty($data['email']) || empty($data['password'])) {
+            return false;
+        }
 
-        if ($user && password_verify($data['password'], $user->password)) {
-            // Start user session
-            $_SESSION['user_id'] = $user->id;
-            return true;
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
+        $stmt->bindParam(':email', $data['email']);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($user && password_verify($data['password'], $user['password'])) {
+            // set session using SessionService
+            $this->sessionService->setAuthenticatedUser($user['id'], $user['role_id']);
+            return $user;
         }
 
         return false;
@@ -34,27 +126,38 @@ class AuthService
 
     public function logout()
     {
-        // Destroy user session
-        session_destroy();
+        $this->sessionService->logout();
     }
 
-    public function getUserById($id)
+    /**
+     * Get user by email
+     */
+    public function getUserByEmail(string $email): ?array
     {
-        return User::find($id);
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
+        $stmt->bindParam(':email', $email);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
+    /**
+     * Update user profile
+     */
     public function updateUser($id, array $data)
     {
-        $user = User::find($id);
-        if ($user) {
-            $user->name = $data['name'] ?? $user->name;
-            $user->email = $data['email'] ?? $user->email;
-            if (isset($data['password'])) {
-                $user->password = password_hash($data['password'], PASSWORD_BCRYPT);
-            }
-            $user->save();
-        }
+        // minimal update implementation
+        $fields = [];
+        $params = [':id' => $id];
+        if (isset($data['name'])) { $fields[] = 'name = :name'; $params[':name'] = $data['name']; }
+        if (isset($data['email'])) { $fields[] = 'email = :email'; $params[':email'] = $data['email']; }
+        if (isset($data['password'])) { $fields[] = 'password = :password'; $params[':password'] = password_hash($data['password'], PASSWORD_BCRYPT); }
 
-        return $user;
+        if (empty($fields)) return false;
+        $sql = 'UPDATE users SET ' . implode(', ', $fields) . ' WHERE id = :id';
+        $stmt = $this->pdo->prepare($sql);
+        foreach ($params as $k => $v) {
+            $stmt->bindValue($k, $v);
+        }
+        return $stmt->execute();
     }
 }

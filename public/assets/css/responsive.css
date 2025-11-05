@@ -1,7 +1,7 @@
 /* Responsive rules */
 @media (max-width: 800px) {
     .main-nav ul.nav-left{display:none}
-    .nav-toggle{display:inline-block}
+    /* .nav-toggle{display:inline-block} */
     .header-inner{gap:8px}
 }
 
