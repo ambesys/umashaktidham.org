@@ -60,8 +60,8 @@ class AuthController
             $user = $this->authService->login($data);
             if ($user) {
                 // Set session variables
-                $_SESSION['user_id'] = $user->id;
-                $_SESSION['user_role'] = $user->role;
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_role_id'] = $user['role_id'];
 
                 // Redirect to dashboard
                 header('Location: /public/dashboard.php');

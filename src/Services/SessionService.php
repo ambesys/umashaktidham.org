@@ -179,7 +179,7 @@ class SessionService
      */
     public function getCurrentUserRole(): ?int
     {
-        return $_SESSION['user_role'] ?? null;
+        return $_SESSION['user_role_id'] ?? null;
     }
 
     /**
@@ -188,13 +188,16 @@ class SessionService
     public function setAuthenticatedUser(int $userId, ?int $roleId = null): void
     {
         $_SESSION['user_id'] = $userId;
-        if ($roleId !== null) {
-            $_SESSION['user_role'] = $roleId;
-        }
+        $_SESSION['user_role_id'] = $roleId;
+
+        // Update user's last_login_at timestamp
+        $stmt = $this->pdo->prepare("UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = :id");
+        $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
     }
 
     /**
-     * Logout user
+     * Logout user and destroy session
      */
     public function logout(): void
     {
