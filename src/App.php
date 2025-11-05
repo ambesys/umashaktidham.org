@@ -464,4 +464,21 @@ class App
         http_response_code(404);
         echo "<h1>404 - Page Not Found</h1>";
     }
+
+    private function getOAuthConfig()
+    {
+        // OAuth configuration using environment variables
+        return [
+            'google' => [
+                'clientId' => GOOGLE_CLIENT_ID,
+                'clientSecret' => GOOGLE_CLIENT_SECRET,
+                'redirectUri' => BASE_URL . '/auth/google/callback',
+            ],
+            'facebook' => [
+                'clientId' => FACEBOOK_CLIENT_ID,
+                'clientSecret' => FACEBOOK_CLIENT_SECRET,
+                'redirectUri' => BASE_URL . '/auth/facebook/callback',
+            ]
+        ];
+    }
 }
