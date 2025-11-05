@@ -215,7 +215,7 @@ class OAuthService
         $stmt = $this->pdo->prepare(
             "SELECT u.* FROM users u
              JOIN user_providers up ON u.id = up.user_id
-             WHERE up.provider = :provider AND up.provider_id = :provider_id LIMIT 1"
+             WHERE up.provider = :provider AND up.provider_user_id = :provider_id LIMIT 1"
         );
         $stmt->bindParam(':provider', $provider);
         $stmt->bindParam(':provider_id', $providerId);
@@ -240,13 +240,13 @@ class OAuthService
     private function linkProviderToUser(int $userId, string $provider, string $providerId, array $userData): void
     {
         $stmt = $this->pdo->prepare(
-            "INSERT INTO user_providers (user_id, provider, provider_id, provider_data, created_at)
-             VALUES (:user_id, :provider, :provider_id, :provider_data, CURRENT_TIMESTAMP)"
+            "INSERT INTO user_providers (user_id, provider, provider_user_id, profile, created_at)
+             VALUES (:user_id, :provider, :provider_id, :profile_data, CURRENT_TIMESTAMP)"
         );
         $stmt->bindValue(':user_id', $userId);
         $stmt->bindValue(':provider', $provider);
         $stmt->bindValue(':provider_id', $providerId);
-        $stmt->bindValue(':provider_data', json_encode($userData));
+        $stmt->bindValue(':profile_data', json_encode($userData));
         $stmt->execute();
     }
 
