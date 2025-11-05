@@ -6,29 +6,39 @@ use App\Models\User;
 use App\Models\Member;
 use App\Models\Family;
 use App\Services\AuthService;
+use App\Services\SessionService;
 
 class DashboardController
 {
     protected $authService;
+    protected $sessionService;
 
     public function __construct()
     {
-        $this->authService = new AuthService();
+        // Load PDO from project config (this file should populate $pdo)
+        $cfg = __DIR__ . '/../../config/database.php';
+        if (file_exists($cfg)) {
+            require $cfg;
+        }
+
+        // Initialize session and auth services with PDO
+        $this->sessionService = new SessionService($pdo ?? null);
+        $this->authService = new AuthService($pdo ?? null, $this->sessionService);
     }
 
     public function index()
     {
-        // Check if user is authenticated
-        if (!$this->authService->isAuthenticated()) {
+        // Check authentication via SessionService
+        if (!$this->sessionService->isAuthenticated()) {
             header('Location: /login.php');
             exit();
         }
 
-        // Get user details
-        $userId = $_SESSION['user_id'];
+        // Get user details from session service
+        $userId = $this->sessionService->getCurrentUserId();
         $user = User::find($userId);
-        $members = Member::where('user_id', $userId)->get();
-        $families = Family::where('user_id', $userId)->get();
+        $members = is_callable([Member::class, 'where']) ? Member::where('user_id', $userId)->get() : [];
+        $families = is_callable([Family::class, 'where']) ? Family::where('user_id', $userId)->get() : [];
 
         // Load the dashboard view
         include_once __DIR__ . '/../Views/dashboard/index.php';
@@ -36,13 +46,13 @@ class DashboardController
 
     public function editProfile()
     {
-        // Check if user is authenticated
-        if (!$this->authService->isAuthenticated()) {
+        // Check authentication via SessionService
+        if (!$this->sessionService->isAuthenticated()) {
             header('Location: /login.php');
             exit();
         }
 
-        $userId = $_SESSION['user_id'];
+        $userId = $this->sessionService->getCurrentUserId();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Update user details
@@ -59,24 +69,24 @@ class DashboardController
 
     public function getDashboardData()
     {
-        // Check if user is authenticated
-        if (!$this->authService->isAuthenticated()) {
+        // Check authentication via SessionService
+        if (!$this->sessionService->isAuthenticated()) {
             header('Location: /login');
             exit();
         }
 
-        // Get user details
-        $userId = $_SESSION['user_id'];
+        // Get user details from session
+        $userId = $this->sessionService->getCurrentUserId();
         $user = User::find($userId);
-        $members = Member::where('user_id', $userId)->get();
-        $families = Family::where('user_id', $userId)->get();
+        $members = is_callable([Member::class, 'where']) ? Member::where('user_id', $userId)->get() : [];
+        $families = is_callable([Family::class, 'where']) ? Family::where('user_id', $userId)->get() : [];
 
         return [
             'user' => $user,
             'members' => $members,
             'families' => $families,
-            'memberCount' => count($members),
-            'familyCount' => count($families)
+            'memberCount' => is_array($members) ? count($members) : 0,
+            'familyCount' => is_array($families) ? count($families) : 0
         ];
     }
 }
