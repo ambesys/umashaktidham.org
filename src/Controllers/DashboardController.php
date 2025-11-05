@@ -41,13 +41,13 @@ class DashboardController
         // Get user details from session service
         $userId = $this->sessionService->getCurrentUserId();
         
-    // Initialize models with database connection
-    $userModel = new User($this->pdo ?? null);
-        $memberModel = new Member();
-        $familyModel = new Family();
+        // Initialize models with database connection
+        $userModel = new User($this->pdo ?? null);
+        $memberModel = new Member($this->pdo ?? null);
+        $familyModel = new Family($this->pdo ?? null);
         
         $user = $userModel->find($userId);
-        $members = method_exists($memberModel, 'getAll') ? $memberModel->getAll() : []; // Note: this gets all members, not just user's
+    $members = method_exists($memberModel, 'getAll') ? $memberModel->getAll($userId) : []; // fetch members for current user
         $families = method_exists($familyModel, 'getFamilyByUserId') ? $familyModel->getFamilyByUserId($userId) : [];
 
         // Load the dashboard view
@@ -90,13 +90,13 @@ class DashboardController
         // Get user details from session
         $userId = $this->sessionService->getCurrentUserId();
         
-    // Initialize models with database connection
-    $userModel = new User($this->pdo ?? null);
-        $memberModel = new Member();
-        $familyModel = new Family();
+        // Initialize models with database connection
+        $userModel = new User($this->pdo ?? null);
+        $memberModel = new Member($this->pdo ?? null);
+        $familyModel = new Family($this->pdo ?? null);
         
         $user = $userModel->find($userId);
-        $members = method_exists($memberModel, 'getAll') ? $memberModel->getAll() : [];
+    $members = method_exists($memberModel, 'getAll') ? $memberModel->getAll($userId) : [];
         $families = method_exists($familyModel, 'getFamilyByUserId') ? $familyModel->getFamilyByUserId($userId) : [];
 
         return [

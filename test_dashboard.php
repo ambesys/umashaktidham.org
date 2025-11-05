@@ -20,7 +20,7 @@ $testPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 // Create minimal schema needed by dashboard
 $testPdo->exec("CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT, role_id INTEGER);");
 $testPdo->exec("CREATE TABLE families (id INTEGER PRIMARY KEY AUTOINCREMENT, family_name TEXT, created_by_user_id INTEGER);");
-$testPdo->exec("CREATE TABLE members (id INTEGER PRIMARY KEY AUTOINCREMENT, first_name TEXT, last_name TEXT, email TEXT);");
+$testPdo->exec("CREATE TABLE family_members (id INTEGER PRIMARY KEY AUTOINCREMENT, family_id INTEGER, user_id INTEGER, first_name TEXT, last_name TEXT, birth_year INTEGER, gender TEXT, email TEXT, phone_e164 TEXT, relationship TEXT, relationship_other TEXT, occupation TEXT, business_info TEXT, created_at TEXT, updated_at TEXT);");
 
 // Insert a test user (id = 1)
 $stmt = $testPdo->prepare('INSERT INTO users (name, email, role_id) VALUES (:name, :email, :role)');
