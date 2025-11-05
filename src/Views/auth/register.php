@@ -61,11 +61,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="birth_date"><i class="fas fa-calendar-alt"></i> Date of Birth</label>
-                    <input type="date" id="birth_date" name="birth_date">
-                </div>
-
-                <div class="form-group">
                     <label for="city"><i class="fas fa-map-marker-alt"></i> City</label>
                     <input type="text" id="city" name="city" placeholder="Your city">
                 </div>
