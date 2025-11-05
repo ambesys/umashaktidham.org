@@ -44,6 +44,14 @@ class User
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function find($id)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM $this->table WHERE id = :id");
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function update($id, $data)
     {
         // resolve role_id if provided

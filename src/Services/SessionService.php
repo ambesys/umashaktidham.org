@@ -15,13 +15,19 @@ class SessionService
     private $pdo;
     private $sessionLifetime;
 
-    public function __construct(PDO $pdo, int $sessionLifetime = 7200) // 2 hours default
+    public function __construct(?PDO $pdo = null, int $sessionLifetime = 7200) // 2 hours default
     {
         $this->pdo = $pdo;
         $this->sessionLifetime = $sessionLifetime;
 
         // Only configure session handlers if session is not already active
         if (session_status() !== PHP_SESSION_ACTIVE) {
+            // If no PDO, use regular PHP sessions
+            if ($pdo === null) {
+                session_start();
+                return;
+            }
+
             // Set up session handlers
             session_set_save_handler(
                 [$this, 'open'],
@@ -65,6 +71,10 @@ class SessionService
      */
     public function read(string $sessionId): string
     {
+        if ($this->pdo === null) {
+            return '';
+        }
+        
         $stmt = $this->pdo->prepare(
             "SELECT data FROM sessions WHERE session_id = :session_id AND expires_at > CURRENT_TIMESTAMP"
         );

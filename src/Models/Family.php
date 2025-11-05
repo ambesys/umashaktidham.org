@@ -2,57 +2,77 @@
 
 namespace App\Models;
 
-use Database\Database;
+use PDO;
 
 class Family
 {
-    private $db;
+    private $db; // PDO
 
-    public function __construct()
+    public function __construct(?PDO $pdo = null)
     {
-        $this->db = new Database();
+        if ($pdo instanceof PDO) {
+            $this->db = $pdo;
+            return;
+        }
+
+        if (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof PDO) {
+            $this->db = $GLOBALS['pdo'];
+            return;
+        }
+
+        $cfg = __DIR__ . '/../../config/database.php';
+        if (file_exists($cfg)) {
+            require_once $cfg;
+            if (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof PDO) {
+                $this->db = $GLOBALS['pdo'];
+                return;
+            }
+        }
+
+        throw new \RuntimeException('No PDO available for Family model');
     }
 
-    public function createFamily($userId, $familyData)
+    public function createFamily(int $userId, array $familyData): bool
     {
-        // Code to insert family data into the database
-        $query = "INSERT INTO families (user_id, family_member_name, relationship, age) VALUES (:user_id, :name, :relationship, :age)";
+        $query = "INSERT INTO families (family_name, created_by_user_id, address_street, address_city, address_state, address_zip) VALUES (:family_name, :created_by_user_id, :street, :city, :state, :zip)";
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->bindParam(':name', $familyData['name']);
-        $stmt->bindParam(':relationship', $familyData['relationship']);
-        $stmt->bindParam(':age', $familyData['age']);
-        return $stmt->execute();
+        return $stmt->execute([
+            ':family_name' => $familyData['family_name'] ?? $familyData['name'] ?? null,
+            ':created_by_user_id' => $userId,
+            ':street' => $familyData['address_street'] ?? null,
+            ':city' => $familyData['address_city'] ?? null,
+            ':state' => $familyData['address_state'] ?? null,
+            ':zip' => $familyData['address_zip'] ?? null,
+        ]);
     }
 
-    public function getFamilyByUserId($userId)
+    public function getFamilyByUserId(int $userId): array
     {
-        // Code to retrieve family details by user ID
-        $query = "SELECT * FROM families WHERE user_id = :user_id";
+        $query = "SELECT * FROM families WHERE created_by_user_id = :user_id";
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':user_id', $userId);
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function updateFamily($familyId, $familyData)
+    public function updateFamily(int $familyId, array $familyData): bool
     {
-        // Code to update family details
-        $query = "UPDATE families SET family_member_name = :name, relationship = :relationship, age = :age WHERE id = :id";
+        $query = "UPDATE families SET family_name = :name, address_street = :street, address_city = :city, address_state = :state, address_zip = :zip WHERE id = :id";
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':id', $familyId);
-        $stmt->bindParam(':name', $familyData['name']);
-        $stmt->bindParam(':relationship', $familyData['relationship']);
-        $stmt->bindParam(':age', $familyData['age']);
+        $stmt->bindParam(':id', $familyId, PDO::PARAM_INT);
+        $stmt->bindValue(':name', $familyData['family_name'] ?? $familyData['name'] ?? null);
+        $stmt->bindValue(':street', $familyData['address_street'] ?? null);
+        $stmt->bindValue(':city', $familyData['address_city'] ?? null);
+        $stmt->bindValue(':state', $familyData['address_state'] ?? null);
+        $stmt->bindValue(':zip', $familyData['address_zip'] ?? null);
         return $stmt->execute();
     }
 
-    public function deleteFamily($familyId)
+    public function deleteFamily(int $familyId): bool
     {
-        // Code to delete a family member
         $query = "DELETE FROM families WHERE id = :id";
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':id', $familyId);
+        $stmt->bindParam(':id', $familyId, PDO::PARAM_INT);
         return $stmt->execute();
     }
 }

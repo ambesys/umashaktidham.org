@@ -29,7 +29,7 @@ $adminController = new AdminController();
 $users = $adminController->getAllUsers();
 
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
-    header('Location: /uma-shakti-dham/public/index.php');
+    header('Location: /uma-shakti-dham/index.php');
     exit();
 }
 

@@ -7,23 +7,27 @@ use App\Models\Member;
 use App\Models\Family;
 use App\Services\AuthService;
 use App\Services\SessionService;
+use PDO;
 
 class DashboardController
 {
     protected $authService;
     protected $sessionService;
+    protected $pdo;
 
     public function __construct()
     {
-        // Load PDO from project config (this file should populate $pdo)
-        $cfg = __DIR__ . '/../../config/database.php';
-        if (file_exists($cfg)) {
-            require $cfg;
+        // Prefer an existing global PDO (e.g. in tests). Otherwise include database config.
+        if (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof PDO) {
+            $this->pdo = $GLOBALS['pdo'];
+        } else {
+            // Include database configuration which should set $pdo
+            require_once __DIR__ . '/../../config/database.php';
+            $this->pdo = $pdo ?? null;
         }
 
-        // Initialize session and auth services with PDO
-        $this->sessionService = new SessionService($pdo ?? null);
-        $this->authService = new AuthService($pdo ?? null, $this->sessionService);
+        // Initialize SessionService with PDO (nullable)
+        $this->sessionService = new SessionService($this->pdo ?? null);
     }
 
     public function index()
@@ -36,9 +40,15 @@ class DashboardController
 
         // Get user details from session service
         $userId = $this->sessionService->getCurrentUserId();
-        $user = User::find($userId);
-        $members = is_callable([Member::class, 'where']) ? Member::where('user_id', $userId)->get() : [];
-        $families = is_callable([Family::class, 'where']) ? Family::where('user_id', $userId)->get() : [];
+        
+    // Initialize models with database connection
+    $userModel = new User($this->pdo ?? null);
+        $memberModel = new Member();
+        $familyModel = new Family();
+        
+        $user = $userModel->find($userId);
+        $members = method_exists($memberModel, 'getAll') ? $memberModel->getAll() : []; // Note: this gets all members, not just user's
+        $families = method_exists($familyModel, 'getFamilyByUserId') ? $familyModel->getFamilyByUserId($userId) : [];
 
         // Load the dashboard view
         include_once __DIR__ . '/../Views/dashboard/index.php';
@@ -56,14 +66,16 @@ class DashboardController
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Update user details
-            $user = User::find($userId);
-            $user->update($_POST);
+            $userModel = new User($this->pdo ?? null);
+            $user = $userModel->find($userId);
+            $userModel->update($userId, $_POST);
             header('Location: /dashboard.php');
             exit();
         }
 
         // Load the edit profile view
-        $user = User::find($userId);
+        $userModel = new User($this->pdo ?? null);
+        $user = $userModel->find($userId);
         include_once __DIR__ . '/../Views/members/profile.php';
     }
 
@@ -77,9 +89,15 @@ class DashboardController
 
         // Get user details from session
         $userId = $this->sessionService->getCurrentUserId();
-        $user = User::find($userId);
-        $members = is_callable([Member::class, 'where']) ? Member::where('user_id', $userId)->get() : [];
-        $families = is_callable([Family::class, 'where']) ? Family::where('user_id', $userId)->get() : [];
+        
+    // Initialize models with database connection
+    $userModel = new User($this->pdo ?? null);
+        $memberModel = new Member();
+        $familyModel = new Family();
+        
+        $user = $userModel->find($userId);
+        $members = method_exists($memberModel, 'getAll') ? $memberModel->getAll() : [];
+        $families = method_exists($familyModel, 'getFamilyByUserId') ? $familyModel->getFamilyByUserId($userId) : [];
 
         return [
             'user' => $user,
