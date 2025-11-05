@@ -855,11 +855,13 @@ class App
             throw new \RuntimeException('Google OAuth credentials not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.');
         }
 
+        // Allow explicit redirect URIs via environment variables to avoid
+        // redirect_uri_mismatch issues (exact match required by Google)
         $config = [
             'google' => [
                 'clientId' => $googleClientId,
                 'clientSecret' => $googleClientSecret,
-                'redirectUri' => BASE_URL . '/auth/google/callback',
+                'redirectUri' => getenv('GOOGLE_REDIRECT_URI') ?: BASE_URL . '/auth/google/callback',
             ]
         ];
 
@@ -868,7 +870,7 @@ class App
             $config['facebook'] = [
                 'clientId' => $facebookClientId,
                 'clientSecret' => $facebookClientSecret,
-                'redirectUri' => BASE_URL . '/auth/facebook/callback',
+                'redirectUri' => getenv('FACEBOOK_REDIRECT_URI') ?: BASE_URL . '/auth/facebook/callback',
                 'graphApiVersion' => 'v18.0' // Required for Facebook OAuth2 client
             ];
         }
