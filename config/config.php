@@ -5,10 +5,12 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 // Load environment variables if .env file exists
-if (file_exists(__DIR__ . '/../.env')) {
-    $envFile = __DIR__ . '/../.env';
-} elseif (file_exists(__DIR__ . '/../.env.prod')) {
+if (file_exists(__DIR__ . '/../.env.prod')) {
     $envFile = __DIR__ . '/../.env.prod';
+} elseif (file_exists('/files/public_html/.env.prod')) {
+    $envFile = '/files/public_html/.env.prod';
+} elseif (file_exists(__DIR__ . '/../.env')) {
+    $envFile = __DIR__ . '/../.env';
 } elseif (file_exists(__DIR__ . '/../.env.local')) {
     $envFile = __DIR__ . '/../.env.local';
 }
