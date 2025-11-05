@@ -20,25 +20,26 @@ class SessionService
         $this->pdo = $pdo;
         $this->sessionLifetime = $sessionLifetime;
 
-        // Set up session handlers
-        session_set_save_handler(
-            [$this, 'open'],
-            [$this, 'close'],
-            [$this, 'read'],
-            [$this, 'write'],
-            [$this, 'destroy'],
-            [$this, 'gc']
-        );
-
-        // Configure session settings
-        ini_set('session.gc_maxlifetime', $sessionLifetime);
-        ini_set('session.cookie_lifetime', $sessionLifetime);
-        ini_set('session.cookie_httponly', 1);
-        ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
-        ini_set('session.use_only_cookies', 1);
-
-        // Start session if not already started
+        // Only configure session handlers if session is not already active
         if (session_status() !== PHP_SESSION_ACTIVE) {
+            // Set up session handlers
+            session_set_save_handler(
+                [$this, 'open'],
+                [$this, 'close'],
+                [$this, 'read'],
+                [$this, 'write'],
+                [$this, 'destroy'],
+                [$this, 'gc']
+            );
+
+            // Configure session settings
+            ini_set('session.gc_maxlifetime', $sessionLifetime);
+            ini_set('session.cookie_lifetime', $sessionLifetime);
+            ini_set('session.cookie_httponly', 1);
+            ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
+            ini_set('session.use_only_cookies', 1);
+
+            // Start session
             session_start();
         }
     }
