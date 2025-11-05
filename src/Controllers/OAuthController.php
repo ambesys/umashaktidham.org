@@ -55,37 +55,58 @@ class OAuthController
      */
     public function callback(string $provider)
     {
+        // Debug: Write to a temporary file to see what's happening
+        $debugFile = __DIR__ . '/../../logs/oauth_debug.log';
+        $debugDir = dirname($debugFile);
+        if (!is_dir($debugDir)) {
+            mkdir($debugDir, 0755, true);
+        }
+        file_put_contents($debugFile, date('Y-m-d H:i:s') . " - Starting OAuth callback for $provider\n", FILE_APPEND);
+        
         $code = $_GET['code'] ?? null;
         $error = $_GET['error'] ?? null;
 
+        file_put_contents($debugFile, "Code: " . ($code ? 'present' : 'missing') . "\n", FILE_APPEND);
+        file_put_contents($debugFile, "Error: " . ($error ?: 'none') . "\n", FILE_APPEND);
+
         if ($error) {
+            file_put_contents($debugFile, "OAuth provider error: $error\n", FILE_APPEND);
             header('Location: /login?error=oauth_' . $error);
             exit;
         }
 
         if (!$code) {
+            file_put_contents($debugFile, "No authorization code provided\n", FILE_APPEND);
             header('Location: /login?error=oauth_no_code');
             exit;
         }
 
         try {
+            file_put_contents($debugFile, "Attempting to handle OAuth callback...\n", FILE_APPEND);
             $user = $this->oauthService->handleCallback($provider, $code);
+            file_put_contents($debugFile, "OAuth callback successful, user ID: " . ($user['id'] ?? 'unknown') . "\n", FILE_APPEND);
 
             // Start session and log user in using SessionService
             if ($this->sessionService) {
                 $this->sessionService->setAuthenticatedUser($user['id'], $user['role_id'] ?? null);
+                file_put_contents($debugFile, "Session created successfully\n", FILE_APPEND);
             } else {
                 // Fallback to direct session handling
                 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_role'] = $user['role_id'] ?? null;
+                file_put_contents($debugFile, "Fallback session created\n", FILE_APPEND);
             }
 
+            file_put_contents($debugFile, "Redirecting to dashboard...\n", FILE_APPEND);
             // Redirect to dashboard
             header('Location: /dashboard');
             exit;
 
         } catch (\Exception $e) {
+            file_put_contents($debugFile, "Exception caught: " . $e->getMessage() . "\n", FILE_APPEND);
+            file_put_contents($debugFile, "Stack trace: " . $e->getTraceAsString() . "\n", FILE_APPEND);
+            
             // Log the detailed error using LoggerService
             if (function_exists('getLogger')) {
                 $logger = getLogger();
@@ -111,6 +132,7 @@ class OAuthController
                 $errorMessage = 'oauth_access_denied';
             }
             
+            file_put_contents($debugFile, "Redirecting to login with error: $errorMessage\n", FILE_APPEND);
             header('Location: /login?error=' . $errorMessage);
             exit;
         }
