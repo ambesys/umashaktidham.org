@@ -14,12 +14,12 @@ if (isset($_GET['debug_session'])) {
 }
 
 // Include necessary files using absolute path from project root
-$databasePath = __DIR__ . '/../../../config/database.php';
+$databasePath = __DIR__ . '/../../config/database.php';
 if (file_exists($databasePath)) {
     require_once $databasePath;
 } else {
     // Fallback for different directory structures
-    $fallbackPath = __DIR__ . '/../../config/database.php';
+    $fallbackPath = __DIR__ . '/../config/database.php';
     if (file_exists($fallbackPath)) {
         require_once $fallbackPath;
     } else {

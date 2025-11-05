@@ -1,22 +1,36 @@
-# Uma Shakti Dham - Repository Root .htaccess
-# This file protects repository files when DOCUMENT_ROOT is set to public/
-# It should NOT contain rewrite rules as it's outside the web root
+# Uma Shakti Dham - Public Directory .htaccess
+# This file handles URL rewriting for the public-facing application
 
-# Deny access to sensitive repository files
-<FilesMatch "^\.|(composer\.json|composer\.lock|README|\.git|\.env)(.*)$">
-    Order allow,deny
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Handle static assets (CSS, JS, images, etc.)
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    # Handle directories
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Route everything else to index.php for the application to handle
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    # Prevent clickjacking
+    Header always append X-Frame-Options DENY
+
+    # Prevent MIME type sniffing
+    Header set X-Content-Type-Options nosniff
+
+    # Enable XSS protection
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Deny access to sensitive files
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|inc|bak)$">
+    Order Allow,Deny
     Deny from all
 </FilesMatch>
-
-# Deny access to PHP files in repository root (but allow if explicitly needed)
-<FilesMatch "\.php$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
-
-# Allow access to public directory
-<FilesMatch "^$">
-    Order allow,deny
-    Allow from all
-</FilesMatch>
-

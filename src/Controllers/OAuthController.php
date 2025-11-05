@@ -56,7 +56,7 @@ class OAuthController
     public function callback(string $provider)
     {
         // Debug: Write to a temporary file to see what's happening
-        $debugFile = __DIR__ . '/../../logs/oauth_debug.log';
+        $debugFile = __DIR__ . '/../logs/oauth_debug.log';
         $debugDir = dirname($debugFile);
         if (!is_dir($debugDir)) {
             mkdir($debugDir, 0755, true);

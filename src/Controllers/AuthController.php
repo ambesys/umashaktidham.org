@@ -46,7 +46,7 @@ class AuthController
             }
         }
 
-        include '../src/Views/auth/register.php';
+        include 'src/Views/auth/register.php';
     }
 
     public function login()
@@ -72,7 +72,7 @@ class AuthController
             }
         }
 
-        include '../src/Views/auth/login.php';
+        include 'src/Views/auth/login.php';
     }
 
     public function logout()

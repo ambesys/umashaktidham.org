@@ -63,7 +63,7 @@ class App
     
     private function serveStaticAsset($uri)
     {
-        $filePath = __DIR__ . '/../public' . $uri;
+        $filePath = __DIR__ . '/..' . $uri;
         
         if (file_exists($filePath)) {
             $extension = pathinfo($uri, PATHINFO_EXTENSION);
