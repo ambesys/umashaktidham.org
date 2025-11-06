@@ -24,3 +24,6 @@ if (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof PDO) {
         }
     }
 }
+
+// Make PDO globally available for all controllers and services
+$GLOBALS['pdo'] = $pdo;

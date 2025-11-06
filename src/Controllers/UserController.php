@@ -10,18 +10,22 @@ class UserController
 
     public function __construct()
     {
-        $this->userService = new UserService();
+        // Pass PDO instance to UserService
+        $pdo = $GLOBALS['pdo'] ?? null;
+        $this->userService = new UserService($pdo);
     }
 
     public function updateUser()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = json_decode(file_get_contents('php://input'), true);
+            // Get raw input
+            $rawInput = file_get_contents('php://input');
+            $data = json_decode($rawInput, true);
 
             // Validate JSON payload
             if (is_null($data)) {
                 http_response_code(400);
-                echo json_encode(['error' => 'Invalid JSON payload.']);
+                echo json_encode(['error' => 'Invalid JSON payload. Received: ' . substr($rawInput, 0, 100)]);
                 return;
             }
 
@@ -30,6 +34,12 @@ class UserController
                 http_response_code(400);
                 echo json_encode(['error' => 'User ID is required and must be numeric.']);
                 return;
+            }
+
+            // Rename relation to relationship if present
+            if (isset($data['relation'])) {
+                $data['relationship'] = $data['relation'];
+                unset($data['relation']);
             }
 
             try {

@@ -46,10 +46,40 @@ class User
 
     public function find($id)
     {
-        $stmt = $this->db->prepare("SELECT * FROM $this->table WHERE id = :id");
+        // Join with family_members to get complete user profile
+        // The user's main record is the one with relationship='Self'
+        $sql = "SELECT 
+                    u.id,
+                    u.email,
+                    u.password,
+                    u.role_id,
+                    u.first_name,
+                    u.last_name,
+                    u.created_at,
+                    u.updated_at,
+                    CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')) AS name,
+                    fm.birth_year,
+                    fm.gender,
+                    fm.phone_e164,
+                    fm.occupation,
+                    fm.business_info,
+                    fm.village,
+                    fm.mosal,
+                    fm.relationship
+                FROM $this->table u
+                LEFT JOIN family_members fm ON u.id = fm.user_id AND (fm.relationship = 'Self' OR fm.relationship = 'self')
+                WHERE u.id = :id";
+        $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Trim whitespace from name field
+        if ($result && isset($result['name'])) {
+            $result['name'] = trim($result['name']);
+        }
+        
+        return $result;
     }
 
     public function update($id, $data)

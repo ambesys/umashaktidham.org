@@ -38,17 +38,8 @@ class DashboardController
             exit();
         }
 
-        // Get user details from session service
-        $userId = $this->sessionService->getCurrentUserId();
-        
-        // Initialize models with database connection
-        $userModel = new User($this->pdo ?? null);
-        $memberModel = new Member($this->pdo ?? null);
-        $familyModel = new Family($this->pdo ?? null);
-        
-        $user = $userModel->find($userId);
-    $members = method_exists($memberModel, 'getAll') ? $memberModel->getAll($userId) : []; // fetch members for current user
-        $families = method_exists($familyModel, 'getFamilyByUserId') ? $familyModel->getFamilyByUserId($userId) : [];
+        // Get fresh dashboard data (includes user and family members)
+        $dashboardData = $this->getDashboardData();
 
         // Load the dashboard view
         include_once __DIR__ . '/../Views/dashboard/index.php';
@@ -92,19 +83,30 @@ class DashboardController
         
         // Initialize models with database connection
         $userModel = new User($this->pdo ?? null);
-        $memberModel = new Member($this->pdo ?? null);
-        $familyModel = new Family($this->pdo ?? null);
+        $familyMemberModel = new \App\Models\FamilyMember($this->pdo ?? null);
         
+        // Get user with self family record
         $user = $userModel->find($userId);
-    $members = method_exists($memberModel, 'getAll') ? $memberModel->getAll($userId) : [];
-        $families = method_exists($familyModel, 'getFamilyByUserId') ? $familyModel->getFamilyByUserId($userId) : [];
+        
+        // Get all OTHER family members (excluding self)
+        $allFamily = $familyMemberModel->listByUserId($userId);
+        $family = [];
+        
+        // Filter out 'self' records
+        if (is_array($allFamily)) {
+            foreach ($allFamily as $member) {
+                if (strtolower($member['relationship'] ?? '') !== 'self') {
+                    $family[] = $member;
+                }
+            }
+        }
 
         return [
             'user' => $user,
-            'members' => $members,
-            'families' => $families,
-            'memberCount' => is_array($members) ? count($members) : 0,
-            'familyCount' => is_array($families) ? count($families) : 0
+            'family' => $family, // Only non-self members
+            'events' => [], // Placeholder for events
+            'tickets' => [], // Placeholder for tickets
+            'familyCount' => is_array($family) ? count($family) : 0
         ];
     }
 }

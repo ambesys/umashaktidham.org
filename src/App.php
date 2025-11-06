@@ -186,7 +186,24 @@ class App
                     $this->handleUpdateUser();
                 }
                 break;
-            case '/logout':
+
+            case '/add-family-member':
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $this->handleAddFamilyMember();
+                }
+                break;
+
+            case '/update-family-member':
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $this->handleUpdateFamilyMember();
+                }
+                break;
+
+            case '/delete-family-member':
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $this->handleDeleteFamilyMember();
+                }
+                break;
                 $authController = new \App\Controllers\AuthController();
                 $authController->logout();
                 break;
@@ -487,11 +504,13 @@ class App
             ],
             'admin/users' => [
                 'middleware' => ['admin'],
-                'includes' => ['Models/User.php', 'Controllers/AdminController.php'],
+                'includes' => ['Models/User.php'],
                 'options' => ['title' => 'Manage Users - Admin'],
                 'logic' => function() {
-                    $adminController = new \App\Controllers\AdminController();
-                    return ['users' => []]; // Placeholder - AdminController::listUsers() renders view directly
+                    // Fetch all users with roles and family data
+                    $userModel = new \App\Models\User($GLOBALS['pdo']);
+                    $users = $userModel->getAllUsers();
+                    return ['users' => $users];
                 }
             ],
             'admin/moderators' => [
@@ -848,6 +867,27 @@ class App
         require_once __DIR__ . '/Controllers/UserController.php';
         $userController = new \App\Controllers\UserController();
         $userController->updateUser();
+    }
+
+    private function handleAddFamilyMember()
+    {
+        require_once __DIR__ . '/Controllers/FamilyController.php';
+        $familyController = new \App\Controllers\FamilyController();
+        $familyController->addFamilyMember();
+    }
+
+    private function handleUpdateFamilyMember()
+    {
+        require_once __DIR__ . '/Controllers/FamilyController.php';
+        $familyController = new \App\Controllers\FamilyController();
+        $familyController->updateFamilyMember();
+    }
+
+    private function handleDeleteFamilyMember()
+    {
+        require_once __DIR__ . '/Controllers/FamilyController.php';
+        $familyController = new \App\Controllers\FamilyController();
+        $familyController->deleteFamilyMember();
     }
 
     private function getPDO()

@@ -14,8 +14,9 @@ class AdminController
 
     public function listUsers()
     {
-        // Retrieve and display a list of users
-        $users = User::all();
+        // Retrieve and display a list of users with all details
+        $userModel = new User($GLOBALS['pdo']);
+        $users = $userModel->getAllUsers();
         require_once '../src/Views/admin/users.php';
     }
 
