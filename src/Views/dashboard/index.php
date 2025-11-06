@@ -558,6 +558,35 @@
 </div>
 
 <div class="container">
+    <?php
+    // Check if user is new (created within last 7 days)
+    if (isset($dashboardData['user']['created_at'])) {
+        $createdAt = strtotime($dashboardData['user']['created_at']);
+        $sevenDaysAgo = strtotime('-7 days');
+        if ($createdAt >= $sevenDaysAgo) {
+            $daysAgo = ceil((time() - $createdAt) / 86400);
+            $daysLeft = 7 - $daysAgo;
+    ?>
+    <!-- Welcome Banner for New Users -->
+    <div class="alert alert-info alert-dismissible fade show mb-4" role="alert" style="border-left: 4px solid #17a2b8; background-color: #d1ecf1;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <i class="fas fa-star" style="font-size: 1.5rem; color: #17a2b8;"></i>
+            <div>
+                <strong style="font-size: 1.1rem;">Welcome to Umashakti Dham! 🎉</strong>
+                <p style="margin: 4px 0 0 0; font-size: 0.95rem;">
+                    Thank you for joining our community! Get started by completing your profile and adding family members. This welcome banner will disappear in <?= $daysLeft ?> day<?= $daysLeft !== 1 ? 's' : '' ?>.
+                </p>
+            </div>
+        </div>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="margin-top: -25px;">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <?php
+        }
+    }
+    ?>
+
     <div class="row">
         <!-- Family Section -->
         <div class="col-md-8 mb-4">
@@ -798,7 +827,7 @@
                                     <div style="font-size: 0.9rem;"><?= htmlspecialchars($member['village'] ?? '-') ?></div>
                                     <div style="font-size: 0.9rem;"><?= htmlspecialchars($member['mosal'] ?? '-') ?></div>
                                     <div style="display: flex; gap: 4px;">
-                                        <button class="btn btn-sm btn-primary" type="button" onclick="toggleInlineForm('editFamilyForm<?= $index ?>', 'familyFormTemplate', {
+                                        <button class="btn btn-sm btn-primary" type="button" onclick="toggleInlineForm('editFamilyForm<?= $member['id'] ?>', 'familyFormTemplate', {
                                             familyId: '<?= htmlspecialchars($member['id'] ?? '') ?>',
                                             actionUrl: '/update-family-member/<?= $member['id'] ?? '' ?>',
                                             firstName: '<?= htmlspecialchars($member['first_name']) ?>',
@@ -808,13 +837,13 @@
                                             genderFemale: '<?= $member['gender'] === 'female' ? 'selected' : '' ?>',
                                             genderOther: '<?= $member['gender'] === 'other' ? 'selected' : '' ?>',
                                             genderPreferNotSay: '<?= $member['gender'] === 'prefer_not_say' ? 'selected' : '' ?>',
-                                            phone: '<?= htmlspecialchars($member['phone_e164']) ?>',
-                                            email: '<?= htmlspecialchars($member['email']) ?>',
+                                            phone: '<?= htmlspecialchars($member['phone_e164'] ?? '') ?>',
+                                            email: '<?= htmlspecialchars($member['email'] ?? '') ?>',
                                             emailReadonly: '',
-                                            occupation: '<?= htmlspecialchars($member['occupation']) ?>',
-                                            businessInfo: '<?= htmlspecialchars($member['business_info']) ?>',
-                                            village: '<?= htmlspecialchars($member['village']) ?>',
-                                            mosal: '<?= htmlspecialchars($member['mosal']) ?>',
+                                            occupation: '<?= htmlspecialchars($member['occupation'] ?? '') ?>',
+                                            businessInfo: '<?= htmlspecialchars($member['business_info'] ?? '') ?>',
+                                            village: '<?= htmlspecialchars($member['village'] ?? '') ?>',
+                                            mosal: '<?= htmlspecialchars($member['mosal'] ?? '') ?>',
                                             relationshipSelf: '<?= $member['relationship'] === 'self' ? 'selected' : '' ?>',
                                             relationshipSpouse: '<?= $member['relationship'] === 'spouse' ? 'selected' : '' ?>',
                                             relationshipChild: '<?= $member['relationship'] === 'child' ? 'selected' : '' ?>',
@@ -826,7 +855,7 @@
                                             relationshipFatherInLaw: '<?= $member['relationship'] === 'father-in-law' ? 'selected' : '' ?>',
                                             relationshipMotherInLaw: '<?= $member['relationship'] === 'mother-in-law' ? 'selected' : '' ?>',
                                             relationshipOther: '<?= $member['relationship'] === 'other' ? 'selected' : '' ?>',
-                                            formId: 'editFamilyForm<?= $index ?>'
+                                            formId: 'editFamilyForm<?= $member['id'] ?>'
                                         })" style="padding: 4px 8px;">
                                             <i class="fas fa-edit"></i>
                                         </button>
@@ -837,9 +866,9 @@
                                 </div>
 
                                 <!-- Family Member Edit Form (Expandable) -->
-                                <div id="editFamilyForm<?= $index ?>"
+                                <div id="editFamilyForm<?= $member['id'] ?>"
                                     style="display: none; padding: 12px; background: #f8f9fa; border-bottom: 1px solid #ddd;">
-                                    <div id="editFamilyForm<?= $index ?>Content"></div>
+                                    <div id="editFamilyForm<?= $member['id'] ?>Content"></div>
                                 </div>
                             <?php endforeach; ?>
                         <?php endif; ?>

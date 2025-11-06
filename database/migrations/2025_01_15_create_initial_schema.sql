@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS family_members (
   gender ENUM('male','female','other','prefer_not_say') DEFAULT 'prefer_not_say',
   email VARCHAR(150) NULL,
   phone_e164 VARCHAR(32) NULL,
-  relationship ENUM('self','spouse','child','parent','sibling','brother','sister','father-in-law', 'mother-in-law', 'other') DEFAULT 'other',
+  relationship ENUM('self','spouse','child','father','mother','sibling','brother','sister','father-in-law', 'mother-in-law', 'other') DEFAULT 'other',
   relationship_other VARCHAR(150) NULL,
   occupation VARCHAR(150) NULL,
   business_info TEXT NULL,
@@ -260,3 +260,40 @@ CREATE TABLE IF NOT EXISTS webauthn_credentials (
   UNIQUE KEY ux_user_credential (user_id, credential_id),
   CONSTRAINT fk_webauthn_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- 
+-- 6 digit
+ALTER TABLE users AUTO_INCREMENT = 100001;
+ALTER TABLE families AUTO_INCREMENT = 200001;
+ALTER TABLE family_members AUTO_INCREMENT = 300001;
+ALTER TABLE password_resets AUTO_INCREMENT = 400001;
+ALTER TABLE webauthn_credentials AUTO_INCREMENT = 500001;
+ALTER TABLE user_providers AUTO_INCREMENT = 600001;
+ALTER TABLE sessions AUTO_INCREMENT = 700001;
+
+-- 5 digit
+ALTER TABLE events AUTO_INCREMENT = 10001;
+ALTER TABLE event_tickets AUTO_INCREMENT = 20001;
+ALTER TABLE sponsorships AUTO_INCREMENT = 50001;
+ALTER TABLE uploads AUTO_INCREMENT = 80001;
+ALTER TABLE coupons AUTO_INCREMENT = 90001;
+
+-- 8 digits
+ALTER TABLE event_registrations AUTO_INCREMENT = 10000001;
+ALTER TABLE payments AUTO_INCREMENT = 20000001;
+ALTER TABLE activity_logs AUTO_INCREMENT = 50000001;
+
+-- 2 digits
+ALTER TABLE roles AUTO_INCREMENT = 11;
+
+
+-- adding roles with specific levels
+-- Seed roles with levels (gap-based to allow mid-level roles later)
+INSERT INTO roles (name, description, level) VALUES
+('user', 'Regular member user', 11),
+('sponsor', 'Sponsor with donor-level access', 21),
+('committee_member', 'Committee member with committee access', 31),
+('moderator', 'Moderator with permissions to manage content', 41),
+('admin', 'Administrator with full access', 51)
+ON DUPLICATE KEY UPDATE description = VALUES(description), level = VALUES(level);

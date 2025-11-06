@@ -70,7 +70,8 @@ class AuthService
             throw new \Exception("The username '{$username}' is already taken.");
         }
 
-        $stmt = $this->pdo->prepare("INSERT INTO users (username, name, email, password, first_name, last_name, phone_e164, created_at) VALUES (:username, :name, :email, :password, :first_name, :last_name, :phone_e164, CURRENT_TIMESTAMP)");
+        // Set default role_id = 11 (user role) on initial insert
+        $stmt = $this->pdo->prepare("INSERT INTO users (username, name, email, password, first_name, last_name, phone_e164, role_id, created_at) VALUES (:username, :name, :email, :password, :first_name, :last_name, :phone_e164, 11, CURRENT_TIMESTAMP)");
         $stmt->bindParam(':username', $username);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':email', $email);
@@ -85,20 +86,8 @@ class AuthService
 
         $userId = (int)$this->pdo->lastInsertId();
 
-        // set default role 'user' if exists
-        $r = $this->pdo->prepare("SELECT id FROM roles WHERE name = 'user' LIMIT 1");
-        $r->execute();
-        $roleRow = $r->fetch(PDO::FETCH_ASSOC);
-        if ($roleRow && !empty($roleRow['id'])) {
-            $roleId = (int)$roleRow['id'];
-            $u = $this->pdo->prepare("UPDATE users SET role_id = :role_id WHERE id = :id");
-            $u->bindParam(':role_id', $roleId, PDO::PARAM_INT);
-            $u->bindParam(':id', $userId, PDO::PARAM_INT);
-            $u->execute();
-        }
-
-        // create canonical family_member for this user
-        $fm = $this->pdo->prepare("INSERT INTO family_members (user_id, first_name, last_name, email, phone_e164, created_at) VALUES (:user_id, :first_name, :last_name, :email, :phone_e164, CURRENT_TIMESTAMP)");
+        // Create canonical family_member for this user with relationship='self'
+        $fm = $this->pdo->prepare("INSERT INTO family_members (user_id, first_name, last_name, email, phone_e164, relationship, created_at) VALUES (:user_id, :first_name, :last_name, :email, :phone_e164, 'self', CURRENT_TIMESTAMP)");
         $fm->bindParam(':user_id', $userId, PDO::PARAM_INT);
         $fm->bindParam(':first_name', $firstName);
         $fm->bindParam(':last_name', $lastName);
