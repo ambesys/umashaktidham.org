@@ -818,8 +818,8 @@
                                             relationshipSelf: '<?= $member['relationship'] === 'self' ? 'selected' : '' ?>',
                                             relationshipSpouse: '<?= $member['relationship'] === 'spouse' ? 'selected' : '' ?>',
                                             relationshipChild: '<?= $member['relationship'] === 'child' ? 'selected' : '' ?>',
-                                            relationshipParent: '<?= $member['relationship'] === 'father' ? 'selected' : '' ?>',
-                                             relationshipParent: '<?= $member['relationship'] === 'mother' ? 'selected' : '' ?>',
+                                            relationshipFather: '<?= $member['relationship'] === 'father' ? 'selected' : '' ?>',
+                                            relationshipMother: '<?= $member['relationship'] === 'mother' ? 'selected' : '' ?>',
                                             relationshipSibling: '<?= $member['relationship'] === 'sibling' ? 'selected' : '' ?>',
                                             relationshipBrother: '<?= $member['relationship'] === 'brother' ? 'selected' : '' ?>',
                                             relationshipSister: '<?= $member['relationship'] === 'sister' ? 'selected' : '' ?>',
@@ -1069,8 +1069,8 @@
                     <option value="self" {{relationshipSelf}}>Self</option>
                     <option value="spouse" {{relationshipSpouse}}>Spouse</option>
                     <option value="child" {{relationshipChild}}>Child</option>
-                    <option value="father" {{relationshipParent}}>Father</option>
-                           <option value="mother" {{relationshipParent}}>Parent</option>
+                    <option value="father" {{relationshipFather}}>Father</option>
+                    <option value="mother" {{relationshipMother}}>Mother</option>
                     <option value="sibling" {{relationshipSibling}}>Sibling</option>
                     <option value="brother" {{relationshipBrother}}>Brother</option>
                     <option value="sister" {{relationshipSister}}>Sister</option>
