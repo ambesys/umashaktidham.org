@@ -128,8 +128,9 @@ class AuthController
         if ($authType === 'google') {
             // Redirect to Google logout endpoint
             // This will clear Google's session cache
+            // Note: Google's logout endpoint is just /Logout without parameters
             $googleLogoutUrl = 'https://accounts.google.com/Logout';
-            $returnUrl = urlencode(($_SERVER['HTTP_ORIGIN'] ?? 'http://localhost') . '/login?message=You have been logged out successfully.');
+            $returnUrl = ($_SERVER['HTTP_ORIGIN'] ?? 'http://localhost') . '/login?message=You have been logged out successfully.';
             
             // Use JavaScript to handle the logout flow since we need to clear our session
             // before redirecting to Google
@@ -138,16 +139,18 @@ class AuthController
 <head>
     <title>Logging out...</title>
     <script>
-        window.location.href = "' . $googleLogoutUrl . '?continue=' . $returnUrl . '";
+        // First go to Google logout
+        window.location.href = "' . $googleLogoutUrl . '";
+        
+        // Set a timeout to redirect back to our app after Google processes logout
+        setTimeout(function() {
+            window.location.href = "' . $returnUrl . '";
+        }, 2000);
     </script>
 </head>
 <body>
     <p>Logging you out...</p>
-    <noscript>
-        <a href="' . $googleLogoutUrl . '?continue=' . $returnUrl . '">
-            Click here to complete logout
-        </a>
-    </noscript>
+    <p><a href="' . $returnUrl . '">Click here if not redirected automatically</a></p>
 </body>
 </html>';
             exit();
