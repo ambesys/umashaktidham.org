@@ -845,11 +845,9 @@ class App
 
     private function handleUpdateUser()
     {
-        require_once __DIR__ . '/Controllers/AuthController.php';
-
-        // Initialize controller
-        $authController = new \App\Controllers\AuthController();
-        $authController->updateUser();
+        require_once __DIR__ . '/Controllers/UserController.php';
+        $userController = new \App\Controllers\UserController();
+        $userController->updateUser();
     }
 
     private function getPDO()
