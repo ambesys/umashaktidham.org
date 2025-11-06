@@ -81,13 +81,23 @@ class OAuthController
             $user = $this->oauthService->handleCallback($provider, $code);
             LoggerService::info("OAuth callback successful, user ID: " . ($user['id'] ?? 'unknown'));
 
+            // Set 'user' session key to match password-based login
+            $userSession = [
+                'id' => $user['id'],
+                'name' => $user['name'] ?? '',
+                'email' => $user['email'] ?? '',
+                'first_name' => $user['first_name'] ?? '',
+                'last_name' => $user['last_name'] ?? '',
+            ];
             if ($this->sessionService) {
                 $this->sessionService->setAuthenticatedUser($user['id'], $user['role_id'] ?? null);
+                $this->sessionService->setSessionData('user', $userSession);
                 LoggerService::info("Session created successfully via SessionService");
             } else {
                 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_role'] = $user['role_id'] ?? null;
+                $_SESSION['user'] = $userSession;
                 LoggerService::info("Fallback session created - user_id: " . $_SESSION['user_id'] . ", session_id: " . session_id());
             }
 
