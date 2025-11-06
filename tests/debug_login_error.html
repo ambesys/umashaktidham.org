@@ -1,0 +1,332 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uma Shakti Dham</title>
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="stylesheet" href="/assets/css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" integrity="sha384-9ndCyUa1zYv7hYh2cFf8yP6pbbU1p1L1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1" crossorigin="anonymous">
+</head>
+
+<body>
+
+    <!-- Top Contact Bar -->
+    <div class="site-header-wrapper">
+        <div class="top-contact-bar">
+            <div class="container">
+                <div class="contact-social-row">
+                    <div class="contact-quick">
+                        <span><i class="fas fa-phone"></i> (704) 350-5040</span>
+                        <span><i class="fas fa-envelope"></i> umashaktidham@gmail.com</span>
+                    </div>
+
+
+
+                    <div class="top-auth">
+                        <div class="topbar-donate">
+                            <a href="/donate" class="donate-btn"><i class="fas fa-donate"></i>DONATE</a>
+                        </div>
+                                                    <a href="/login" class="top-login">Login</a>
+                            <a href="/register" class="top-register">Join Us</a>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header block: logo overlaps top bar and the navigation row (we keep only two rows) -->
+        <div class="header-row">
+
+            <!-- Navigation Bar (this is the single row under the top contact bar) -->
+            <nav class="main-navigation">
+                <div class="container nav-row">
+                    <!-- brand-logo placed at beginning of the .container so it's aligned with container start -->
+                    <a href="/" class="brand-logo" aria-label="Uma Shakti Dham home">
+                        <img src="/assets/images/logo.png" alt="Uma Shakti Dham Community Center Logo" class="site-logo">
+                    </a>
+
+                    <!-- Mobile donate button shown in nav row on small screens (Donate + Hamburger layout) -->
+
+                    <div class="nav-center">
+                        
+                            <div class="temple-title">
+                                <span class="site-title">Uma Shakti Dham</span>
+                                <span class="temple-subtitle">Kadva Patidar Community Center, NC</span>
+                            </div>
+                        
+                    </div>
+
+                    <div class="nav-right">
+
+
+                        <button id="navToggle" class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mainNav" type="button">
+                            <span class="bar"></span>
+                            <span class="bar"></span>
+                            <span class="bar"></span>
+                        </button>
+                    </div>
+
+                    <ul id="mainNav" class="nav-menu">
+                        <li><button id="navClose" class="close-btn" aria-label="Close menu">×</button></li>
+                        <li><a href="/">HOME</a></li>
+
+                        <li class="dropdown">
+                            <a href="/about" class="dropbtn">ABOUT</a>
+                            <div class="dropdown-content">
+                                <a href="/about">Community History</a>
+                                <a href="/kp-history">Kadva Patidar Heritage</a>
+                                <a href="/committee">Leadership Committee</a>
+                                <a href="/bylaws">Bylaws &amp; Constitution</a>
+                            </div>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="/events" class="dropbtn">EVENTS &amp; PROGRAMS</a>
+                            <div class="dropdown-content">
+                                <a href="/events">Upcoming Events</a>
+                                <a href="/events/cultural">Cultural Programs</a>
+                                <a href="/events/festivals">Festival Celebrations</a>
+                                <a href="/indian-holidays">Cultural Calendar</a>
+                            </div>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="/gallery" class="dropbtn">PHOTO GALLERY</a>
+                            <div class="dropdown-content">
+                                <a href="/gallery">Latest Photos</a>
+                                <a href="/gallery/events">Event Photos</a>
+                                <a href="/gallery/community">Community Photos</a>
+                            </div>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="/membership" class="dropbtn">COMMUNITY</a>
+                            <div class="dropdown-content">
+                                <a href="/membership">Membership</a>
+                                <a href="/members/families">Family Directory</a>
+                                <a href="/youth-corner">Youth Corner</a>
+                                <a href="/matrimonial">Business Network</a>
+                                <a href="/business-directory">Business Directory</a>
+                            </div>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="/indian-holidays" class="dropbtn">RELIGION</a>
+                            <div class="dropdown-content">
+                                <a href="/indian-holidays">Hindu Festivals</a>
+                                <a href="/hindu-gods">Hindu Gods</a>
+                                <a href="/hindu-rituals">Hindu Rituals</a>
+                                <a href="/hindu-scriptures">Hindu Scriptures</a>
+                            </div>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="/contact" class="dropbtn">CONTACT</a>
+                            <div class="dropdown-content">
+                                <a href="/contact">Contact Us</a>
+                                <a href="/direction">Location &amp; Hours</a>
+                                <a href="/facilities">Facilities &amp; Rental</a>
+                            </div>
+                        </li>
+
+                                                    <!-- <li><a href="/">HOME</a></li> -->
+                            <li><a href="/donate" class="nav-donate"><i class="fas fa-donate"></i>DONATE</a></li>
+                        
+
+                    </ul>
+
+                    <!-- header actions moved to topbar; nav-actions removed to keep nav row focused on menu -->
+                </div> <!-- .container.nav-row -->
+            </nav>
+        </div> <!-- .header-row -->
+        <!-- sticky helper removed; using CSS-only fixed header approach -->
+        <!-- <script src="/assets/js/header-sticky.js" defer></script> -->
+
+        <!-- Quick safety script: if scrolling is accidentally disabled (leftover from a script or class),
+             restore scrolling. Runs once when DOM is ready. Harmless when not needed. -->
+
+    </div><div class="main-container">
+
+<main class="container">
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1><i class="fas fa-praying-hands"></i> Welcome Back</h1>
+            <p>Sign in to access your community account</p>
+        </div>
+
+        <div class="auth-form-container">
+            <!-- Error Messages -->
+            
+            <!-- Success Messages -->
+            
+            <!-- Social Login Options -->
+            <div class="social-login-section">
+                <h3>Quick Sign In</h3>
+                <button class="social-btn google-btn" onclick="signInWithGoogle()">
+                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="social-icon">
+                    Sign in with Google
+                </button>
+                <button class="social-btn facebook-btn" onclick="signInWithFacebook()">
+                    <i class="fab fa-facebook"></i> Sign in with Facebook
+                </button>
+            </div>
+
+            <div class="divider">
+                <span>OR</span>
+            </div>
+
+            <!-- Login Form -->
+            <form action="/login" method="POST" class="auth-form" id="loginForm">
+                <div class="form-group">
+                    <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
+                    <input type="email" id="email" name="email" required="" placeholder="Enter your email address">
+                </div>
+
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="password" name="password" required="" placeholder="Enter your password">
+                    <div class="password-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="show_password" onchange="togglePassword()">
+                            <span class="checkmark"></span>
+                            Show password
+                        </label>
+                        <a href="/forgot-password" class="forgot-link">Forgot password?</a>
+                    </div>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="remember" name="remember">
+                        <span class="checkmark"></span>
+                        <i class="fas fa-save"></i> Keep me signed in
+                    </label>
+                </div>
+
+                <button type="submit" name="submit" class="btn auth-btn">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>New to our community? <a href="/register" class="auth-link"><i class="fas fa-star"></i> Create an Account</a></p>
+                <div class="help-links">
+                    <a href="/contact"><i class="fas fa-question-circle"></i> Need Help?</a>
+                    <span>•</span>
+                    <a href="/about"><i class="fas fa-home"></i> About Our Community</a>
+                    <span>•</span>
+                    <a href="/events"><i class="fas fa-calendar-alt"></i> Upcoming Events</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+function signInWithGoogle() {
+    // Redirect to Google OAuth
+    window.location.href = '/auth/google';
+}
+
+function signInWithFacebook() {
+    // Redirect to Facebook OAuth
+    window.location.href = '/auth/facebook';
+}
+
+function togglePassword() {
+    const passwordField = document.getElementById('password');
+    const showPasswordCheckbox = document.getElementById('show_password');
+    
+    if (showPasswordCheckbox.checked) {
+        passwordField.type = 'text';
+    } else {
+        passwordField.type = 'password';
+    }
+}
+
+// Form validation
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    if (!email || !password) {
+        e.preventDefault();
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    // Add loading state
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+    submitBtn.disabled = true;
+});
+</script>
+</div>
+
+<footer class="site-footer">
+    <div class="container">
+        <div class="footer-columns">
+            <div class="col">
+                <h4><i class="fas fa-home"></i> About Uma Shakti Dham</h4>
+                <p>Official Page of Patidar Parivar Of NC. Divinity-Unity &amp; Power Place Non-Profit Organization Uma Shakti Dham was created in 2023, to serve the Patidar of North Carolina. the organization Goal is to promote and maintain the identity of Gujarati Culture.</p>
+                <p><strong>Est. 2023</strong> | EIN: 93-4469142</p>
+                <p class="location"><i class="fas fa-map-marker-alt"></i> Williamston, NC</p>
+            </div>
+
+            <div class="col">
+                <h4><i class="fas fa-link"></i> Quick Links</h4>
+                <ul>
+                    <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="/about"><i class="fas fa-book"></i> Community History</a></li>
+                    <li><a href="/events"><i class="fas fa-calendar-alt"></i> Events &amp; Programs</a></li>
+                    <li><a href="/gallery"><i class="fas fa-images"></i> Photo Gallery</a></li>
+                    <li><a href="/membership"><i class="fas fa-users"></i> Membership</a></li>
+                    <li><a href="/donate"><i class="fas fa-heart"></i> Support Us</a></li>
+                </ul>
+            </div>
+                 <div class="col">
+                <h4><i class="fas fa-hands-helping"></i> Community Services</h4>
+                <ul>
+                    <li><a href="/membership"><i class="fas fa-handshake"></i> Business Network</a></li>
+                    <li><a href="/events"><i class="fas fa-graduation-cap"></i> Cultural Programs</a></li>
+                    <li><a href="/contact"><i class="fas fa-child"></i> Youth Activities</a></li>
+                    <li><a href="/contact"><i class="fas fa-handshake"></i> Business Networking</a></li>
+                    <li><a href="/contact"><i class="fas fa-home"></i> Family Support</a></li>
+                </ul>
+            </div>
+
+            <div class="col">
+                <h4><i class="fas fa-phone"></i> Contact Center</h4>
+                <!-- <p><i class="fas fa-map-marker-alt"></i> 101 E Blvd, Williamston, NC 27892</p> -->
+                <p><i class="fas fa-envelope"></i> Email: <a href="mailto:umashaktidham@gmail.com">umashaktidham@gmail.com</a></p>
+                <p><i class="fas fa-phone-alt"></i> Phone: <a href="tel:+17043505040">(704) 350-5040</a></p>
+
+                <h4><i class="fas fa-share-alt"></i> Follow Us</h4>
+                <p>
+                    <a href="#" class="social-link"><i class="fab fa-facebook"></i> Facebook</a>
+                    <a href="#" class="social-link"><i class="fab fa-youtube"></i> YouTube</a>
+                    <a href="#" class="social-link"><i class="fab fa-instagram"></i> Instagram</a>
+                </p>
+            </div>
+
+       
+        </div>
+
+        <div class="footer-bottom">
+            <div class="nonprofit-info">
+                <p><strong>501(c)(3) Nonprofit Organization</strong> | Tax-deductible donations accepted</p>
+                <!-- <p><strong>Leadership:</strong> Ashokkumar C Patel (President), Alpesh Patel (Vice President), Dhavanika U Patel (Secretary), Vipul Patel (Treasurer)</p> -->
+            </div>
+            <p><i class="fas fa-heart"></i> Unity • Heritage • Community <i class="fas fa-heart"></i></p>
+            <p>© 2025 Uma Shakti Dham - Kadva Patidar Community Center. All rights reserved.</p>
+            <p><em>"एकता में शक्ति है" - There is strength in unity</em></p>
+        </div>
+    </div>
+</footer>
+
+<!-- JavaScript -->
+<script src="/assets/js/main.js"></script>
+
+
+
+</body></html>

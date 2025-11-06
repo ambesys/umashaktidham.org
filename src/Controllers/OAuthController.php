@@ -92,12 +92,14 @@ class OAuthController
             if ($this->sessionService) {
                 $this->sessionService->setAuthenticatedUser($user['id'], $user['role_id'] ?? null);
                 $this->sessionService->setSessionData('user', $userSession);
+                $this->sessionService->setSessionData('auth_type', $provider); // Store auth type for logout
                 LoggerService::info("Session created successfully via SessionService");
             } else {
                 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_role'] = $user['role_id'] ?? null;
                 $_SESSION['user'] = $userSession;
+                $_SESSION['auth_type'] = $provider; // Store auth type for logout
                 LoggerService::info("Fallback session created - user_id: " . $_SESSION['user_id'] . ", session_id: " . session_id());
             }
 

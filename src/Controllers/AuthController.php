@@ -103,18 +103,57 @@ class AuthController
     {
         // Clear all session data
         session_start();
+        
+        // Store auth type if available before clearing session
+        $authType = $_SESSION['auth_type'] ?? 'local';
+        
         $_SESSION = [];
         
         // Destroy the session
         session_unset();
         session_destroy();
 
-        // Clear session cookie
+        // Clear all session-related cookies
         if (isset($_COOKIE['PHPSESSID'])) {
             setcookie('PHPSESSID', '', time() - 3600, '/');
         }
+        
+        // Additional security: clear any OAuth state cookies
+        setcookie('oauth_state', '', time() - 3600, '/');
+        setcookie('oauth_nonce', '', time() - 3600, '/');
+        setcookie('oauth_provider', '', time() - 3600, '/');
 
-        // Redirect to login page with a success message
+        // For Google OAuth specifically, we need to redirect to Google logout first
+        // This ensures Google clears its cached session
+        if ($authType === 'google') {
+            // Redirect to Google logout endpoint
+            // This will clear Google's session cache
+            $googleLogoutUrl = 'https://accounts.google.com/Logout';
+            $returnUrl = urlencode(($_SERVER['HTTP_ORIGIN'] ?? 'http://localhost') . '/login?message=You have been logged out successfully.');
+            
+            // Use JavaScript to handle the logout flow since we need to clear our session
+            // before redirecting to Google
+            echo '<!DOCTYPE html>
+<html>
+<head>
+    <title>Logging out...</title>
+    <script>
+        window.location.href = "' . $googleLogoutUrl . '?continue=' . $returnUrl . '";
+    </script>
+</head>
+<body>
+    <p>Logging you out...</p>
+    <noscript>
+        <a href="' . $googleLogoutUrl . '?continue=' . $returnUrl . '">
+            Click here to complete logout
+        </a>
+    </noscript>
+</body>
+</html>';
+            exit();
+        }
+
+        // For regular email/password logout, redirect to login page
         header('Location: /login?message=You have been logged out successfully.');
         exit();
     }

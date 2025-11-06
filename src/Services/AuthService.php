@@ -126,6 +126,7 @@ class AuthService
             if (password_verify($data['password'], $user['password'])) {
                 $logger->info('Password verification successful.');
                 $this->sessionService->setAuthenticatedUser($user['id'], $user['role_id']);
+                $this->sessionService->setSessionData('auth_type', 'local'); // Store auth type as local/email
                 $logger->info('User authenticated and session set.');
                 return $user;
             } else {
