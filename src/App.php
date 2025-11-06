@@ -204,9 +204,13 @@ class App
                     $this->handleDeleteFamilyMember();
                 }
                 break;
+
+            case '/logout':
+            case '/auth/logout':
                 $authController = new \App\Controllers\AuthController();
                 $authController->logout();
                 break;
+
             case '/login':
             case '/auth/login':
                 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
