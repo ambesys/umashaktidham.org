@@ -255,8 +255,18 @@ class OAuthService
      */
     private function createUserFromProvider(string $provider, array $userData): array
     {
+        // Parse name into first and last name
+        $fullName = trim($userData['name'] ?? '');
+        $firstName = $fullName;
+        $lastName = '';
+        if (strpos($fullName, ' ') !== false) {
+            $parts = explode(' ', $fullName, 2);
+            $firstName = $parts[0];
+            $lastName = $parts[1];
+        }
+
         // Generate a unique username
-        $baseUsername = strtolower(str_replace(' ', '', $userData['name'] ?? 'user'));
+        $baseUsername = strtolower(str_replace(' ', '', $firstName));
         $username = $baseUsername;
         $counter = 1;
         while ($this->usernameExists($username)) {
@@ -266,12 +276,14 @@ class OAuthService
 
         // Create user
         $stmt = $this->pdo->prepare(
-            "INSERT INTO users (username, name, email, created_at)
-             VALUES (:username, :name, :email, CURRENT_TIMESTAMP)"
+            "INSERT INTO users (username, name, email, first_name, last_name, created_at)
+             VALUES (:username, :name, :email, :first_name, :last_name, CURRENT_TIMESTAMP)"
         );
         $stmt->bindParam(':username', $username);
-        $stmt->bindParam(':name', $userData['name']);
+        $stmt->bindParam(':name', $fullName);
         $stmt->bindParam(':email', $userData['email']);
+        $stmt->bindParam(':first_name', $firstName);
+        $stmt->bindParam(':last_name', $lastName);
         $stmt->execute();
 
         $userId = (int)$this->pdo->lastInsertId();
@@ -287,14 +299,17 @@ class OAuthService
             $updateStmt->execute();
         }
 
-        // Create canonical family_member
+        // Create canonical family_member with relation 'self'
         $fmStmt = $this->pdo->prepare(
-            "INSERT INTO family_members (user_id, first_name, email, created_at)
-             VALUES (:user_id, :first_name, :email, CURRENT_TIMESTAMP)"
+            "INSERT INTO family_members (user_id, first_name, last_name, email, relation, created_at)
+             VALUES (:user_id, :first_name, :last_name, :email, :relation, CURRENT_TIMESTAMP)"
         );
         $fmStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
-        $fmStmt->bindParam(':first_name', $userData['name']);
+        $fmStmt->bindParam(':first_name', $firstName);
+        $fmStmt->bindParam(':last_name', $lastName);
         $fmStmt->bindParam(':email', $userData['email']);
+        $relation = 'self';
+        $fmStmt->bindParam(':relation', $relation);
         $fmStmt->execute();
 
         // Link provider
