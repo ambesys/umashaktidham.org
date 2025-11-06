@@ -72,6 +72,13 @@ class AuthController
                 // Set session variables
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_role_id'] = $user['role_id'];
+                $_SESSION['user'] = [
+                    'id' => $user['id'],
+                    'name' => $user['name'],
+                    'email' => $user['email'],
+                    'first_name' => $user['first_name'],
+                    'last_name' => $user['last_name'],
+                ];
 
                 // Redirect to dashboard
                 header('Location: /dashboard');

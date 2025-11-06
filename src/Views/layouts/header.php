@@ -42,15 +42,14 @@ $pageTitle = $pageTitle ?? 'Uma Shakti Dham';
                             <a href="/register" class="top-register">Join Us</a>
                         <?php else: ?>
                             <div class="top-user">
-                                <span>Welcome,
-                                    <?= htmlspecialchars($user['first_name'] ?? $user['name'] ?? 'Devotee') ?></span>
+                                <span>Hi, <?= htmlspecialchars($user['first_name'] ?? $user['name'] ?? 'Devotee') ?></span>
                                 <div class="dropdown">
-                                    <button class="dropdown-toggle">Menu</button>
+                                    <button class="dropdown-toggle">▼</button>
                                     <ul class="dropdown-menu">
-                                        <li><a href="/dashboard">View Dashboard</a></li>
+                                        <li><a href="/dashboard">Dashboard</a></li>
                                         <li><a href="/profile">Edit Profile</a></li>
-                                        <li><a href="/family">Edit Family Information</a></li>
-                                        <li><a href="/auth/logout">Sign Out</a></li>
+                                        <li><a href="/family">Family Info</a></li>
+                                        <li><a href="/auth/logout">Logout</a></li>
                                     </ul>
                                 </div>
                             </div>
