@@ -86,6 +86,12 @@
                 </button>
             </form>
 
+            <?php if (isset($error)): ?>
+                <div class="error-message">
+                    <p style="color: red;"><i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($error) ?></p>
+                </div>
+            <?php endif; ?>
+
             <div class="auth-footer">
                 <p>Already a member? <a href="/login" class="auth-link"><i class="fas fa-sign-in-alt"></i> Sign In Here</a></p>
                 <p class="help-text">Need help? <a href="/contact">Contact our community center</a></p>

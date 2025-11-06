@@ -63,6 +63,13 @@ class AuthService
         $lastName = $data['last_name'] ?? null;
         $phoneE164 = $data['phone_e164'] ?? null;
 
+        // Check if the username already exists
+        $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM users WHERE username = :username");
+        $checkStmt->execute(['username' => $username]);
+        if ($checkStmt->fetchColumn() > 0) {
+            throw new \Exception("The username '{$username}' is already taken.");
+        }
+
         $stmt = $this->pdo->prepare("INSERT INTO users (username, name, email, password, first_name, last_name, phone_e164, created_at) VALUES (:username, :name, :email, :password, :first_name, :last_name, :phone_e164, CURRENT_TIMESTAMP)");
         $stmt->bindParam(':username', $username);
         $stmt->bindParam(':name', $name);
@@ -164,5 +171,20 @@ class AuthService
             $stmt->bindValue($k, $v);
         }
         return $stmt->execute();
+    }
+
+    /**
+     * Get the SessionService instance
+     */
+    public function getSessionService()
+    {
+        return $this->sessionService;
+    }
+
+    /**
+     * Placeholder for email sending logic
+     */
+    public function sendEmail(string $to, string $subject, string $message): void {
+        // This will be implemented later
     }
 }

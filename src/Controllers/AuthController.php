@@ -29,6 +29,9 @@ class AuthController
             } elseif (!isset($_POST['terms']) || $_POST['terms'] !== 'on') {
                 $error = "You must agree to the Terms & Conditions.";
             } else {
+                // Initialize $registrationSuccess to avoid undefined variable warning
+                $registrationSuccess = false;
+
                 $data = [
                     'username' => trim($_POST['email']), // Use email as username
                     'name' => trim($_POST['first_name'] . ' ' . $_POST['last_name']),
@@ -39,16 +42,23 @@ class AuthController
                     'phone_e164' => !empty($_POST['phone']) ? $this->formatPhoneNumber($_POST['phone']) : null,
                 ];
 
-                $result = $this->authService->register($data);
-                if ($result) {
-                    // Redirect to login page with success message
-                    header('Location: /login?message=Registration successful! Please log in.');
-                    exit;
-                } else {
-                    // Handle registration error
-                    $error = "Registration failed. Please try again.";
+                try {
+                    $result = $this->authService->register($data);
+                    if ($result) {
+                        $registrationSuccess = true;
+                    } else {
+                        $error = "Registration failed. Please try again.";
+                    }
+                } catch (\Exception $e) {
+                    $error = $e->getMessage(); // Display the exception message on the registration page
                 }
             }
+        }
+
+        if ($registrationSuccess) {
+            // Redirect to login page with success message
+            header('Location: /login?success=1');
+            exit;
         }
 
         include 'src/Views/auth/register.php';
