@@ -15,6 +15,11 @@ class AuthController
 
     public function register()
     {
+        if (isset($_SESSION['user'])) {
+            header('Location: /dashboard');
+            exit;
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Validate required fields
             if (empty($_POST['email']) || empty($_POST['password']) || empty($_POST['first_name']) || empty($_POST['last_name'])) {
@@ -51,6 +56,11 @@ class AuthController
 
     public function login()
     {
+        if (isset($_SESSION['user'])) {
+            header('Location: /dashboard');
+            exit;
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
                 'email' => $_POST['email'],
@@ -78,8 +88,9 @@ class AuthController
     public function logout()
     {
         session_start();
+        session_unset();
         session_destroy();
-        header('Location: /');
+        header('Location: /login');
         exit;
     }
 
