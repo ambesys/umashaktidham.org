@@ -101,62 +101,20 @@ class AuthController
 
     public function logout()
     {
+        // Ensure session is started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
         // Clear all session data
-        session_start();
-        
-        // Store auth type if available before clearing session
-        $authType = $_SESSION['auth_type'] ?? 'local';
-        
         $_SESSION = [];
-        
-        // Destroy the session
         session_unset();
         session_destroy();
 
-        // Clear all session-related cookies
-        if (isset($_COOKIE['PHPSESSID'])) {
-            setcookie('PHPSESSID', '', time() - 3600, '/');
-        }
+        // Clear session cookies
+        setcookie('PHPSESSID', '', time() - 3600, '/', '', false, true);
         
-        // Additional security: clear any OAuth state cookies
-        setcookie('oauth_state', '', time() - 3600, '/');
-        setcookie('oauth_nonce', '', time() - 3600, '/');
-        setcookie('oauth_provider', '', time() - 3600, '/');
-
-        // For Google OAuth specifically, we need to redirect to Google logout first
-        // This ensures Google clears its cached session
-        if ($authType === 'google') {
-            // Redirect to Google logout endpoint
-            // This will clear Google's session cache
-            // Note: Google's logout endpoint is just /Logout without parameters
-            $googleLogoutUrl = 'https://accounts.google.com/Logout';
-            $returnUrl = ($_SERVER['HTTP_ORIGIN'] ?? 'http://localhost') . '/login?message=You have been logged out successfully.';
-            
-            // Use JavaScript to handle the logout flow since we need to clear our session
-            // before redirecting to Google
-            echo '<!DOCTYPE html>
-<html>
-<head>
-    <title>Logging out...</title>
-    <script>
-        // First go to Google logout
-        window.location.href = "' . $googleLogoutUrl . '";
-        
-        // Set a timeout to redirect back to our app after Google processes logout
-        setTimeout(function() {
-            window.location.href = "' . $returnUrl . '";
-        }, 2000);
-    </script>
-</head>
-<body>
-    <p>Logging you out...</p>
-    <p><a href="' . $returnUrl . '">Click here if not redirected automatically</a></p>
-</body>
-</html>';
-            exit();
-        }
-
-        // For regular email/password logout, redirect to login page
+        // Redirect to login with success message
         header('Location: /login?message=You have been logged out successfully.');
         exit();
     }
