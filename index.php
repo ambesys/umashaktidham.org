@@ -17,8 +17,6 @@ require_once 'src/App.php';
 // Initialize the application
 $app = new App();
 
-// Define routes
-require_once 'routes/web.php';
 
 // Run the application
 $app->run();

@@ -1,4 +1,5 @@
 <?php
+use App\Services\LoggerService;
 
 class App
 {
@@ -179,9 +180,24 @@ class App
             case '/facilities':
                 $this->serveView('facilities');
                 break;
+
+            case '/update-user':
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $this->handleUpdateUser();
+                }
+                break;
+            case '/logout':
+                $authController = new \App\Controllers\AuthController();
+                $authController->logout();
+                break;
             case '/login':
             case '/auth/login':
-                $this->serveView('auth/login');
+                if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+                    $this->serveView('auth/login');
+                } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $this->handleLogin();
+                }
+                
                 break;
             case '/register':
                 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -289,7 +305,7 @@ class App
         }
         
         // Execute route-specific logic after includes are loaded
-        if (!empty($routeConfig['logic'])) {
+        if (is_callable($routeConfig['logic'])) {
             $data = array_merge($data, $routeConfig['logic']());
         }
         
@@ -543,7 +559,7 @@ class App
                     'trace' => $e->getTraceAsString()
                 ]);
             } else {
-                error_log("OAuth redirect error for $provider: " . $e->getMessage());
+                LoggerService::error("OAuth redirect error for $provider: " . $e->getMessage());
             }
             header('Location: /login?error=' . urlencode('OAuth configuration error. Please try again later.'));
             exit;
@@ -574,7 +590,7 @@ class App
                     'trace' => $e->getTraceAsString()
                 ]);
             } else {
-                error_log("OAuth callback error for $provider: " . $e->getMessage());
+                LoggerService::error("OAuth callback error for $provider: " . $e->getMessage());
             }
             header('Location: /login?error=' . urlencode('OAuth authentication failed. Please try again.'));
             exit;
@@ -676,6 +692,16 @@ class App
         $passwordResetController->handleForgotPassword();
     }
 
+  
+      private function handleLogin()
+    {
+        require_once __DIR__ . '/Controllers/AuthController.php';
+
+        // Initialize controller
+        $authController = new \App\Controllers\AuthController();
+        $authController->login();
+    }
+  
     private function handleRegistration()
     {
         require_once __DIR__ . '/Controllers/AuthController.php';
@@ -815,6 +841,15 @@ class App
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $eventController->checkIn($registrationId);
         }
+    }
+
+    private function handleUpdateUser()
+    {
+        require_once __DIR__ . '/Controllers/AuthController.php';
+
+        // Initialize controller
+        $authController = new \App\Controllers\AuthController();
+        $authController->updateUser();
     }
 
     private function getPDO()

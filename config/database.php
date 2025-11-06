@@ -1,4 +1,6 @@
 <?php
+use App\Services\LoggerService;
+
 // Respect an existing PDO instance (useful for tests and special environments)
 if (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof PDO) {
     $pdo = $GLOBALS['pdo'];
@@ -15,11 +17,10 @@ if (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof PDO) {
         // For development, don't fail if database is not available
         if (getenv('APP_ENV') === 'development') {
             $pdo = null; // Allow app to run without database
-            error_log("Database connection failed (development mode): " . $e->getMessage());
+            LoggerService::error("Database connection failed (development mode): " . $e->getMessage());
         } else {
             echo "Connection failed: " . $e->getMessage();
             exit(1);
         }
     }
 }
-?>

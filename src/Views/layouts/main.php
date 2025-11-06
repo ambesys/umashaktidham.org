@@ -1,4 +1,6 @@
 <?php
+use App\Services\LoggerService;
+
 // Main Layout Template
 // This layout handles common setup and renders content within header/footer
 
@@ -9,8 +11,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Debug session information
 if (isset($_GET['debug_session'])) {
-    error_log("Session Debug - Status: " . session_status() . ", ID: " . session_id() . ", Save Path: " . session_save_path());
-    error_log("Session Data: " . print_r($_SESSION, true));
+    LoggerService::debug("Session Debug - Status: " . session_status() . ", ID: " . session_id() . ", Save Path: " . session_save_path());
+    LoggerService::debug("Session Data: " . print_r($_SESSION, true));
 }
 
 // Include necessary files using absolute path from project root
@@ -23,7 +25,7 @@ if (file_exists($databasePath)) {
     if (file_exists($fallbackPath)) {
         require_once $fallbackPath;
     } else {
-        error_log("Database config not found at either path: $databasePath or $fallbackPath");
+        LoggerService::error("Database config not found at either path: $databasePath or $fallbackPath");
     }
 }
 

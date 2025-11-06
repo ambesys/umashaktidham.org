@@ -101,7 +101,7 @@
                     </label>
                 </div>
 
-                <button type="submit" class="btn auth-btn">
+                <button type="submit" name="submit" class="btn auth-btn">
                     <i class="fas fa-sign-in-alt"></i> Sign In
                 </button>
             </form>

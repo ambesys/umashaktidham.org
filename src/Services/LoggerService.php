@@ -26,14 +26,16 @@ class LoggerService
      */
     public static function init($config = [])
     {
-        self::$logFile = $config['file'] ?? ROOT_PATH . '/logs/app.log';
+        self::$logFile = $config['file'] ?? __DIR__ . '/../../logs/app.log'; // Ensure default path is relative to project root
         self::$minLevel = $config['min_level'] ?? self::LEVEL_DEBUG;
         self::$timezone = $config['timezone'] ?? 'UTC';
 
         // Ensure log directory exists
         $logDir = dirname(self::$logFile);
         if (!is_dir($logDir)) {
-            mkdir($logDir, 0755, true);
+            if (!mkdir($logDir, 0755, true) && !is_dir($logDir)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $logDir));
+            }
         }
     }
 

@@ -1,4 +1,5 @@
 <?php
+use App\Services\LoggerService;
 
 class Layout {
     private static $middleware = [];
@@ -118,7 +119,7 @@ class Layout {
                 if (file_exists($fallbackPath)) {
                     require_once $fallbackPath;
                 } else {
-                    error_log("Required file not found: $file (tried $fullPath and $fallbackPath)");
+                    LoggerService::error("Required file not found: $file (tried $fullPath and $fallbackPath)");
                 }
             }
         }

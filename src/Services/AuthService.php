@@ -118,21 +118,35 @@ class AuthService
      */
     public function login(array $data)
     {
+        $logger = new LoggerService(); // Assuming LoggerService is properly included and initialized
+        $logger->info('Login attempt started.');
+
         if (empty($data['email']) || empty($data['password'])) {
+            $logger->error('Login failed: Missing email or password.');
             return false;
         }
 
+        $logger->info('Fetching user with email: ' . $data['email']);
         $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
         $stmt->bindParam(':email', $data['email']);
         $stmt->execute();
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && password_verify($data['password'], $user['password'])) {
-            // set session using SessionService
-            $this->sessionService->setAuthenticatedUser($user['id'], $user['role_id']);
-            return $user;
+        if ($user) {
+            $logger->info('User found: ' . json_encode(['id' => $user['id'], 'email' => $user['email'], 'role_id' => $user['role_id']]));
+            if (password_verify($data['password'], $user['password'])) {
+                $logger->info('Password verification successful.');
+                $this->sessionService->setAuthenticatedUser($user['id'], $user['role_id']);
+                $logger->info('User authenticated and session set.');
+                return $user;
+            } else {
+                $logger->warning('Password verification failed.');
+            }
+        } else {
+            $logger->warning('No user found with email: ' . $data['email']);
         }
 
+        $logger->error('Login attempt failed.');
         return false;
     }
 
@@ -155,21 +169,48 @@ class AuthService
     /**
      * Update user profile
      */
-    public function updateUser($id, array $data)
+    public function updateUser(array $data)
     {
-        // minimal update implementation
+        // Prepare fields and parameters for the update query
         $fields = [];
-        $params = [':id' => $id];
-        if (isset($data['name'])) { $fields[] = 'name = :name'; $params[':name'] = $data['name']; }
-        if (isset($data['email'])) { $fields[] = 'email = :email'; $params[':email'] = $data['email']; }
-        if (isset($data['password'])) { $fields[] = 'password = :password'; $params[':password'] = password_hash($data['password'], PASSWORD_BCRYPT); }
+        $params = [':id' => $data['id']];
 
-        if (empty($fields)) return false;
+        // if (isset($data['name'])) {
+        //     $fields[] = 'name = :name';
+        //     $params[':name'] = $data['name'];
+        // }
+        if (isset($data['email'])) {
+            $fields[] = 'email = :email';
+            $params[':email'] = $data['email'];
+        }
+        if (isset($data['password'])) {
+            $fields[] = 'password = :password';
+            $params[':password'] = password_hash($data['password'], PASSWORD_BCRYPT);
+        }
+        if (isset($data['first_name'])) {
+            $fields[] = 'first_name = :first_name';
+            $params[':first_name'] = $data['first_name'];
+        }
+        if (isset($data['last_name'])) {
+            $fields[] = 'last_name = :last_name';
+            $params[':last_name'] = $data['last_name'];
+        }
+        if (isset($data['relation'])) {
+            $fields[] = 'relation = :relation';
+            $params[':relation'] = $data['relation'];
+        }
+
+        if (empty($fields)) {
+            return false; // No fields to update
+        }
+
         $sql = 'UPDATE users SET ' . implode(', ', $fields) . ' WHERE id = :id';
         $stmt = $this->pdo->prepare($sql);
-        foreach ($params as $k => $v) {
-            $stmt->bindValue($k, $v);
+
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
         }
+
         return $stmt->execute();
     }
 

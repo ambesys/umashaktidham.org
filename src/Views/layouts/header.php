@@ -14,10 +14,10 @@ $pageTitle = $pageTitle ?? 'Uma Shakti Dham';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle) ?></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/main.css">
     <link rel="stylesheet" href="/assets/css/responsive.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" integrity="sha384-9ndCyUa1zYv7hYh2cFf8yP6pbbU1p1L1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1" crossorigin="anonymous">
 </head>
 
 <body>
@@ -42,20 +42,10 @@ $pageTitle = $pageTitle ?? 'Uma Shakti Dham';
                             <a href="/login" class="top-login">Login</a>
                             <a href="/register" class="top-register">Join Us</a>
                         <?php else: ?>
-                            <div class="top-user">
-                                <span>Hi, <?= htmlspecialchars($user['first_name'] ?? $user['name'] ?? 'Devotee') ?></span>
-                                <div class="dropdown">
-                                    <button class="dropdown-toggle">▼</button>
-                                    <ul class="dropdown-menu">
-                                        <li><a href="/dashboard">Dashboard</a></li>
-                                        <li><a href="/profile">Edit Profile</a></li>
-                                        <li><a href="/family">Family Info</a></li>
-                                        <li><a href="/auth/logout">Logout</a></li>
-                                    </ul>
-                                </div>
+                            <div class="topbar">
+                                <a href="/donate" class="donate-btn"><i class="fas fa-donate"></i>DONATE</a>
                             </div>
                         <?php endif; ?>
-
                     </div>
                 </div>
             </div>
@@ -76,12 +66,12 @@ $pageTitle = $pageTitle ?? 'Uma Shakti Dham';
                     <!-- Mobile donate button shown in nav row on small screens (Donate + Hamburger layout) -->
 
                     <div class="nav-center">
-                        
-                            <div class="temple-title">
-                                <span class="site-title">Uma Shakti Dham</span>
-                                <span class="temple-subtitle">Kadva Patidar Community Center, NC</span>
-                            </div>
-                        
+
+                        <div class="temple-title">
+                            <span class="site-title">Uma Shakti Dham</span>
+                            <span class="temple-subtitle">Kadva Patidar Community Center, NC</span>
+                        </div>
+
                     </div>
 
                     <div class="nav-right">
@@ -158,15 +148,28 @@ $pageTitle = $pageTitle ?? 'Uma Shakti Dham';
                             </div>
                         </li>
 
-                        <?php if ($user && in_array($role, ['admin', 'moderator'])): ?>
-                            <li class="dropdown">
-                                <a href="/admin" class="dropbtn">ADMIN</a>
-                                <div class="dropdown-content">
-                                    <a href="/admin/users">Manage Users</a>
-                                    <a href="/admin/moderators">Moderators</a>
-                                    <a href="/admin/events">Manage Events</a>
-                                </div>
-                            </li>
+
+                        <?php if ($user): ?>
+                            <?php if ($user && in_array($role, ['admin', 'moderator'])): ?>
+                                <li class="dropdown user">
+                                    <a href="/admin" class="dropbtn">ADMIN</a>
+                                    <div class="dropdown-content">
+                                        <a href="/admin/users">Manage Users</a>
+                                        <a href="/admin/moderators">Moderators</a>
+                                        <a href="/admin/events">Manage Events</a>
+                                    </div>
+                                </li>
+                            <?php else: ?>
+                                <li class="dropdown admin-user">
+                                    <a href="/dashboard" class="dropbtn">DASHBOARD</a>
+                                    <div class="dropdown-content">
+                                        <a href="/dashboard">My Dashboard</a>
+                                        <a href="/members/profile">Profile Settings</a>
+                                        <a href="/membership">Membership Info</a>
+                                        <a href="/logout">Logout</a>
+                                    </div>
+                                </li>
+                            <?php endif; ?>
                         <?php else: ?>
                             <!-- <li><a href="/">HOME</a></li> -->
                             <li><a href="/donate" class="nav-donate"><i class="fas fa-donate"></i>DONATE</a></li>
