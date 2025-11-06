@@ -101,12 +101,20 @@ class AuthController
 
     public function logout()
     {
-        // Destroy the session
+        // Clear all session data
         session_start();
+        $_SESSION = [];
+        
+        // Destroy the session
         session_unset();
         session_destroy();
 
-        // Redirect to login page with a message
+        // Clear session cookie
+        if (isset($_COOKIE['PHPSESSID'])) {
+            setcookie('PHPSESSID', '', time() - 3600, '/');
+        }
+
+        // Redirect to login page with a success message
         header('Location: /login?message=You have been logged out successfully.');
         exit();
     }
