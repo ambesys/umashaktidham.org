@@ -44,7 +44,15 @@ $pageTitle = $pageTitle ?? 'Uma Shakti Dham';
                             <div class="top-user">
                                 <span>Welcome,
                                     <?= htmlspecialchars($user['first_name'] ?? $user['name'] ?? 'Devotee') ?></span>
-                                <a href="/auth/logout" class="top-logout">Logout</a>
+                                <div class="dropdown">
+                                    <button class="dropdown-toggle">Menu</button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="/dashboard">View Dashboard</a></li>
+                                        <li><a href="/profile">Edit Profile</a></li>
+                                        <li><a href="/family">Edit Family Information</a></li>
+                                        <li><a href="/auth/logout">Sign Out</a></li>
+                                    </ul>
+                                </div>
                             </div>
                         <?php endif; ?>
 
