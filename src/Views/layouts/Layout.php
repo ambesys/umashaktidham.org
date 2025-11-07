@@ -109,17 +109,17 @@ class Layout {
      */
     public static function includeFiles($files) {
         foreach ($files as $file) {
-            // Try project root relative path first
-            $fullPath = __DIR__ . '/../../../' . ltrim($file, '/');
-            if (file_exists($fullPath)) {
-                require_once $fullPath;
+            // Try src relative path first (most common case)
+            $srcPath = __DIR__ . '/../../' . ltrim($file, '/');
+            if (file_exists($srcPath)) {
+                require_once $srcPath;
             } else {
-                // Try src relative path as fallback
-                $fallbackPath = __DIR__ . '/../../' . ltrim($file, '/');
-                if (file_exists($fallbackPath)) {
-                    require_once $fallbackPath;
+                // Try project root relative path as fallback
+                $rootPath = __DIR__ . '/../../../' . ltrim($file, '/');
+                if (file_exists($rootPath)) {
+                    require_once $rootPath;
                 } else {
-                    LoggerService::error("Required file not found: $file (tried $fullPath and $fallbackPath)");
+                    LoggerService::error("Required file not found: $file (tried $srcPath and $rootPath)");
                 }
             }
         }
