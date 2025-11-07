@@ -15,11 +15,21 @@ class OAuthController
 {
     private $oauthService;
     private $sessionService;
+    private $pdo;
 
     public function __construct(OAuthService $oauthService, SessionService $sessionService = null)
     {
         $this->oauthService = $oauthService;
         $this->sessionService = $sessionService;
+        
+        // Initialize PDO for role lookup
+        $cfg = __DIR__ . '/../config/database.php';
+        if (file_exists($cfg)) {
+            require $cfg; // expects $pdo
+            if (isset($pdo) && $pdo instanceof \PDO) {
+                $this->pdo = $pdo;
+            }
+        }
     }
 
     /**
@@ -90,14 +100,16 @@ class OAuthController
                 'last_name' => $user['last_name'] ?? '',
             ];
             if ($this->sessionService) {
-                $this->sessionService->setAuthenticatedUser($user['id'], $user['role_id'] ?? null);
+                // Get role name from role_id
+                $roleName = $this->getRoleName($user['role_id'] ?? null);
+                $this->sessionService->setAuthenticatedUser($user['id'], $user['role_id'] ?? null, $roleName);
                 $this->sessionService->setSessionData('user', $userSession);
                 $this->sessionService->setSessionData('auth_type', $provider); // Store auth type for logout
                 LoggerService::info("Session created successfully via SessionService");
             } else {
                 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
                 $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user_role'] = $user['role_id'] ?? null;
+                $_SESSION['user_role'] = $this->getRoleName($user['role_id'] ?? null); // Store role name
                 $_SESSION['user'] = $userSession;
                 $_SESSION['auth_type'] = $provider; // Store auth type for logout
                 LoggerService::info("Fallback session created - user_id: " . $_SESSION['user_id'] . ", session_id: " . session_id());
@@ -134,5 +146,26 @@ class OAuthController
             header('Location: /login?error=' . $errorMessage);
             exit;
         }
+    }
+
+    /**
+     * Get role name by role ID
+     */
+    private function getRoleName(?int $roleId): string
+    {
+        if (!$roleId) {
+            return 'user'; // Default role
+        }
+        
+        if (!$this->pdo) {
+            return 'user'; // Fallback if no PDO
+        }
+        
+        $stmt = $this->pdo->prepare("SELECT name FROM roles WHERE id = :id LIMIT 1");
+        $stmt->bindParam(':id', $roleId, \PDO::PARAM_INT);
+        $stmt->execute();
+        $role = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        return $role['name'] ?? 'user';
     }
 }

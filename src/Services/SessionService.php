@@ -196,10 +196,11 @@ class SessionService
     /**
      * Set authenticated user
      */
-    public function setAuthenticatedUser(int $userId, ?int $roleId = null): void
+    public function setAuthenticatedUser(int $userId, ?int $roleId = null, ?string $roleName = null): void
     {
         $_SESSION['user_id'] = $userId;
         $_SESSION['user_role_id'] = $roleId;
+        $_SESSION['user_role'] = $roleName ?? 'user'; // Store role name for middleware checks
 
         // Update user's last_login_at timestamp
         $stmt = $this->pdo->prepare("UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = :id");

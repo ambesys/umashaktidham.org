@@ -574,13 +574,10 @@
             <div>
                 <strong style="font-size: 1.1rem;">Welcome to Umashakti Dham! 🎉</strong>
                 <p style="margin: 4px 0 0 0; font-size: 0.95rem;">
-                    Thank you for joining our community! Get started by completing your profile and adding family members. This welcome banner will disappear in <?= $daysLeft ?> day<?= $daysLeft !== 1 ? 's' : '' ?>.
+                    Thank you for joining our community! Get started by completing your profile and adding family members.
                 </p>
             </div>
         </div>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="margin-top: -25px;">
-            <span aria-hidden="true">&times;</span>
-        </button>
     </div>
     <?php
         }

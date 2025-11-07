@@ -125,7 +125,11 @@ class AuthService
             $logger->info('User found: ' . json_encode(['id' => $user['id'], 'email' => $user['email'], 'role_id' => $user['role_id']]));
             if (password_verify($data['password'], $user['password'])) {
                 $logger->info('Password verification successful.');
-                $this->sessionService->setAuthenticatedUser($user['id'], $user['role_id']);
+                
+                // Get role name from role_id
+                $roleName = $this->getRoleName($user['role_id']);
+                
+                $this->sessionService->setAuthenticatedUser($user['id'], $user['role_id'], $roleName);
                 $this->sessionService->setSessionData('auth_type', 'local'); // Store auth type as local/email
                 $logger->info('User authenticated and session set.');
                 return $user;
@@ -165,9 +169,19 @@ class AuthService
     }
 
     /**
-     * Placeholder for email sending logic
+     * Get role name by role ID
      */
-    public function sendEmail(string $to, string $subject, string $message): void {
-        // This will be implemented later
+    private function getRoleName(?int $roleId): string
+    {
+        if (!$roleId) {
+            return 'user'; // Default role
+        }
+        
+        $stmt = $this->pdo->prepare("SELECT name FROM roles WHERE id = :id LIMIT 1");
+        $stmt->bindParam(':id', $roleId, PDO::PARAM_INT);
+        $stmt->execute();
+        $role = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return $role['name'] ?? 'user';
     }
 }

@@ -1,13 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Events - Uma Shakti Dham</title>
-    <link rel="stylesheet" href="/assets/css/main.css">
-</head>
-<body>
-    <?php include __DIR__ . '/layouts/header.php'; ?>
 
     <main class="container">
         <div class="events-section">
@@ -79,9 +69,3 @@
             </form>
         </div>
     </div>
-
-    <?php include __DIR__ . '/layouts/footer.php'; ?>
-
-    <script src="/assets/js/events.js"></script>
-</body>
-</html>
