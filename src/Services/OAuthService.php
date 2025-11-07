@@ -91,6 +91,12 @@ class OAuthService
                         'has_email' => isset($userData['email']),
                         'has_sub' => isset($userData['sub']),
                         'has_name' => isset($userData['name']),
+                        'has_given_name' => isset($userData['given_name']),
+                        'has_family_name' => isset($userData['family_name']),
+                        'has_gender' => isset($userData['gender']),
+                        'has_birthday' => isset($userData['birthday']),
+                        'has_picture' => isset($userData['picture']),
+                        'email_verified' => $userData['email_verified'] ?? false,
                         'email' => $userData['email'] ?? 'missing'
                     ]);
                 }
@@ -117,6 +123,10 @@ class OAuthService
                         'has_email' => isset($userData['email']),
                         'has_id' => isset($userData['id']),
                         'has_name' => isset($userData['name']),
+                        'has_first_name' => isset($userData['first_name']),
+                        'has_last_name' => isset($userData['last_name']),
+                        'has_gender' => isset($userData['gender']),
+                        'has_birthday' => isset($userData['birthday']),
                         'email' => $userData['email'] ?? 'missing'
                     ]);
                 }
@@ -257,18 +267,11 @@ class OAuthService
     private function createUserFromProvider(string $provider, array $userData): array
     {
         try {
-            // Parse name into first and last name
-            $fullName = trim($userData['name'] ?? '');
-            $firstName = $fullName;
-            $lastName = '';
-            if (strpos($fullName, ' ') !== false) {
-                $parts = explode(' ', $fullName, 2);
-                $firstName = $parts[0];
-                $lastName = $parts[1];
-            }
-
+            // Extract available user data based on provider
+            $userInfo = $this->extractUserInfo($provider, $userData);
+            
             // Generate a unique username
-            $baseUsername = strtolower(str_replace(' ', '', $firstName));
+            $baseUsername = strtolower(str_replace(' ', '', $userInfo['first_name']));
             $username = $baseUsername;
             $counter = 1;
             while ($this->usernameExists($username)) {
@@ -280,24 +283,28 @@ class OAuthService
                 $logger = getLogger();
                 $logger->info("Creating OAuth user", [
                     'provider' => $provider,
-                    'email' => $userData['email'],
+                    'email' => $userInfo['email'],
                     'username' => $username,
-                    'first_name' => $firstName,
-                    'last_name' => $lastName
+                    'first_name' => $userInfo['first_name'],
+                    'last_name' => $userInfo['last_name'],
+                    'gender' => $userInfo['gender'],
+                    'birth_year' => $userInfo['birth_year']
                 ]);
             }
 
-            // Create user
+            // Create user with available data
             $stmt = $this->pdo->prepare(
-                "INSERT INTO users (username, name, email, first_name, last_name, auth_type, created_at)
-                 VALUES (:username, :name, :email, :first_name, :last_name, :auth_type, CURRENT_TIMESTAMP)"
+                "INSERT INTO users (username, name, email, first_name, last_name, phone_e164, auth_type, email_verified_at, created_at)
+                 VALUES (:username, :name, :email, :first_name, :last_name, :phone, :auth_type, :email_verified_at, CURRENT_TIMESTAMP)"
             );
             $stmt->bindParam(':username', $username);
-            $stmt->bindParam(':name', $fullName);
-            $stmt->bindParam(':email', $userData['email']);
-            $stmt->bindParam(':first_name', $firstName);
-            $stmt->bindParam(':last_name', $lastName);
+            $stmt->bindParam(':name', $userInfo['full_name']);
+            $stmt->bindParam(':email', $userInfo['email']);
+            $stmt->bindParam(':first_name', $userInfo['first_name']);
+            $stmt->bindParam(':last_name', $userInfo['last_name']);
+            $stmt->bindParam(':phone', $userInfo['phone']);
             $stmt->bindParam(':auth_type', $provider);
+            $stmt->bindParam(':email_verified_at', $userInfo['email_verified_at']);
             $stmt->execute();
 
             $userId = (int)$this->pdo->lastInsertId();
@@ -323,15 +330,18 @@ class OAuthService
                 }
             }
 
-            // Create canonical family_member with relation 'self'
+            // Create canonical family_member with relation 'self' and all available data
             $fmStmt = $this->pdo->prepare(
-                "INSERT INTO family_members (user_id, first_name, last_name, email, relationship, created_at)
-                 VALUES (:user_id, :first_name, :last_name, :email, :relationship, CURRENT_TIMESTAMP)"
+                "INSERT INTO family_members (user_id, first_name, last_name, birth_year, gender, email, phone_e164, relationship, created_at)
+                 VALUES (:user_id, :first_name, :last_name, :birth_year, :gender, :email, :phone, :relationship, CURRENT_TIMESTAMP)"
             );
             $fmStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
-            $fmStmt->bindParam(':first_name', $firstName);
-            $fmStmt->bindParam(':last_name', $lastName);
-            $fmStmt->bindParam(':email', $userData['email']);
+            $fmStmt->bindParam(':first_name', $userInfo['first_name']);
+            $fmStmt->bindParam(':last_name', $userInfo['last_name']);
+            $fmStmt->bindParam(':birth_year', $userInfo['birth_year']);
+            $fmStmt->bindParam(':gender', $userInfo['gender']);
+            $fmStmt->bindParam(':email', $userInfo['email']);
+            $fmStmt->bindParam(':phone', $userInfo['phone']);
             $relationship = 'self';
             $fmStmt->bindParam(':relationship', $relationship);
             $fmStmt->execute();
@@ -374,6 +384,90 @@ class OAuthService
             }
             throw $e; // Re-throw to be handled by controller
         }
+    }
+
+    /**
+     * Extract and normalize user information from OAuth provider data
+     */
+    private function extractUserInfo(string $provider, array $userData): array
+    {
+        $info = [
+            'full_name' => '',
+            'first_name' => '',
+            'last_name' => '',
+            'email' => $userData['email'] ?? '',
+            'phone' => null,
+            'gender' => 'prefer_not_say',
+            'birth_year' => null,
+            'email_verified_at' => null
+        ];
+
+        switch ($provider) {
+            case 'google':
+                // Google provides structured name data
+                $info['full_name'] = trim($userData['name'] ?? '');
+                $info['first_name'] = trim($userData['given_name'] ?? $info['full_name']);
+                $info['last_name'] = trim($userData['family_name'] ?? '');
+                
+                // Extract gender if available
+                if (isset($userData['gender'])) {
+                    $gender = strtolower($userData['gender']);
+                    if (in_array($gender, ['male', 'female', 'other'])) {
+                        $info['gender'] = $gender;
+                    }
+                }
+                
+                // Extract birth year if available (format: YYYY-MM-DD or YYYY)
+                if (isset($userData['birthday'])) {
+                    $birthday = $userData['birthday'];
+                    if (preg_match('/^(\d{4})/', $birthday, $matches)) {
+                        $info['birth_year'] = (int)$matches[1];
+                    }
+                }
+                
+                // Set email verification if confirmed by Google
+                if (isset($userData['email_verified']) && $userData['email_verified']) {
+                    $info['email_verified_at'] = date('Y-m-d H:i:s');
+                }
+                break;
+
+            case 'facebook':
+                // Facebook provides first_name and last_name separately
+                $info['full_name'] = trim($userData['name'] ?? '');
+                $info['first_name'] = trim($userData['first_name'] ?? $info['full_name']);
+                $info['last_name'] = trim($userData['last_name'] ?? '');
+                
+                // Extract gender if available
+                if (isset($userData['gender'])) {
+                    $gender = strtolower($userData['gender']);
+                    if (in_array($gender, ['male', 'female'])) {
+                        $info['gender'] = $gender;
+                    }
+                }
+                
+                // Extract birth year if available (format: MM/DD/YYYY)
+                if (isset($userData['birthday'])) {
+                    $birthday = $userData['birthday'];
+                    if (preg_match('/(\d{4})$/', $birthday, $matches)) {
+                        $info['birth_year'] = (int)$matches[1];
+                    }
+                }
+                break;
+        }
+
+        // Fallback: if we don't have first_name but have full_name, try to parse it
+        if (empty($info['first_name']) && !empty($info['full_name'])) {
+            $parts = explode(' ', $info['full_name'], 2);
+            $info['first_name'] = $parts[0];
+            $info['last_name'] = $parts[1] ?? '';
+        }
+
+        // Ensure we have at least a first name
+        if (empty($info['first_name'])) {
+            $info['first_name'] = 'User'; // Fallback name
+        }
+
+        return $info;
     }
 
     /**
