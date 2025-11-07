@@ -5,14 +5,23 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 // Load environment variables if .env file exists
-if (file_exists(__DIR__ . '/../.env.prod')) {
+// Check if running on localhost to determine which .env file to use
+$isLocalhost = isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'localhost') !== false;
+$isLocalhost = $isLocalhost || (isset($_SERVER['SERVER_NAME']) && strpos($_SERVER['SERVER_NAME'], 'localhost') !== false);
+$isLocalhost = $isLocalhost || (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], 'localhost') !== false);
+
+// Also check if APP_ENV suggests local development
+$appEnv = getenv('APP_ENV');
+$isLocalEnv = in_array($appEnv, ['local', 'development', 'dev']);
+
+if (($isLocalhost || $isLocalEnv) && file_exists(__DIR__ . '/../.env.local')) {
+    $envFile = __DIR__ . '/../.env.local';
+} elseif (file_exists(__DIR__ . '/../.env.prod')) {
     $envFile = __DIR__ . '/../.env.prod';
 } elseif (file_exists('/files/public_html/.env.prod')) {
     $envFile = '/files/public_html/.env.prod';
 } elseif (file_exists(__DIR__ . '/../.env')) {
     $envFile = __DIR__ . '/../.env';
-} elseif (file_exists(__DIR__ . '/../.env.local')) {
-    $envFile = __DIR__ . '/../.env.local';
 }
 
 if (isset($envFile) && file_exists($envFile)) {

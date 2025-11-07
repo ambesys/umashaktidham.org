@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 // Debug page to help troubleshoot 403/permission issues when deployed.
 // Deploy this to your host and open /debug-access.php in a browser.
 header('Content-Type: text/plain');
@@ -63,4 +63,4 @@ if ($w === false) {
 
 echo "\nEnd of debug output.\n";
 
-?>
+?> -->

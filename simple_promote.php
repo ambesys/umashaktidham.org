@@ -1,18 +1,26 @@
 <?php
 /**
- * Promote user to admin role in production
- * Run this script on the production server
+ * Simple promotion script using the same database as the app
  */
 
-require_once __DIR__ . '/config/database.php';
-
-if (!$pdo) {
-    die("Database connection failed\n");
-}
-
-$email = 'testadmin@example.com'; // The test admin user's email
+echo "Starting user promotion...\n";
 
 try {
+    // Load bootstrap to initialize logging and other services
+    require_once __DIR__ . '/bootstrap.php';
+    
+    // Use the same database config as the app
+    require_once __DIR__ . '/config/config.php';
+    require_once __DIR__ . '/config/database.php';
+
+    if (!$pdo) {
+        die("Database connection failed\n");
+    }
+
+    echo "Connected to database\n";
+
+    $email = 'testadmin@example.com';
+
     // Get admin role ID
     $roleStmt = $pdo->prepare("SELECT id FROM roles WHERE name = 'admin' LIMIT 1");
     $roleStmt->execute();

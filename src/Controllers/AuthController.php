@@ -77,10 +77,12 @@ class AuthController
                 'password' => $_POST['password'],
             ];
 
+            error_log("Login attempt for email: " . $data['email']);
     
             $user = $this->authService->login($data);
 
             if ($user) {
+                error_log("Login successful for user: " . $user['email'] . " with role_id: " . ($user['role_id'] ?? 'NULL'));
                 // Use SessionService for session management
                 $this->authService->getSessionService()->setSessionData('user', [
                     'id' => $user['id'],
@@ -90,10 +92,14 @@ class AuthController
                     'last_name' => $user['last_name'],
                 ]);
 
+                error_log("Session data set, redirecting to dashboard");
                 // Redirect to dashboard
                 header('Location: /dashboard');
                 exit;
-            } 
+            } else {
+                error_log("Login failed for email: " . $data['email']);
+                $error = "Invalid email or password. Please try again.";
+            }
         }
 
         include 'src/Views/auth/login.php';

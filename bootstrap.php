@@ -9,14 +9,18 @@
 define('ROOT_PATH', __DIR__);
 
 // Load environment variables
-if (file_exists(ROOT_PATH . '/.env.prod')) {
+// Check if running on localhost to determine which .env file to use
+$isLocalhost = isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'localhost') !== false;
+$isLocalhost = $isLocalhost || (isset($_SERVER['SERVER_NAME']) && strpos($_SERVER['SERVER_NAME'], 'localhost') !== false);
+
+if ($isLocalhost && file_exists(ROOT_PATH . '/.env.local')) {
+    $envFile = ROOT_PATH . '/.env.local';
+} elseif (file_exists(ROOT_PATH . '/.env.prod')) {
     $envFile = ROOT_PATH . '/.env.prod';
 } elseif (file_exists('/files/public_html/.env.prod')) {
     $envFile = '/files/public_html/.env.prod';
 } elseif (file_exists(ROOT_PATH . '/.env')) {
     $envFile = ROOT_PATH . '/.env';
-} elseif (file_exists(ROOT_PATH . '/.env.local')) {
-    $envFile = ROOT_PATH . '/.env.local';
 }
 
 if (isset($envFile) && file_exists($envFile)) {

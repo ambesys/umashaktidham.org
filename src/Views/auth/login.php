@@ -11,39 +11,43 @@
 
         <div class="auth-form-container">
             <!-- Error Messages -->
-            <?php if (isset($_GET['error'])): ?>
+            <?php if (isset($_GET['error']) || isset($error)): ?>
                 <div class="error-message" id="errorMessage">
                     <i class="fas fa-exclamation-triangle"></i>
                     <?php
-                    $error = $_GET['error'];
-                    switch ($error) {
-                        case 'oauth_config':
-                            echo 'OAuth configuration error. Please try again later or contact support.';
-                            break;
-                        case 'oauth_access_denied':
-                            echo 'Access denied. You cancelled the login or denied permissions.';
-                            break;
-                        case 'oauth_invalid_request':
-                            echo 'Invalid OAuth request. Please try again.';
-                            break;
-                        case 'oauth_callback':
-                            echo 'Authentication failed. Please try again or contact support if the problem persists.';
-                            break;
-                        case 'oauth_no_code':
-                            echo 'Authentication code missing. Please try again.';
-                            break;
-                        case 'oauth_redirect_mismatch':
-                            echo 'Authentication redirect error. The redirect URI may not be properly configured in Google Cloud Console.';
-                            break;
-                        case 'oauth_invalid_client':
-                            echo 'Authentication client error. The OAuth client credentials may be incorrect.';
-                            break;
-                        default:
-                            if (strpos($error, 'oauth_') === 0) {
-                                echo 'Social login error. Please try again or use email/password login.';
-                            } else {
-                                echo htmlspecialchars($error);
-                            }
+                    if (isset($error)) {
+                        echo htmlspecialchars($error);
+                    } elseif (isset($_GET['error'])) {
+                        $error_param = $_GET['error'];
+                        switch ($error_param) {
+                            case 'oauth_config':
+                                echo 'OAuth configuration error. Please try again later or contact support.';
+                                break;
+                            case 'oauth_access_denied':
+                                echo 'Access denied. You cancelled the login or denied permissions.';
+                                break;
+                            case 'oauth_invalid_request':
+                                echo 'Invalid OAuth request. Please try again.';
+                                break;
+                            case 'oauth_callback':
+                                echo 'Authentication failed. Please try again or contact support if the problem persists.';
+                                break;
+                            case 'oauth_no_code':
+                                echo 'Authentication code missing. Please try again.';
+                                break;
+                            case 'oauth_redirect_mismatch':
+                                echo 'Authentication redirect error. The redirect URI may not be properly configured in Google Cloud Console.';
+                                break;
+                            case 'oauth_invalid_client':
+                                echo 'Authentication client error. The OAuth client credentials may be incorrect.';
+                                break;
+                            default:
+                                if (strpos($error_param, 'oauth_') === 0) {
+                                    echo 'Social login error. Please try again or use email/password login.';
+                                } else {
+                                    echo htmlspecialchars($error_param);
+                                }
+                        }
                     }
                     ?>
                 </div>

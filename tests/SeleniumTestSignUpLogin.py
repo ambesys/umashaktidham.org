@@ -8,6 +8,8 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import time
 import random
 import string
+import subprocess
+import os
 
 # Initialize the WebDriver
 driver = webdriver.Chrome()
@@ -16,72 +18,141 @@ driver = webdriver.Chrome()
 random_email = "testuser" + ''.join(random.choices(string.digits, k=4)) + "@example.com"
 
 
+def promote_test_user_to_admin():
+    """Promote the test admin user to admin role"""
+    print("🔧 Promoting test user to admin role...")
+
+    try:
+        # Run the promote admin script
+        result = subprocess.run([
+            'php', 'simple_promote.php'
+        ], cwd='/Users/sarthak/Sites/umashaktidham.org',
+        capture_output=True, text=True, timeout=30)
+
+        if result.returncode == 0:
+            print("✅ Test user promoted to admin successfully")
+            print("Output:", result.stdout.strip())
+        else:
+            print("❌ Failed to promote test user")
+            print("Error:", result.stderr.strip())
+
+        return result.returncode == 0
+
+    except Exception as e:
+        print(f"❌ Error promoting user: {e}")
+        return False
+
+
 def test_login():
-    
+    """Test regular login with admin user and verify admin navigation"""
+    print("🚀 Starting regular login test with admin user...")
+
     driver = webdriver.Chrome()
 
-    driver.get("http://localhost:8000/login")
-        # Handle access code popup if prompted
     try:
-        # Replace the submit button click with pressing Enter
+        # Navigate to login page
+        print("📍 Navigating to login page...")
+        driver.get("http://localhost:8000/login")
+
+        # Handle access code popup if prompted
         try:
-            # Wait for the access code field to be present
             access_code_field = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.NAME, "access_code"))
             )
             access_code_field.send_keys("jayumiya")
-            access_code_field.send_keys(Keys.RETURN)  # Press Enter to submit the form
+            access_code_field.send_keys(Keys.RETURN)
+            print("✅ Access code entered")
         except TimeoutException:
-            print("Access code field not found. Please check the form or the selector.")
-    except:
-        print("No access code required.")
+            print("ℹ️  No access code required")
 
-    driver.get("http://localhost:8000/login")
-
-    try:
-        # Wait for the login form to load
+        # Wait for login form to load
+        print("⏳ Waiting for login form...")
         email_field = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.NAME, "email"))
         )
-        print("Email field located.")
-
         password_field = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.NAME, "password"))
         )
-        print("Password field located.")
-
- # Enter credentials
-        email_field.send_keys("mail.ijter@gmail.com")
-        password_field.send_keys("mail.ijter@gmail.com")
-        
         submit_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.NAME, "submit"))
         )
-        print("Submit button located and clickable.")
+        print("✅ Login form elements found")
 
-       
+        # Enter admin credentials
+        print("🔐 Entering admin credentials...")
+        email_field.send_keys("testadmin@example.com")
+        password_field.send_keys("password123")
 
-        # Debugging: Check if submit button is interactable
-        if submit_button.is_displayed() and submit_button.is_enabled():
-            ActionChains(driver).move_to_element(submit_button).click().perform()
-            print("Submit button clicked.")
-        else:
-            print("Submit button is not interactable.")
+        # Submit login form
+        print("📤 Submitting login form...")
+        submit_button.click()
 
         # Wait for dashboard redirection
+        print("⏳ Waiting for dashboard redirect...")
         WebDriverWait(driver, 10).until(
             EC.url_contains("/dashboard")
         )
-        print("Successfully logged in and redirected to dashboard.")
+        print("✅ Successfully redirected to dashboard")
+
+        # Verify we're on dashboard
+        current_url = driver.current_url
+        if "/dashboard" in current_url:
+            print("🎯 Confirmed: On dashboard page")
+
+            # Check for admin navigation
+            print("🔍 Checking for admin navigation...")
+            try:
+                # Look for ADMIN dropdown
+                admin_dropdown = WebDriverWait(driver, 5).until(
+                    EC.presence_of_element_located((By.XPATH, "//a[contains(text(), 'ADMIN')]"))
+                )
+                print("🎉 SUCCESS: Admin navigation found!")
+                print("   - ADMIN dropdown is visible in navigation")
+                print("   - User has admin role and sees admin menu")
+
+                # Check for admin menu items
+                admin_menu_items = driver.find_elements(By.XPATH, "//div[@class='dropdown-content']//a[contains(@href, '/admin')]")
+                if admin_menu_items:
+                    print(f"   - Found {len(admin_menu_items)} admin menu items")
+
+                # Test admin route access
+                print("🔗 Testing admin route access...")
+                driver.get("http://localhost:8000/admin/users")
+                if "/admin/users" in driver.current_url:
+                    print("✅ Admin access confirmed: Can access /admin/users")
+                else:
+                    print("❌ Admin access denied: Redirected away from admin page")
+
+                # Go back to dashboard
+                driver.get("http://localhost:8000/dashboard")
+
+            except TimeoutException:
+                # Check for regular dashboard navigation
+                try:
+                    dashboard_dropdown = driver.find_element(By.XPATH, "//a[contains(text(), 'DASHBOARD')]")
+                    print("📊 INFO: Regular user navigation found (DASHBOARD dropdown)")
+                    print("   - User appears to have regular user role, not admin")
+                    print("   - Admin role assignment may have failed")
+                except NoSuchElementException:
+                    print("⚠️  WARNING: No role-specific navigation found")
+                    print("   - Could indicate navigation issue or authentication problem")
+
+        else:
+            print(f"❌ ERROR: Not on dashboard page. Current URL: {current_url}")
+            print("   - Login may have failed or redirect issue")
 
     except (TimeoutException, NoSuchElementException) as e:
-        print("An error occurred during the login process:", e)
+        print(f"❌ Test failed with error: {e}")
         driver.save_screenshot("debug_login_error.png")
         with open("debug_login_error.html", "w", encoding="utf-8") as f:
             f.write(driver.page_source)
 
     finally:
+        print("🧹 Cleaning up...")
         driver.quit()
 
 # Call the login test function
-test_login()
+if promote_test_user_to_admin():
+    test_login()
+else:
+    print("❌ Cannot run login test - failed to promote test user to admin")

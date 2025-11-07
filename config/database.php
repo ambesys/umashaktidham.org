@@ -14,13 +14,22 @@ if (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof PDO) {
         $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     } catch (PDOException $e) {
-        // For development, don't fail if database is not available
-        if (getenv('APP_ENV') === 'development') {
-            $pdo = null; // Allow app to run without database
-            LoggerService::error("Database connection failed (development mode): " . $e->getMessage());
+        // For development, try SQLite fallback if MySQL fails
+        // But only if we're not connecting to a specific production-like database
+        if ((getenv('APP_ENV') === 'development' || getenv('APP_ENV') === 'local') && $dbname !== 'u103964107_uma') {
+            try {
+                $sqlitePath = __DIR__ . '/../umashaktidham.db';
+                $pdo = new PDO("sqlite:$sqlitePath");
+                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                LoggerService::info("Using SQLite database for development: $sqlitePath");
+            } catch (PDOException $sqliteError) {
+                $pdo = null; // Allow app to run without database
+                LoggerService::error("Database connection failed (SQLite fallback): " . $sqliteError->getMessage());
+            }
         } else {
-            echo "Connection failed: " . $e->getMessage();
-            exit(1);
+            // For production or when connecting to specific databases, don't fall back to SQLite
+            LoggerService::error("Database connection failed: " . $e->getMessage());
+            throw $e; // Re-throw the exception instead of falling back
         }
     }
 }

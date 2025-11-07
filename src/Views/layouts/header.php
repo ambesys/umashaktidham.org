@@ -3,8 +3,6 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-$user = $_SESSION['user'] ?? null;
-$role = $_SESSION['user_role'] ?? null;
 $pageTitle = $pageTitle ?? 'Uma Shakti Dham';
 ?>
 <!DOCTYPE html>
@@ -38,7 +36,7 @@ $pageTitle = $pageTitle ?? 'Uma Shakti Dham';
                         <div class="topbar-donate">
                             <a href="/donate" class="donate-btn"><i class="fas fa-donate"></i>DONATE</a>
                         </div>
-                        <?php if (!$user): ?>
+                        <?php if (!isset($_SESSION['user_id'])): ?>
                             <a href="/login" class="top-login">Login</a>
                             <a href="/register" class="top-register">Join Us</a>
                         <?php else: ?>
@@ -149,14 +147,15 @@ $pageTitle = $pageTitle ?? 'Uma Shakti Dham';
                         </li>
 
 
-                        <?php if ($user): ?>
-                            <?php if ($user && in_array($role, ['admin', 'moderator'])): ?>
+                        <?php if (isset($_SESSION['user_id'])): ?>
+                            <?php if (isset($_SESSION['user_role']) && in_array($_SESSION['user_role'], ['admin', 'moderator'])): ?>
                                 <li class="dropdown user">
                                     <a href="/admin" class="dropbtn">ADMIN</a>
                                     <div class="dropdown-content">
                                         <a href="/admin/users">Manage Users</a>
                                         <a href="/admin/moderators">Moderators</a>
                                         <a href="/admin/events">Manage Events</a>
+                                         <a href="/logout">Logout</a>
                                     </div>
                                 </li>
                             <?php else: ?>
