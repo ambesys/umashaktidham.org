@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 $user = $_SESSION['user'] ?? null;
-$role = $_SESSION['role'] ?? null;
+$role = $_SESSION['user_role'] ?? null;
 $pageTitle = $pageTitle ?? 'Uma Shakti Dham';
 ?>
 <!DOCTYPE html>
