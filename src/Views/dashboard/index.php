@@ -18,10 +18,6 @@
         padding: 1rem;
     }
 
-    .container {
-        padding: 1rem;
-    }
-
     .close {
         color: #aaa;
         float: right;
