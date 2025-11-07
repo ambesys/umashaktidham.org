@@ -76,13 +76,13 @@ class SessionService
         }
         
         $stmt = $this->pdo->prepare(
-            "SELECT data FROM sessions WHERE session_id = :session_id AND expires_at > CURRENT_TIMESTAMP"
+            "SELECT payload FROM sessions WHERE id = :session_id"
         );
         $stmt->bindParam(':session_id', $sessionId);
         $stmt->execute();
 
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ? $result['data'] : '';
+        return $result ? $result['payload'] : '';
     }
 
     /**
@@ -90,16 +90,17 @@ class SessionService
      */
     public function write(string $sessionId, string $data): bool
     {
-        $expiresAt = date('Y-m-d H:i:s', time() + $this->sessionLifetime);
+        if ($this->pdo === null) {
+            return false;
+        }
 
         // Try to update existing session
         $stmt = $this->pdo->prepare(
-            "UPDATE sessions SET data = :data, expires_at = :expires_at, updated_at = CURRENT_TIMESTAMP
-             WHERE session_id = :session_id"
+            "UPDATE sessions SET payload = :payload, last_activity = CURRENT_TIMESTAMP
+             WHERE id = :session_id"
         );
         $stmt->bindParam(':session_id', $sessionId);
-        $stmt->bindParam(':data', $data);
-        $stmt->bindParam(':expires_at', $expiresAt);
+        $stmt->bindParam(':payload', $data);
 
         if ($stmt->execute() && $stmt->rowCount() > 0) {
             return true;
@@ -107,12 +108,11 @@ class SessionService
 
         // Insert new session if update didn't affect any rows
         $stmt = $this->pdo->prepare(
-            "INSERT INTO sessions (session_id, data, expires_at, created_at, updated_at)
-             VALUES (:session_id, :data, :expires_at, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+            "INSERT INTO sessions (id, payload, last_activity)
+             VALUES (:session_id, :payload, CURRENT_TIMESTAMP)"
         );
         $stmt->bindParam(':session_id', $sessionId);
-        $stmt->bindParam(':data', $data);
-        $stmt->bindParam(':expires_at', $expiresAt);
+        $stmt->bindParam(':payload', $data);
 
         return $stmt->execute();
     }
@@ -122,7 +122,11 @@ class SessionService
      */
     public function destroy(string $sessionId): bool
     {
-        $stmt = $this->pdo->prepare("DELETE FROM sessions WHERE session_id = :session_id");
+        if ($this->pdo === null) {
+            return false;
+        }
+        
+        $stmt = $this->pdo->prepare("DELETE FROM sessions WHERE id = :session_id");
         $stmt->bindParam(':session_id', $sessionId);
         return $stmt->execute();
     }
@@ -132,7 +136,12 @@ class SessionService
      */
     public function gc(int $maxLifetime): int
     {
-        $stmt = $this->pdo->prepare("DELETE FROM sessions WHERE expires_at < CURRENT_TIMESTAMP");
+        if ($this->pdo === null) {
+            return 0;
+        }
+        
+        $stmt = $this->pdo->prepare("DELETE FROM sessions WHERE last_activity < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL :max_lifetime SECOND)");
+        $stmt->bindParam(':max_lifetime', $maxLifetime, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->rowCount();
     }
@@ -235,10 +244,14 @@ class SessionService
      */
     public function getUserSessions(int $userId): array
     {
+        if ($this->pdo === null) {
+            return [];
+        }
+        
         // Note: This assumes we store user_id in session data
         // In a real implementation, you might want to store user sessions separately
         $stmt = $this->pdo->prepare(
-            "SELECT s.* FROM sessions s WHERE s.data LIKE :user_pattern AND s.expires_at > CURRENT_TIMESTAMP"
+            "SELECT s.* FROM sessions s WHERE s.payload LIKE :user_pattern"
         );
         $stmt->bindValue(':user_pattern', '%"user_id";i:' . $userId . ';%');
         $stmt->execute();
@@ -251,8 +264,12 @@ class SessionService
      */
     public function destroyUserSessions(int $userId): int
     {
+        if ($this->pdo === null) {
+            return 0;
+        }
+        
         $stmt = $this->pdo->prepare(
-            "DELETE FROM sessions WHERE data LIKE :user_pattern"
+            "DELETE FROM sessions WHERE payload LIKE :user_pattern"
         );
         $stmt->bindValue(':user_pattern', '%"user_id";i:' . $userId . ';%');
         $stmt->execute();
@@ -273,18 +290,21 @@ class SessionService
      */
     public function getSessionStats(): array
     {
+        if ($this->pdo === null) {
+            return ['active_sessions' => 0, 'expired_sessions' => 0, 'oldest_session' => null];
+        }
+        
         $stats = [];
 
-        // Total active sessions
-        $stmt = $this->pdo->query("SELECT COUNT(*) FROM sessions WHERE expires_at > CURRENT_TIMESTAMP");
+        // Total active sessions (no expiration in this schema, so all are "active")
+        $stmt = $this->pdo->query("SELECT COUNT(*) FROM sessions");
         $stats['active_sessions'] = $stmt->fetchColumn();
 
-        // Total expired sessions
-        $stmt = $this->pdo->query("SELECT COUNT(*) FROM sessions WHERE expires_at <= CURRENT_TIMESTAMP");
-        $stats['expired_sessions'] = $stmt->fetchColumn();
+        // For this schema, we don't have expired sessions concept
+        $stats['expired_sessions'] = 0;
 
         // Oldest session
-        $stmt = $this->pdo->query("SELECT MIN(created_at) FROM sessions");
+        $stmt = $this->pdo->query("SELECT MIN(last_activity) FROM sessions");
         $stats['oldest_session'] = $stmt->fetchColumn();
 
         return $stats;
