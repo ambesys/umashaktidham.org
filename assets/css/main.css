@@ -769,7 +769,7 @@ h1 {
   font-family: var(--font-primary);
   text-transform: uppercase;
   width: 100%;
-  /* padding: 0.8em 0; */
+  padding: 0.5em 0;
   /* padding-bottom: 0.1em; */
   /* padding: 0.4em; */
   @media screen and (max-width: 768px) {
