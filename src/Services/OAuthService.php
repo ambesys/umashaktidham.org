@@ -169,7 +169,7 @@ class OAuthService
             return $existingUser;
         }
 
-        // Create new user
+        // Create new user from OAuth provider
         if (function_exists('getLogger')) {
             $logger = getLogger();
             $logger->info("Creating new user from OAuth provider", [
@@ -256,71 +256,124 @@ class OAuthService
      */
     private function createUserFromProvider(string $provider, array $userData): array
     {
-        // Parse name into first and last name
-        $fullName = trim($userData['name'] ?? '');
-        $firstName = $fullName;
-        $lastName = '';
-        if (strpos($fullName, ' ') !== false) {
-            $parts = explode(' ', $fullName, 2);
-            $firstName = $parts[0];
-            $lastName = $parts[1];
+        try {
+            // Parse name into first and last name
+            $fullName = trim($userData['name'] ?? '');
+            $firstName = $fullName;
+            $lastName = '';
+            if (strpos($fullName, ' ') !== false) {
+                $parts = explode(' ', $fullName, 2);
+                $firstName = $parts[0];
+                $lastName = $parts[1];
+            }
+
+            // Generate a unique username
+            $baseUsername = strtolower(str_replace(' ', '', $firstName));
+            $username = $baseUsername;
+            $counter = 1;
+            while ($this->usernameExists($username)) {
+                $username = $baseUsername . $counter;
+                $counter++;
+            }
+
+            if (function_exists('getLogger')) {
+                $logger = getLogger();
+                $logger->info("Creating OAuth user", [
+                    'provider' => $provider,
+                    'email' => $userData['email'],
+                    'username' => $username,
+                    'first_name' => $firstName,
+                    'last_name' => $lastName
+                ]);
+            }
+
+            // Create user
+            $stmt = $this->pdo->prepare(
+                "INSERT INTO users (username, name, email, first_name, last_name, auth_type, created_at)
+                 VALUES (:username, :name, :email, :first_name, :last_name, :auth_type, CURRENT_TIMESTAMP)"
+            );
+            $stmt->bindParam(':username', $username);
+            $stmt->bindParam(':name', $fullName);
+            $stmt->bindParam(':email', $userData['email']);
+            $stmt->bindParam(':first_name', $firstName);
+            $stmt->bindParam(':last_name', $lastName);
+            $stmt->bindParam(':auth_type', $provider);
+            $stmt->execute();
+
+            $userId = (int)$this->pdo->lastInsertId();
+
+            if (function_exists('getLogger')) {
+                $logger = getLogger();
+                $logger->info("Created user record", ['user_id' => $userId]);
+            }
+
+            // Set default role
+            $roleStmt = $this->pdo->prepare("SELECT id FROM roles WHERE name = 'user' LIMIT 1");
+            $roleStmt->execute();
+            $role = $roleStmt->fetch(PDO::FETCH_ASSOC);
+            if ($role) {
+                $updateStmt = $this->pdo->prepare("UPDATE users SET role_id = :role_id WHERE id = :id");
+                $updateStmt->bindParam(':role_id', $role['id'], PDO::PARAM_INT);
+                $updateStmt->bindParam(':id', $userId, PDO::PARAM_INT);
+                $updateStmt->execute();
+
+                if (function_exists('getLogger')) {
+                    $logger = getLogger();
+                    $logger->info("Set user role", ['user_id' => $userId, 'role_id' => $role['id']]);
+                }
+            }
+
+            // Create canonical family_member with relation 'self'
+            $fmStmt = $this->pdo->prepare(
+                "INSERT INTO family_members (user_id, first_name, last_name, email, relationship, created_at)
+                 VALUES (:user_id, :first_name, :last_name, :email, :relationship, CURRENT_TIMESTAMP)"
+            );
+            $fmStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $fmStmt->bindParam(':first_name', $firstName);
+            $fmStmt->bindParam(':last_name', $lastName);
+            $fmStmt->bindParam(':email', $userData['email']);
+            $relationship = 'self';
+            $fmStmt->bindParam(':relationship', $relationship);
+            $fmStmt->execute();
+
+            if (function_exists('getLogger')) {
+                $logger = getLogger();
+                $logger->info("Created family member record", ['user_id' => $userId]);
+            }
+
+            // Link provider
+            $this->linkProviderToUser($userId, $provider, $this->getProviderUserId($provider, $userData), $userData);
+
+            if (function_exists('getLogger')) {
+                $logger = getLogger();
+                $logger->info("Linked OAuth provider", ['user_id' => $userId, 'provider' => $provider]);
+            }
+
+            // Return user data
+            $userStmt = $this->pdo->prepare("SELECT * FROM users WHERE id = :id LIMIT 1");
+            $userStmt->bindParam(':id', $userId, PDO::PARAM_INT);
+            $userStmt->execute();
+            $user = $userStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (function_exists('getLogger')) {
+                $logger = getLogger();
+                $logger->info("OAuth user creation completed", ['user_id' => $userId, 'email' => $user['email']]);
+            }
+
+            return $user;
+
+        } catch (\Exception $e) {
+            if (function_exists('getLogger')) {
+                $logger = getLogger();
+                $logger->error("Failed to create OAuth user", [
+                    'provider' => $provider,
+                    'email' => $userData['email'] ?? 'unknown',
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
+            throw $e; // Re-throw to be handled by controller
         }
-
-        // Generate a unique username
-        $baseUsername = strtolower(str_replace(' ', '', $firstName));
-        $username = $baseUsername;
-        $counter = 1;
-        while ($this->usernameExists($username)) {
-            $username = $baseUsername . $counter;
-            $counter++;
-        }
-
-        // Create user
-        $stmt = $this->pdo->prepare(
-            "INSERT INTO users (username, name, email, first_name, last_name, created_at)
-             VALUES (:username, :name, :email, :first_name, :last_name, CURRENT_TIMESTAMP)"
-        );
-        $stmt->bindParam(':username', $username);
-        $stmt->bindParam(':name', $fullName);
-        $stmt->bindParam(':email', $userData['email']);
-        $stmt->bindParam(':first_name', $firstName);
-        $stmt->bindParam(':last_name', $lastName);
-        $stmt->execute();
-
-        $userId = (int)$this->pdo->lastInsertId();
-
-        // Set default role
-        $roleStmt = $this->pdo->prepare("SELECT id FROM roles WHERE name = 'user' LIMIT 1");
-        $roleStmt->execute();
-        $role = $roleStmt->fetch(PDO::FETCH_ASSOC);
-        if ($role) {
-            $updateStmt = $this->pdo->prepare("UPDATE users SET role_id = :role_id WHERE id = :id");
-            $updateStmt->bindParam(':role_id', $role['id'], PDO::PARAM_INT);
-            $updateStmt->bindParam(':id', $userId, PDO::PARAM_INT);
-            $updateStmt->execute();
-        }
-
-        // Create canonical family_member with relation 'self'
-        $fmStmt = $this->pdo->prepare(
-            "INSERT INTO family_members (user_id, first_name, last_name, email, relation, created_at)
-             VALUES (:user_id, :first_name, :last_name, :email, :relation, CURRENT_TIMESTAMP)"
-        );
-        $fmStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
-        $fmStmt->bindParam(':first_name', $firstName);
-        $fmStmt->bindParam(':last_name', $lastName);
-        $fmStmt->bindParam(':email', $userData['email']);
-        $relation = 'self';
-        $fmStmt->bindParam(':relation', $relation);
-        $fmStmt->execute();
-
-        // Link provider
-        $this->linkProviderToUser($userId, $provider, $this->getProviderUserId($provider, $userData), $userData);
-
-        // Return user data
-        $userStmt = $this->pdo->prepare("SELECT * FROM users WHERE id = :id LIMIT 1");
-        $userStmt->bindParam(':id', $userId, PDO::PARAM_INT);
-        $userStmt->execute();
-        return $userStmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
