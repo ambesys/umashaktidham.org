@@ -102,6 +102,7 @@ class OAuthController
             if ($this->sessionService) {
                 // Get role name from role_id
                 $roleName = $this->getRoleName($user['role_id'] ?? null);
+                LoggerService::info("Setting authenticated user - user_id: {$user['id']}, role_id: " . ($user['role_id'] ?? 'null') . ", role_name: $roleName");
                 $this->sessionService->setAuthenticatedUser($user['id'], $user['role_id'] ?? null, $roleName);
                 $this->sessionService->setSessionData('user', $userSession);
                 $this->sessionService->setSessionData('auth_type', $provider); // Store auth type for logout
@@ -154,12 +155,14 @@ class OAuthController
     private function getRoleName(?int $roleId): string
     {
 
-        LoggerService::debug("roleId", $roleId);
+        LoggerService::debug("getRoleName called with roleId: " . ($roleId ?? 'null'));
         if (!$roleId) {
+            LoggerService::debug("No roleId provided, returning default 'user'");
             return 'user'; // Default role
         }
         
         if (!$this->pdo) {
+            LoggerService::debug("No PDO connection, returning default 'user'");
             return 'user'; // Fallback if no PDO
         }
         
@@ -168,6 +171,8 @@ class OAuthController
         $stmt->execute();
         $role = $stmt->fetch(\PDO::FETCH_ASSOC);
         
-        return $role['name'] ?? 'user';
+        $roleName = $role['name'] ?? 'user';
+        LoggerService::debug("Role lookup result - roleId: $roleId, roleName: $roleName");
+        return $roleName;
     }
 }

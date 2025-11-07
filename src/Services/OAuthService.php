@@ -155,7 +155,8 @@ class OAuthService
                     'provider' => $provider,
                     'provider_id' => $providerId,
                     'user_id' => $existingUser['id'],
-                    'email' => $existingUser['email']
+                    'email' => $existingUser['email'],
+                    'role_id' => $existingUser['role_id'] ?? 'not_set'
                 ]);
             }
             return $existingUser;
