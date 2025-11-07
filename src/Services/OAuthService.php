@@ -45,7 +45,8 @@ class OAuthService
                     throw new \RuntimeException('Google OAuth not configured');
                 }
                 return $this->googleProvider->getAuthorizationUrl([
-                    'scope' => ['email', 'profile']
+                    'scope' => ['email', 'profile'],
+                    'prompt' => 'select_account' // Force account selection screen
                 ]);
 
             case 'facebook':
