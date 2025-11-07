@@ -70,7 +70,7 @@ class AuthService
             throw new \Exception("The username '{$username}' is already taken.");
         }
 
-        // Set default role_id = 11 (user role) on initial insert
+        // Set default role_id = 1 (user role) on initial insert
         $stmt = $this->pdo->prepare("INSERT INTO users (username, name, email, password, first_name, last_name, phone_e164, role_id, created_at) VALUES (:username, :name, :email, :password, :first_name, :last_name, :phone_e164, 11, CURRENT_TIMESTAMP)");
         $stmt->bindParam(':username', $username);
         $stmt->bindParam(':name', $name);
