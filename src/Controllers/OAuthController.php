@@ -153,6 +153,8 @@ class OAuthController
      */
     private function getRoleName(?int $roleId): string
     {
+
+        LoggerService::debug("roleId", $roleId);
         if (!$roleId) {
             return 'user'; // Default role
         }
