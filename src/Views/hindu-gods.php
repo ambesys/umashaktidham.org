@@ -2,9 +2,12 @@
 $pageTitle = 'Hindu Gods - Uma Shakti Dham';
 ?>
 
-<div class="container">
-    <h1 class="page-header"><i class="fas fa-om"></i> Major Hindu Deities</h1>
-    <p>Learn about the major deities in Hinduism and their significance in our spiritual tradition, with special focus on Kadva Patidar heritage.</p>
+<div class="page-heading">
+    <div class="container">
+        <h1><i class="fas fa-om"></i> Major Hindu Deities</h1>
+        <p>Learn about the major deities in Hinduism and their significance for our community.</p>
+    </div>
+</div>
 
     <div class="gods-section">
         <div class="section-header">

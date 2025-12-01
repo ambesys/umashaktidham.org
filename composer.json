@@ -11,15 +11,16 @@
     ],
     "require": {
         "php": "^7.4 || ^8.0",
-        "ext-pdo": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "monolog/monolog": "^2.0",
+        "ext-pdo": "*",
         "guzzlehttp/guzzle": "^7.0",
-        "vlucas/phpdotenv": "^5.0",
-        "twig/twig": "^3.0",
-        "league/oauth2-google": "^4.0",
         "league/oauth2-facebook": "^2.2",
+        "league/oauth2-google": "^4.0",
+        "monolog/monolog": "^2.0",
+        "phpmailer/phpmailer": "^7.0",
+        "twig/twig": "^3.0",
+        "vlucas/phpdotenv": "^5.0",
         "web-auth/webauthn-lib": "^5.2"
     },
     "autoload": {

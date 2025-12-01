@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240" role="img" aria-labelledby="m4t m4d">
+  <title id="m4t">Member avatar</title>
+  <desc id="m4d">Round avatar placeholder</desc>
+  <defs>
+    <linearGradient id="d" x1="0" x2="1">
+      <stop offset="0%" stop-color="#fbc2eb"/>
+      <stop offset="100%" stop-color="#a6c1ee"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="240" rx="20" fill="#fff"/>
+  <circle cx="120" cy="80" r="44" fill="url(#d)"/>
+  <rect x="48" y="140" width="144" height="18" rx="9" fill="#e0e0e0"/>
+  <rect x="64" y="166" width="112" height="12" rx="6" fill="#f1f1f1"/>
+</svg>

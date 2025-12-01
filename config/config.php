@@ -40,9 +40,9 @@ if (isset($envFile) && file_exists($envFile)) {
 
 // Database configuration
 define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-define('DB_NAME', getenv('DB_NAME') ?: 'umashakti_dham');
+define('DB_NAME', getenv('DB_NAME') ?: 'u103964107_uma');
 define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') ?: '');
+define('DB_PASS', getenv('DB_PASS') ?: 'root');
 
 // Application settings
 define('APP_ENV', getenv('APP_ENV') ?: 'production');
@@ -80,3 +80,46 @@ if (APP_DEBUG) {
 }
 
 // Logging configuration is handled in bootstrap.php
+
+// Mail configurations for transactional notifications
+$MAIL_CONFIGS = [
+    'hostinger' => [
+        'agent' => 'hostinger',
+        'host' => getenv('HOSTINGER_SMTP_HOST') ?: 'smtp.hostinger.com',
+        'username' => getenv('HOSTINGER_SMTP_USER') ?: getenv('SMTP_USER') ?: '',
+        'password' => getenv('HOSTINGER_SMTP_PASS') ?: getenv('SMTP_PASS') ?: '',
+        'port' => getenv('HOSTINGER_SMTP_PORT') ?: 587,
+        'encryption' => getenv('HOSTINGER_SMTP_ENCRYPTION') ?: 'tls',
+        'from_address' => getenv('SMTP_FROM') ?: 'noreply@umashaktidham.org',
+        'from_name' => getenv('SMTP_FROM_NAME') ?: 'Uma Shakti Dham',
+        'reply_to' => getenv('SMTP_REPLY_TO') ?: (getenv('SMTP_FROM') ?: 'noreply@umashaktidham.org'),
+    ],
+    'zeptomail' => [
+        'agent' => 'zeptomail',
+        'host' => getenv('ZEPTO_SMTP_HOST') ?: 'smtp.zeptomail.com',
+        'username' => getenv('ZEPTO_SMTP_USER') ?: '',
+        'password' => getenv('ZEPTO_SMTP_PASS') ?: '',
+        'port' => getenv('ZEPTO_SMTP_PORT') ?: 587,
+        'encryption' => getenv('ZEPTO_SMTP_ENCRYPTION') ?: 'tls',
+        'from_address' => getenv('ZEPTO_FROM') ?: (getenv('SMTP_FROM') ?: 'noreply@umashaktidham.org'),
+        'from_name' => getenv('ZEPTO_FROM_NAME') ?: 'Uma Shakti Dham',
+        'reply_to' => getenv('ZEPTO_REPLY_TO') ?: (getenv('SMTP_REPLY_TO') ?: 'noreply@umashaktidham.org'),
+    ],
+];
+
+function get_mail_config(string $name = 'hostinger'): array
+{
+    global $MAIL_CONFIGS;
+    return $MAIL_CONFIGS[$name] ?? $MAIL_CONFIGS['hostinger'];
+}
+
+/**
+ * Get the configured mail provider name from env or default.
+ */
+function get_mail_provider(): string
+{
+    $provider = getenv('MAIL_PROVIDER') ?: null;
+    if ($provider) return $provider;
+    // Fallback to common env var or default to hostinger
+    return getenv('DEFAULT_MAIL_PROVIDER') ?: 'hostinger';
+}

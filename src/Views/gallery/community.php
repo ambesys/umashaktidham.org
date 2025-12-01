@@ -4,6 +4,7 @@ $pageTitle = 'Community Photos - Uma Shakti Dham';
 <div class="page-heading">
     <div class="container">
         <h1><i class="fas fa-users"></i> Community Photos</h1>
+        <p>Explore photos from family gatherings, volunteer activities, and community events.</p>
     </div>
 </div>
 

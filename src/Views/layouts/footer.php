@@ -59,19 +59,13 @@
                 <p><strong>501(c)(3) Nonprofit Organization</strong> | Tax-deductible donations accepted</p>
                 <!-- <p><strong>Leadership:</strong> Ashokkumar C Patel (President), Alpesh Patel (Vice President), Dhavanika U Patel (Secretary), Vipul Patel (Treasurer)</p> -->
             </div>
-            <p><i class="fas fa-heart"></i> Unity • Heritage • Community <i class="fas fa-heart"></i></p>
+            <p><i class="fas fa-heart"></i> Unity • Heritage • Community <i class="fas fa-heart"></i> | <em>"एकता में शक्ति है" - There is strength in unity</em></p>
             <p>&copy; <?= date('Y') ?> Uma Shakti Dham - Kadva Patidar Community Center. All rights reserved.</p>
-            <p><em>"एकता में शक्ति है" - There is strength in unity</em></p>
+            <p>Designed & Developed by <a href="https://ambesys.com" target="_blank">Ambesys LLC</a></p>
         </div>
     </div>
 </footer>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-6">Column 1</div>
-        <div class="col-md-6">Column 2</div>
-    </div>
-</div>
 <!-- JavaScript -->
 <script src="/assets/js/main.js"></script>
 <script src="/assets/js/bootstrap.bundle.min.js"></script>

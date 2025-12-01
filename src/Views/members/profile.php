@@ -34,8 +34,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
     <?php include '../layouts/header.php'; ?>
     
+    <div class="page-heading">
+        <div class="container">
+            <h1>User Profile</h1>
+            <p>Manage and update your personal profile information.</p>
+        </div>
+    </div>
+
     <div class="container">
-        <h1>User Profile</h1>
         <?php if (isset($_GET['success'])): ?>
             <div class="alert alert-success"><?php echo $_GET['success']; ?></div>
         <?php endif; ?>

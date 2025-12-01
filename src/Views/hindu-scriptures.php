@@ -2,9 +2,12 @@
 $pageTitle = 'Hindu Scriptures - Uma Shakti Dham';
 ?>
 
-<div class="container">
-    <h1><i class="fas fa-book-open"></i> Hindu Scriptures</h1>
-    <p>Discover the sacred texts and scriptures that guide Hindu philosophy and spiritual wisdom.</p>
+<div class="page-heading">
+    <div class="container">
+        <h1><i class="fas fa-book-open"></i> Hindu Scriptures</h1>
+        <p>Discover the sacred texts and scriptures that guide Hindu philosophy and spiritual wisdom.</p>
+    </div>
+</div>
 
     <div class="under-construction-page">
         <div class="construction-content">

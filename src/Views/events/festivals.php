@@ -2,15 +2,16 @@
 $pageTitle = 'Festival Celebrations - Uma Shakti Dham';
 ?>
 
+<div class="page-heading">
+    <div class="container">
+        <h1><i class="fas fa-pray"></i> Festival Celebrations</h1>
+        <p>Join us in celebrating major Hindu festivals with traditional ceremonies and cultural programs.</p>
+    </div>
+</div>
+
 <div class="under-construction-page">
     <div class="container">
         <div class="construction-content">
-
-            <div class="page-heading">
-                <div class="container">
-                    <h1><i class="fas fa-pray"></i> Festival Celebrations</h1>
-                </div>
-            </div>
 
             <div class="construction-message">
                 <h2>Page Under Construction</h2>

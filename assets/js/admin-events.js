@@ -17,20 +17,6 @@ class AdminEventsManager {
     }
 
     setupEventListeners() {
-        // Modal close buttons
-        document.querySelectorAll('.close-modal').forEach(btn => {
-            btn.addEventListener('click', () => this.closeAllModals());
-        });
-
-        // Click outside modal to close
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    this.closeAllModals();
-                }
-            });
-        });
-
         // Create event button
         document.getElementById('create-event-btn').addEventListener('click', () => {
             this.openCreateEventModal();
@@ -250,7 +236,8 @@ class AdminEventsManager {
         document.getElementById('modal-title').textContent = 'Create New Event';
         document.getElementById('event-form').reset();
         document.getElementById('event-id').value = '';
-        document.getElementById('event-modal').style.display = 'flex';
+        const modal = new bootstrap.Modal(document.getElementById('createEventModal'));
+        modal.show();
     }
 
     async viewEventDetails(eventId) {
@@ -292,7 +279,8 @@ class AdminEventsManager {
         `;
 
         document.getElementById('details-modal-title').textContent = `Details: ${event.title}`;
-        document.getElementById('event-details-modal').style.display = 'flex';
+        const modal = new bootstrap.Modal(document.getElementById('eventDetailsModal'));
+        modal.show();
     }
 
     async editEvent(eventId) {
@@ -310,7 +298,8 @@ class AdminEventsManager {
         document.getElementById('max-capacity').value = event.max_capacity || '';
 
         document.getElementById('modal-title').textContent = 'Edit Event';
-        document.getElementById('event-modal').style.display = 'flex';
+        const modal = new bootstrap.Modal(document.getElementById('createEventModal'));
+        modal.show();
     }
 
     async saveEvent() {
@@ -342,7 +331,9 @@ class AdminEventsManager {
 
             if (data.success) {
                 alert(`Event ${eventId ? 'updated' : 'created'} successfully!`);
-                this.closeAllModals();
+                // Hide Bootstrap modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('createEventModal'));
+                if (modal) modal.hide();
                 this.loadEvents();
             } else {
                 alert(data.error || 'Failed to save event');
@@ -378,7 +369,8 @@ class AdminEventsManager {
                 this.renderRegistrationsModal(data.registrations);
                 document.getElementById('registrations-modal-title').textContent =
                     `Registrations: ${this.currentEvent.title}`;
-                document.getElementById('registrations-modal').style.display = 'flex';
+                const modal = new bootstrap.Modal(document.getElementById('registrations-modal'));
+                modal.show();
             } else {
                 alert('Failed to load registrations');
             }
@@ -458,7 +450,8 @@ class AdminEventsManager {
                 this.loadEvents();
                 this.loadRecentRegistrations();
                 // Refresh modal if open
-                if (document.getElementById('registrations-modal').style.display === 'flex') {
+                const modalElement = document.getElementById('registrations-modal');
+                if (modalElement && modalElement.classList.contains('show')) {
                     this.openRegistrationsModal();
                 }
             } else {
@@ -468,12 +461,6 @@ class AdminEventsManager {
             console.error('Check-in error:', error);
             alert('Network error during check-in');
         }
-    }
-
-    closeAllModals() {
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.style.display = 'none';
-        });
     }
 
     showLoading(elementId) {

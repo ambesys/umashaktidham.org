@@ -46,40 +46,53 @@ class User
 
     public function find($id)
     {
-        // Join with family_members to get complete user profile
-        // The user's main record is the one with relationship='Self'
-        $sql = "SELECT 
-                    u.id,
-                    u.email,
-                    u.password,
-                    u.role_id,
-                    u.first_name,
-                    u.last_name,
-                    u.created_at,
-                    u.updated_at,
-                    CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')) AS name,
-                    fm.birth_year,
-                    fm.gender,
-                    fm.phone_e164,
-                    fm.occupation,
-                    fm.business_info,
-                    fm.village,
-                    fm.mosal,
-                    fm.relationship
-                FROM $this->table u
-                LEFT JOIN family_members fm ON u.id = fm.user_id AND (fm.relationship = 'Self' OR fm.relationship = 'self')
-                WHERE u.id = :id";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        // Trim whitespace from name field
-        if ($result && isset($result['name'])) {
-            $result['name'] = trim($result['name']);
+        // Fetch the primary user record first (including address fields)
+        $sqlUser = "SELECT id, email, password, role_id, first_name, last_name, phone_e164, 
+                    street_address, city, state, zip_code, country, created_at, updated_at 
+                    FROM $this->table WHERE id = :id LIMIT 1";
+        $stmtUser = $this->db->prepare($sqlUser);
+        $stmtUser->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmtUser->execute();
+        $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            return null;
         }
-        
-        return $result;
+
+        // Fetch the user's 'self' family member (if any) — single row
+        $sqlFm = "SELECT first_name, last_name, birth_year, gender, phone_e164, occupation, business_info, village, mosal, relationship
+                  FROM family_members WHERE user_id = :id AND LOWER(COALESCE(relationship, '')) = 'self' LIMIT 1";
+        $stmtFm = $this->db->prepare($sqlFm);
+        $stmtFm->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmtFm->execute();
+        $fm = $stmtFm->fetch(PDO::FETCH_ASSOC);
+
+        // Merge family-member fields into user result with fm_ prefix for backwards compatibility
+        if ($fm && is_array($fm)) {
+            foreach ($fm as $k => $v) {
+                $user['fm_' . $k] = $v;
+            }
+        }
+
+        // Compute display name from user first/last, else fallback to fm name or email
+        $first = trim($user['first_name'] ?? '');
+        $last = trim($user['last_name'] ?? '');
+        $computedName = trim($first . ' ' . $last);
+
+        if ($computedName !== '') {
+            $user['name'] = $computedName;
+        } else {
+            $fmFirst = trim($user['fm_first_name'] ?? '');
+            $fmLast = trim($user['fm_last_name'] ?? '');
+            $fmName = trim($fmFirst . ' ' . $fmLast);
+            if ($fmName !== '') {
+                $user['name'] = $fmName;
+            } else {
+                $user['name'] = $user['email'] ?? 'User';
+            }
+        }
+
+        return $user;
     }
 
     public function update($id, $data)
@@ -92,16 +105,74 @@ class User
             $roleId = $this->getRoleIdByName($data['role']);
         }
 
-        if ($roleId !== null) {
-            $stmt = $this->db->prepare("UPDATE $this->table SET name = :name, email = :email, role_id = :role_id WHERE id = :id");
-            $stmt->bindParam(':role_id', $roleId, PDO::PARAM_INT);
-        } else {
-            $stmt = $this->db->prepare("UPDATE $this->table SET name = :name, email = :email WHERE id = :id");
+        // Build dynamic update statement based on provided fields
+        $updates = [];
+        $params = [':id' => $id];
+        
+        // Always update these if provided
+        if (array_key_exists('name', $data)) {
+            $updates[] = 'name = :name';
+            $params[':name'] = $data['name'];
         }
-
-        $stmt->bindParam(':name', $data['name']);
-        $stmt->bindParam(':email', $data['email']);
-        $stmt->bindParam(':id', $id);
+        if (array_key_exists('email', $data)) {
+            $updates[] = 'email = :email';
+            $params[':email'] = $data['email'];
+        }
+        if (array_key_exists('first_name', $data)) {
+            $updates[] = 'first_name = :first_name';
+            $params[':first_name'] = $data['first_name'];
+        }
+        if (array_key_exists('last_name', $data)) {
+            $updates[] = 'last_name = :last_name';
+            $params[':last_name'] = $data['last_name'];
+        }
+        if (array_key_exists('phone_e164', $data)) {
+            $updates[] = 'phone_e164 = :phone_e164';
+            $params[':phone_e164'] = $data['phone_e164'];
+        } elseif (array_key_exists('phone', $data)) {
+            // Support phone field alias
+            $updates[] = 'phone_e164 = :phone_e164';
+            $params[':phone_e164'] = $data['phone'];
+        }
+        
+        // Address fields
+        if (array_key_exists('street_address', $data)) {
+            $updates[] = 'street_address = :street_address';
+            $params[':street_address'] = $data['street_address'];
+        }
+        if (array_key_exists('city', $data)) {
+            $updates[] = 'city = :city';
+            $params[':city'] = $data['city'];
+        }
+        if (array_key_exists('state', $data)) {
+            $updates[] = 'state = :state';
+            $params[':state'] = $data['state'];
+        }
+        if (array_key_exists('zip_code', $data)) {
+            $updates[] = 'zip_code = :zip_code';
+            $params[':zip_code'] = $data['zip_code'];
+        }
+        if (array_key_exists('country', $data)) {
+            $updates[] = 'country = :country';
+            $params[':country'] = $data['country'];
+        }
+        
+        if ($roleId !== null) {
+            $updates[] = 'role_id = :role_id';
+            $params[':role_id'] = $roleId;
+        }
+        
+        if (empty($updates)) {
+            return false;  // Nothing to update
+        }
+        
+        $sql = "UPDATE $this->table SET " . implode(', ', $updates) . " WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        
+        foreach ($params as $k => $v) {
+            $stmt->bindValue($k, $v);
+        }
+        
         return $stmt->execute();
     }
 

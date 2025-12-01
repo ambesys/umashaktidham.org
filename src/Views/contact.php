@@ -1,9 +1,12 @@
-<div class="container">
-    <div class="page-heading">
-        <div class="container">
-            <h1><i class="fas fa-envelope"></i> Contact Us</h1>
-        </div>
+<div class="page-heading">
+    <div class="container">
+        <h1><i class="fas fa-envelope"></i> Contact Us</h1>
+        <p >Manage your profile, family members, and stay updated with community events.</p>
     </div>
+</div>
+
+
+<div class="container">
     <p>Email: <a href="mailto:umashaktidham@gmail.com">umashaktidham@gmail.com</a></p>
     <p>Phone: (704) 350-5040</p>
     <h2>Send a message</h2>
@@ -17,4 +20,3 @@
         <button class="btn" type="submit">Send</button>
     </form>
 </div>
-

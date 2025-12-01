@@ -69,6 +69,9 @@ class OAuthService
     {
         $userData = null;
 
+        // Determine debug mode from environment/config
+        $debug = (getenv('APP_DEBUG') === 'true' || getenv('APP_DEBUG') === '1' || (defined('APP_DEBUG') && APP_DEBUG));
+
         switch ($provider) {
             case 'google':
                 if (!$this->googleProvider) {
@@ -83,7 +86,29 @@ class OAuthService
                 $token = $this->googleProvider->getAccessToken('authorization_code', [
                     'code' => $code
                 ]);
+
+                // Development logging: do not log full tokens. Log presence and key fields only.
+                if ($debug && function_exists('getLogger')) {
+                    $logger = getLogger();
+                    $masked = substr((string)$token->getToken(), 0, 8) . '...' ;
+                    $logger->info('Google OAuth: access token received (masked)', [
+                        'token_masked' => $masked,
+                        'expires' => $token->getExpires() ?? null,
+                        'values_keys' => array_keys((array)$token->getValues())
+                    ]);
+                }
+
                 $userData = $this->googleProvider->getResourceOwner($token)->toArray();
+
+                if ($debug && function_exists('getLogger')) {
+                    $logger = getLogger();
+                    $logger->info('Google OAuth: resource owner data summary', [
+                        'email' => $userData['email'] ?? null,
+                        'email_verified' => $userData['email_verified'] ?? null,
+                        'sub' => $userData['sub'] ?? ($userData['id'] ?? null),
+                        'keys' => array_keys($userData)
+                    ]);
+                }
                 
                 if (function_exists('getLogger')) {
                     $logger = getLogger();
@@ -115,7 +140,28 @@ class OAuthService
                 $token = $this->facebookProvider->getAccessToken('authorization_code', [
                     'code' => $code
                 ]);
+
+                if ($debug && function_exists('getLogger')) {
+                    $logger = getLogger();
+                    $masked = substr((string)$token->getToken(), 0, 8) . '...';
+                    $logger->info('Facebook OAuth: access token received (masked)', [
+                        'token_masked' => $masked,
+                        'expires' => $token->getExpires() ?? null,
+                        'values_keys' => array_keys((array)$token->getValues())
+                    ]);
+                }
+
                 $userData = $this->facebookProvider->getResourceOwner($token)->toArray();
+
+                if ($debug && function_exists('getLogger')) {
+                    $logger = getLogger();
+                    $logger->info('Facebook OAuth: resource owner data summary', [
+                        'email' => $userData['email'] ?? null,
+                        'id' => $userData['id'] ?? null,
+                        'name' => $userData['name'] ?? null,
+                        'keys' => array_keys($userData)
+                    ]);
+                }
                 
                 if (function_exists('getLogger')) {
                     $logger = getLogger();

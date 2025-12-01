@@ -1,10 +1,12 @@
+<div class="page-heading">
+    <div class="container">
+        <h1><i class="fas fa-hand-holding-heart"></i> Support Uma Shakti Dham</h1>
+        <p>Your contributions help sustain our temple and community programs.</p>
+    </div>
+</div>
+
 <div class="container">
     <div class="donation-container">
-        <div class="page-heading">
-            <div class="container">
-                <h1><i class="fas fa-hand-holding-heart"></i> Support Uma Shakti Dham</h1>
-            </div>
-        </div>
         <p>Your contributions help us continue our mission and support our community.</p>
 
         <form action="../src/Controllers/DonationController.php" method="POST">

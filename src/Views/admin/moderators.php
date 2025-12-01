@@ -1,5 +1,11 @@
+<div class="page-heading">
+    <div class="container">
+        <h1>Manage Moderators</h1>
+        <p>Add, edit, and remove moderators who help manage community content.</p>
+    </div>
+</div>
+
 <div class="container">
-    <h1>Manage Moderators</h1>
     <a href="add_moderator.php" class="btn btn-primary">Add Moderator</a>
     <table class="table">
         <thead>

@@ -2,11 +2,16 @@
 $pageTitle = 'Event Photos - Uma Shakti Dham';
 ?>
 
+<div class="page-heading">
+    <div class="container">
+        <h1><i class="fas fa-camera"></i> Event Photos</h1>
+        <p>Browse event photos capturing moments from our festivals, programs, and community gatherings.</p>
+    </div>
+</div>
+
 <div class="under-construction-page">
     <div class="container">
         <div class="construction-content">
-
-            <h1><i class="fas fa-camera"></i> Event Photos</h1>
 
             <div class="construction-message">
                 <h2>Page Under Construction</h2>

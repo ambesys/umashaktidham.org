@@ -36,9 +36,21 @@ class FamilyMember
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function listByUserId(int $userId)
+    /**
+     * List family members for a user.
+     * @param int $userId
+     * @param bool $excludeSelf If true, exclude records where relationship is 'self' (case-insensitive)
+     * @return array
+     */
+    public function listByUserId(int $userId, bool $excludeSelf = false)
     {
-        $stmt = $this->db->prepare("SELECT * FROM $this->table WHERE user_id = :user_id ORDER BY created_at DESC");
+        if ($excludeSelf) {
+            $sql = "SELECT * FROM $this->table WHERE user_id = :user_id AND LOWER(COALESCE(relationship, '')) != 'self' ORDER BY created_at DESC";
+        } else {
+            $sql = "SELECT * FROM $this->table WHERE user_id = :user_id ORDER BY created_at DESC";
+        }
+
+        $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -84,6 +96,12 @@ class FamilyMember
         $fields = [];
         $params = [':id' => $id];
         $allowed = ['first_name','last_name','birth_year','gender','email','phone_e164','relationship','relationship_other','occupation','business_info','village','mosal'];
+        
+        // Handle phone field alias (accept both 'phone' and 'phone_e164')
+        if (array_key_exists('phone', $data) && !array_key_exists('phone_e164', $data)) {
+            $data['phone_e164'] = $data['phone'];
+        }
+        
         foreach ($allowed as $f) {
             if (array_key_exists($f, $data)) {
                 $fields[] = "$f = :$f";
@@ -96,7 +114,12 @@ class FamilyMember
         foreach ($params as $k => $v) {
             $stmt->bindValue($k, $v);
         }
-        return $stmt->execute();
+        $executed = $stmt->execute();
+        // Return number of rows affected, or false on error
+        if ($executed === false) {
+            return false;
+        }
+        return $stmt->rowCount();
     }
 
     public function delete(int $id)

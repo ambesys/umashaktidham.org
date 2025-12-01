@@ -41,10 +41,9 @@ class Member
     public function create(array $data): bool
     {
         // Insert into family_members table to match migrations
-        $sql = "INSERT INTO family_members (family_id, user_id, first_name, last_name, birth_year, gender, email, phone_e164, relationship, relationship_other, occupation, business_info, created_at) VALUES (:family_id, :user_id, :first_name, :last_name, :birth_year, :gender, :email, :phone_e164, :relationship, :relationship_other, :occupation, :business_info, CURRENT_TIMESTAMP)";
+    $sql = "INSERT INTO family_members (user_id, first_name, last_name, birth_year, gender, email, phone_e164, relationship, relationship_other, occupation, business_info, village, mosal, created_at) VALUES (:user_id, :first_name, :last_name, :birth_year, :gender, :email, :phone_e164, :relationship, :relationship_other, :occupation, :business_info, :village, :mosal, CURRENT_TIMESTAMP)";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
-            ':family_id' => $data['family_id'] ?? null,
             ':user_id' => $data['user_id'] ?? null,
             ':first_name' => $data['first_name'] ?? $data['name'] ?? null,
             ':last_name' => $data['last_name'] ?? null,
@@ -56,10 +55,10 @@ class Member
             ':relationship_other' => $data['relationship_other'] ?? null,
             ':occupation' => $data['occupation'] ?? null,
             ':business_info' => $data['business_info'] ?? null,
+            ':village' => $data['village'] ?? null,
+            ':mosal' => $data['mosal'] ?? null,
         ]);
-    }
-
-    /**
+    }    /**
      * Get all family members or members for a specific user
      * @param int|null $userId
      * @return array
@@ -88,13 +87,11 @@ class Member
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function update($id, array $data): bool
+    public function update($id, array $data): int
     {
-        $sql = "UPDATE family_members SET family_id = :family_id, user_id = :user_id, first_name = :first_name, last_name = :last_name, birth_year = :birth_year, gender = :gender, email = :email, phone_e164 = :phone_e164, relationship = :relationship, relationship_other = :relationship_other, occupation = :occupation, business_info = :business_info WHERE id = :id";
+    $sql = "UPDATE family_members SET first_name = :first_name, last_name = :last_name, birth_year = :birth_year, gender = :gender, email = :email, phone_e164 = :phone_e164, relationship = :relationship, relationship_other = :relationship_other, occupation = :occupation, business_info = :business_info, village = :village, mosal = :mosal WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmt->bindValue(':family_id', $data['family_id'] ?? null);
-        $stmt->bindValue(':user_id', $data['user_id'] ?? null);
         $stmt->bindValue(':first_name', $data['first_name'] ?? $data['name'] ?? null);
         $stmt->bindValue(':last_name', $data['last_name'] ?? null);
         $stmt->bindValue(':birth_year', $data['birth_year'] ?? null);
@@ -103,9 +100,16 @@ class Member
         $stmt->bindValue(':phone_e164', $data['phone'] ?? $data['phone_e164'] ?? null);
         $stmt->bindValue(':relationship', $data['relationship'] ?? null);
         $stmt->bindValue(':relationship_other', $data['relationship_other'] ?? null);
+        $stmt->bindValue(':village', $data['village'] ?? null);
+        $stmt->bindValue(':mosal', $data['mosal'] ?? null);
         $stmt->bindValue(':occupation', $data['occupation'] ?? null);
         $stmt->bindValue(':business_info', $data['business_info'] ?? null);
-        return $stmt->execute();
+        $exec = $stmt->execute();
+        if ($exec) {
+            // Return the number of affected rows so callers can inspect whether an update actually modified data
+            return $stmt->rowCount();
+        }
+        return 0;
     }
 
     public function delete($id): bool

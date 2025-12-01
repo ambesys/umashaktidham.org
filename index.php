@@ -11,13 +11,8 @@ require_once 'bootstrap.php';
 require_once 'config/config.php';
 require_once 'config/database.php';
 
-// Load our custom App class
-require_once 'src/App.php';
-
-// Initialize the application
-$app = new App();
-
-
-// Run the application
-$app->run();
+// Load our centralized routes (Router-based)
+// The legacy App runner is intentionally not used here so the new Router in `routes.php`
+// can register and dispatch routes. This ensures `/` and other routes are handled.
+require_once __DIR__ . '/routes.php';
 ?>

@@ -68,7 +68,16 @@ class LoggerService
             self::LEVEL_CRITICAL => 5
         ];
 
-        return $levels[$level] >= $levels[self::$minLevel];
+        // Defensive handling: if min level isn't initialized or an unexpected
+        // level name is provided, fall back to sensible defaults to avoid
+        // PHP notices during tests or early bootstrap.
+        $minLevel = self::$minLevel ?? self::LEVEL_DEBUG;
+        $levelKey = $level ?? self::LEVEL_DEBUG;
+
+        $levelValue = $levels[$levelKey] ?? $levels[self::LEVEL_DEBUG];
+        $minValue = $levels[$minLevel] ?? $levels[self::LEVEL_DEBUG];
+
+        return $levelValue >= $minValue;
     }
 
     /**
@@ -90,16 +99,19 @@ class LoggerService
         if (!self::shouldLog($level)) {
             return;
         }
+        // Ensure we have a writable log file path; fall back to system temp if
+        // logger wasn't initialized (helps tests that don't call LoggerService::init()).
+        $logFile = self::$logFile ?? sys_get_temp_dir() . '/umashaktidham.log';
 
         $logMessage = self::formatMessage($level, $message, $context);
 
         // Rotate log file if too large
-        if (file_exists(self::$logFile) && filesize(self::$logFile) > 10 * 1024 * 1024) { // 10MB
-            $backupFile = self::$logFile . '.' . date('Y-m-d_H-i-s');
-            rename(self::$logFile, $backupFile);
+        if (file_exists($logFile) && filesize($logFile) > 10 * 1024 * 1024) { // 10MB
+            $backupFile = $logFile . '.' . date('Y-m-d_H-i-s');
+            @rename($logFile, $backupFile);
         }
 
-        file_put_contents(self::$logFile, $logMessage, FILE_APPEND | LOCK_EX);
+        @file_put_contents($logFile, $logMessage, FILE_APPEND | LOCK_EX);
     }
 
     /**
@@ -284,7 +296,7 @@ class LoggerService
      */
     public static function getLogFile()
     {
-        return self::$logFile;
+        return self::$logFile ?? sys_get_temp_dir() . '/umashaktidham.log';
     }
 
     /**
@@ -292,12 +304,14 @@ class LoggerService
      */
     public static function getRecentLogs($lines = 100)
     {
-        if (!file_exists(self::$logFile)) {
+        $logFile = self::$logFile ?? sys_get_temp_dir() . '/umashaktidham.log';
+
+        if (!file_exists($logFile)) {
             return [];
         }
 
         $logs = [];
-        $file = new SplFileObject(self::$logFile, 'r');
+        $file = new SplFileObject($logFile, 'r');
         $file->seek(PHP_INT_MAX);
         $totalLines = $file->key();
 

@@ -2,11 +2,16 @@
 $pageTitle = 'Youth Corner - Uma Shakti Dham';
 ?>
 
+<div class="page-heading">
+    <div class="container">
+        <h1><i class="fas fa-child"></i> Youth Corner</h1>
+        <p>A space for youth programs, mentorship, and activities for our younger members.</p>
+    </div>
+</div>
+
 <div class="under-construction-page">
     <div class="container">
         <div class="construction-content">
-
-            <h1><i class="fas fa-child"></i> Youth Corner</h1>
 
             <div class="construction-message">
                 <h2>Page Under Construction</h2>

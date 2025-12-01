@@ -79,29 +79,31 @@ class UserService
         $fields = [];
         $params = [':id' => $userId];
 
-        if (isset($data['email'])) {
-            $fields[] = 'email = :email';
-            $params[':email'] = $data['email'];
+        // List of all allowed fields for users table
+        $allowedUserFields = [
+            'email','password','first_name','last_name',
+            'occupation','business_info','village','mosal',
+            'street_address','address_line_2','zip_code','city','state'
+        ];
+        foreach ($allowedUserFields as $f) {
+            if (isset($data[$f])) {
+                if ($f === 'password') {
+                    $fields[] = "$f = :$f";
+                    $params[":$f"] = password_hash($data[$f], PASSWORD_BCRYPT);
+                } else {
+                    $fields[] = "$f = :$f";
+                    $params[":$f"] = $data[$f];
+                }
+            }
         }
-        if (isset($data['password'])) {
-            $fields[] = 'password = :password';
-            $params[':password'] = password_hash($data['password'], PASSWORD_BCRYPT);
-        }
-        if (isset($data['first_name'])) {
-            $fields[] = 'first_name = :first_name';
-            $params[':first_name'] = $data['first_name'];
-        }
-        if (isset($data['last_name'])) {
-            $fields[] = 'last_name = :last_name';
-            $params[':last_name'] = $data['last_name'];
-        }
-        // Note: birth_year and gender are in family_members table, not users table
-        // Do NOT update relationship in users table (only in family_members)
-        // We keep these fields in $data to use them later for family_members update
+
+        // Remove 'relationship' from users table update, but keep for family_members
+        // This ensures 'relationship' is only updated in family_members, not users
         if (isset($data['relationship'])) {
+            // Save value for later, but do not update in users table
+            $relationship_for_family = $data['relationship'];
             unset($data['relationship']);
         }
-        // birth_year and gender stay in $data for family_members update
 
         try {
             // Start transaction for atomicity
@@ -150,10 +152,16 @@ class UserService
             }
 
             // Only update fields that exist in family_members
-            $allowed = ['first_name','last_name','birth_year','gender','email','phone_e164','relationship','relationship_other','occupation','business_info','village','mosal'];
+            $allowedFm = [
+                'first_name','last_name','birth_year','gender','email','phone_e164','relationship','relationship_other',
+                'occupation','business_info','village','mosal',
+                'street_address','address_line_2','zip_code','city','state'
+            ];
             $updateData = [];
-            foreach ($allowed as $f) {
-                if (array_key_exists($f, $data)) {
+            foreach ($allowedFm as $f) {
+                if ($f === 'relationship' && isset($relationship_for_family)) {
+                    $updateData[$f] = $relationship_for_family;
+                } elseif (array_key_exists($f, $data)) {
                     $updateData[$f] = $data[$f];
                 }
             }
@@ -187,7 +195,6 @@ class UserService
                     $createData = $updateData;
                     $createData['user_id'] = $userId;
                     $createData['relationship'] = 'Self';
-                    
                     // Set defaults for required fields
                     if (!isset($createData['first_name'])) $createData['first_name'] = '';
                     if (!isset($createData['last_name'])) $createData['last_name'] = '';
@@ -200,6 +207,11 @@ class UserService
                     if (!isset($createData['village'])) $createData['village'] = '';
                     if (!isset($createData['mosal'])) $createData['mosal'] = '';
                     if (!isset($createData['relationship_other'])) $createData['relationship_other'] = '';
+                    if (!isset($createData['street_address'])) $createData['street_address'] = '';
+                    if (!isset($createData['address_line_2'])) $createData['address_line_2'] = '';
+                    if (!isset($createData['zip_code'])) $createData['zip_code'] = '';
+                    if (!isset($createData['city'])) $createData['city'] = '';
+                    if (!isset($createData['state'])) $createData['state'] = '';
 
                     $columnsCols = array_keys($createData);
                     $placeholders = array_fill(0, count($columnsCols), '?');

@@ -53,14 +53,20 @@ Thumbs.db
 # composer.lock  # Uncomment to ignore composer.lock (not recommended for production)
 
 # Database
-# Uncomment if you want to ignore database files
-# database/*.sqlite
-# database/*.db
+# Database
+# Ignore local sqlite and db files (local-only developer artifacts)
+*.db
+umashaktidham.db
+database/*.sqlite
+database/migrations/*sqlite.sql
 
 # Temporary files
 *.tmp
 *.temp
 /tmp/
+
+# Local test helpers
+scripts/test_render_dashboard.php
 
 # Backup files
 *.bak

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1600" height="400" viewBox="0 0 1600 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="kpHeroTitle kpHeroDesc">
+  <title id="kpHeroTitle">Kadva Patidar Heritage illustration</title>
+  <desc id="kpHeroDesc">Stylized silhouette of village and temple with warm gradient background</desc>
+  <defs>
+    <linearGradient id="g1" x1="0" x2="1">
+      <stop offset="0%" stop-color="#f6d365"/>
+      <stop offset="100%" stop-color="#fda085"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" x2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="400" fill="url(#g1)"/>
+  <!-- subtle hill silhouettes -->
+  <g fill="#8a5a3c" opacity="0.9">
+    <path d="M0 320 Q200 240 400 300 T800 300 T1200 290 T1600 300 L1600 400 L0 400 Z"/>
+  </g>
+  <!-- temple silhouette -->
+  <g transform="translate(980,120) scale(1)">
+    <rect x="-40" y="80" width="80" height="80" fill="#5a3020"/>
+    <polygon points="0,0 30,60 -30,60" fill="#5a3020"/>
+    <rect x="-18" y="40" width="12" height="40" fill="#ffffff" opacity="0.06"/>
+    <rect x="6" y="40" width="12" height="40" fill="#ffffff" opacity="0.06"/>
+  </g>
+  <!-- soft overlay -->
+  <rect width="1600" height="400" fill="url(#g2)"/>
+</svg>

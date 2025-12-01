@@ -286,7 +286,12 @@ class EventService
         );
         $stmt->bindParam(':id', $registrationId, PDO::PARAM_INT);
         $stmt->bindParam(':checked_by', $checkedBy, PDO::PARAM_INT);
-        return $stmt->execute();
+        $executed = $stmt->execute();
+        // Return true only if a row was actually updated (i.e., was not already checked in)
+        if ($executed) {
+            return $stmt->rowCount() > 0;
+        }
+        return false;
     }
 
     /**

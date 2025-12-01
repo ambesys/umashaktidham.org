@@ -36,23 +36,10 @@ CREATE TABLE IF NOT EXISTS users (
   CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Families: household grouping (optional association)
-CREATE TABLE IF NOT EXISTS families (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  family_name VARCHAR(200) NULL,
-  created_by_user_id INT NULL,
-  address_street VARCHAR(255) NULL,
-  address_city VARCHAR(120) NULL,
-  address_state VARCHAR(120) NULL,
-  address_zip VARCHAR(32) NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_families_user FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Family members: people associated with families, can be non-users
 CREATE TABLE IF NOT EXISTS family_members (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  family_id INT NULL,
   user_id INT NULL,
   first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NULL,
@@ -68,7 +55,6 @@ CREATE TABLE IF NOT EXISTS family_members (
   mosal VARCHAR(150) NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  CONSTRAINT fk_fm_family FOREIGN KEY (family_id) REFERENCES families(id) ON DELETE SET NULL,
   CONSTRAINT fk_fm_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

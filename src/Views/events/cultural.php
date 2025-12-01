@@ -2,11 +2,16 @@
 $pageTitle = 'Cultural Programs - Uma Shakti Dham';
 ?>
 
+<div class="page-heading">
+    <div class="container">
+        <h1><i class="fas fa-music"></i> Cultural Programs</h1>
+        <p>Discover our cultural programs including music, dance, and community events.</p>
+    </div>
+</div>
+
 <div class="under-construction-page">
     <div class="container">
         <div class="construction-content">
-
-            <h1><i class="fas fa-music"></i> Cultural Programs</h1>
 
             <div class="construction-message">
                 <h2>Page Under Construction</h2>

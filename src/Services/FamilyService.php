@@ -75,14 +75,19 @@ class FamilyService
 
             $result = $familyMember->update($familyMemberId, $data);
 
-            if ($result) {
-                $this->pdo->commit();
-                LoggerService::info('Family member updated - ID: ' . $familyMemberId . ', Fields: ' . implode(', ', array_keys($data)));
-                return true;
+            // $result may be an int (rows affected) or false on error
+            if ($result === false) {
+                // Query failed
+                $this->pdo->rollBack();
+                LoggerService::error('FamilyService::updateFamilyMember - PDO execute failure for ID: ' . $familyMemberId);
+                return false;
             }
 
-            $this->pdo->rollBack();
-            return false;
+            // Commit regardless of rows changed; caller can inspect rows_affected
+            $this->pdo->commit();
+            LoggerService::info('Family member update attempted - ID: ' . $familyMemberId . ', Rows affected: ' . intval($result) . ', Fields: ' . implode(', ', array_keys($data)));
+            // Return rows_affected as integer so controller can respond appropriately
+            return intval($result);
 
         } catch (\Exception $e) {
             if ($this->pdo->inTransaction()) {

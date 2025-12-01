@@ -2,16 +2,19 @@
 $pageTitle = 'Facilities & Rental - Uma Shakti Dham';
 ?>
 
+<div class="page-heading">
+    <div class="container">
+    <h1><i class="fas fa-home"></i> Facilities & Rental</h1>
+    <p>Explore our diverse facilities available for rental.</p>
+    </div>
+</div>
+
+<section>
+
 <div class="under-construction-page">
     <div class="container">
         <div class="construction-content">
 
-            <h1><i class="fas fa-building"></i> Facilities & Rental</h1>
-
-            <div class="construction-message">
-                <h2>Page Under Construction</h2>
-                <p>Learn about our facilities available for rent including the main hall, community rooms, kitchen, and outdoor spaces for your special events and gatherings.</p>
-            </div>
 
             <div class="construction-details">
                 <div class="detail-item">
@@ -42,3 +45,4 @@ $pageTitle = 'Facilities & Rental - Uma Shakti Dham';
         </div>
     </div>
 </div>
+</section>

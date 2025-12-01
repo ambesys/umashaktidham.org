@@ -1,9 +1,11 @@
-<div class="container">
-    <div class="page-heading">
-        <div class="container">
-            <h1><i class="fas fa-star"></i> Hindu Festivals</h1>
-        </div>
+<div class="page-heading">
+    <div class="container">
+        <h1><i class="fas fa-star"></i> Hindu Festivals</h1>
+        <p>Explore the major Hindu festivals celebrated by our community.</p>
     </div>
+</div>
+
+<div class="container">
     <p>Explore the rich tapestry of Hindu festivals celebrated by our community, with special focus on Gujarati traditions and customs.</p>
 
     <div class="festivals-section">

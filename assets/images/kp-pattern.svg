@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="kpPatternTitle kpPatternDesc">
+  <title id="kpPatternTitle">Kadva decorative motif</title>
+  <desc id="kpPatternDesc">Geometric floral motif for thumbnails and accents</desc>
+  <defs>
+    <linearGradient id="gp" x1="0" x2="1">
+      <stop offset="0%" stop-color="#f9f6f0"/>
+      <stop offset="100%" stop-color="#f0e7df"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="300" fill="url(#gp)"/>
+  <g transform="translate(150,150) scale(1)" fill="#e8b07a">
+    <circle cx="0" cy="0" r="60" fill="#e8b07a" opacity="0.18" />
+    <g stroke="#d18f5a" stroke-width="2" fill="none">
+      <path d="M0,-48 L12,-12 L48,0 L12,12 L0,48 L-12,12 L-48,0 L-12,-12 Z"/>
+    </g>
+  </g>
+</svg>

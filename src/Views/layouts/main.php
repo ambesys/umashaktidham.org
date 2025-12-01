@@ -12,7 +12,8 @@ if (session_status() === PHP_SESSION_NONE) {
 // Debug session information
 if (isset($_GET['debug_session'])) {
     LoggerService::debug("Session Debug - Status: " . session_status() . ", ID: " . session_id() . ", Save Path: " . session_save_path());
-    LoggerService::debug("Session Data: " . print_r($_SESSION, true));
+    // Avoid raw print_r to stdout; use JSON for structured logs
+    LoggerService::debug("Session Data: " . json_encode($_SESSION));
 }
 
 // Include necessary files using absolute path from project root

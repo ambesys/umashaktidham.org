@@ -10,8 +10,7 @@ $pageTitle = $pageTitle ?? 'Page Under Construction';
                 <i class="fas fa-tools"></i>
             </div>
 
-            <h1><?php echo htmlspecialchars($pageTitle); ?></h1>
-
+            <!-- page title is expected to be provided by the including view via the .page-heading hero -->
             <div class="construction-message">
                 <h2>Page Under Construction</h2>
                 <p>We're working hard to bring you this content. Please check back soon!</p>

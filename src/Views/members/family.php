@@ -1,30 +1,9 @@
 <?php
-session_start();
-require_once '../../config/config.php';
-require_once '../../src/Models/Family.php';
+// This view expects a `$families` array to be provided by the controller.
+// If not provided, gracefully fall back to an empty array so rendering continues.
+// The layout (header/footer) is handled by the Layout / render_view helper.
 
-$familyModel = new Family();
-
-if (!isset($_SESSION['user_id'])) {
-    header('Location: /uma-shakti-dham/public/auth/login.php');
-    exit();
-}
-
-$userId = $_SESSION['user_id'];
-$families = $familyModel->getFamiliesByUserId($userId);
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['add_family_member'])) {
-        $name = $_POST['name'];
-        $relation = $_POST['relation'];
-        $age = $_POST['age'];
-        $familyModel->addFamilyMember($userId, $name, $relation, $age);
-        header('Location: family.php');
-        exit();
-    }
-}
-
-include '../layouts/header.php';
+$families = $families ?? [];
 ?>
 
 <div class="container">
@@ -39,9 +18,21 @@ include '../layouts/header.php';
     <h3>Your Family Members</h3>
     <ul>
         <?php foreach ($families as $family): ?>
-            <li><?php echo htmlspecialchars($family['name']); ?> - <?php echo htmlspecialchars($family['relation']); ?> (<?php echo htmlspecialchars($family['age']); ?> years old)</li>
+            <?php
+                // Be defensive: some family items may be missing keys or have null values.
+                $name = isset($family['name']) ? $family['name'] : '';
+                $relation = isset($family['relation']) ? $family['relation'] : '';
+                $age = isset($family['age']) ? $family['age'] : '';
+                // Cast to string to avoid passing null to htmlspecialchars (deprecated in PHP 8.1+)
+                $nameEsc = htmlspecialchars((string)$name, ENT_QUOTES, 'UTF-8');
+                $relationEsc = htmlspecialchars((string)$relation, ENT_QUOTES, 'UTF-8');
+                $ageEsc = htmlspecialchars((string)$age, ENT_QUOTES, 'UTF-8');
+            ?>
+            <li><?php echo $nameEsc; ?> - <?php echo $relationEsc; ?> (<?php echo $ageEsc; ?> years old)</li>
         <?php endforeach; ?>
     </ul>
-</div>
+    </div>
 
-<?php include '../layouts/footer.php'; ?>
+<?php
+// Note: footer is included by the layout when using render_view()
+?>

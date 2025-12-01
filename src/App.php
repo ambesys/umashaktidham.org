@@ -1,957 +1,142 @@
 <?php
-use App\Services\LoggerService;
-
+/**
+ * Minimal App class to provide a simple grouping/routing surface used by some legacy code.
+ * This implementation is intentionally small and safe: it stores routes, supports groups,
+ * and dispatches handlers (callables or controller array handlers). Middlewares are
+ * accepted but executed only if they are callables; string class names are ignored for now.
+ */
 class App
 {
     private $routes = [];
     private $middlewares = [];
-    
+    private $currentGroupPrefix = '';
+    private $currentGroupMiddlewares = [];
+
     public function __construct()
     {
-        // Initialize the application
     }
-    
+
+    public function group($prefix, $middlewares = [], $callback = null)
+    {
+        $previousPrefix = $this->currentGroupPrefix;
+        $previousMiddlewares = $this->currentGroupMiddlewares;
+
+        $this->currentGroupPrefix = $previousPrefix . $prefix;
+        $this->currentGroupMiddlewares = array_merge($previousMiddlewares, (array)$middlewares);
+
+        if ($callback && is_callable($callback)) {
+            $callback($this);
+        }
+
+        // Restore previous group state
+        $this->currentGroupPrefix = $previousPrefix;
+        $this->currentGroupMiddlewares = $previousMiddlewares;
+
+        return $this;
+    }
+
     public function get($path, $handler)
     {
         $this->addRoute('GET', $path, $handler);
         return $this;
     }
-    
+
     public function post($path, $handler)
     {
         $this->addRoute('POST', $path, $handler);
         return $this;
     }
-    
+
     public function middleware($middleware)
     {
         $this->middlewares[] = $middleware;
         return $this;
     }
-    
+
     private function addRoute($method, $path, $handler)
     {
+        $fullPath = $this->currentGroupPrefix . $path;
+        $allMiddlewares = array_merge($this->currentGroupMiddlewares, $this->middlewares);
+
         $this->routes[] = [
             'method' => $method,
-            'path' => $path,
+            'path' => $fullPath,
             'handler' => $handler,
-            'middlewares' => $this->middlewares
+            'middlewares' => $allMiddlewares
         ];
         $this->middlewares = []; // Reset middlewares after adding route
     }
-    
+
     public function run()
     {
-        $requestMethod = $_SERVER['REQUEST_METHOD'];
-        $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        
-        // Handle static assets (CSS, JS, images)
-        if ($this->isStaticAsset($requestUri)) {
-            $this->serveStaticAsset($requestUri);
+        $requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        $requestUri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+
+        // Normalize
+        $requestUri = rtrim($requestUri, '/') ?: '/';
+
+        $route = $this->findRoute($requestMethod, $requestUri);
+        if ($route) {
+            $this->executeRoute($route);
+        } else {
+            $this->serve404();
+        }
+    }
+
+    private function findRoute($method, $uri)
+    {
+        foreach ($this->routes as $route) {
+            if ($route['method'] === $method && $route['path'] === $uri) {
+                return $route;
+            }
+        }
+        return null;
+    }
+
+    private function executeRoute($route)
+    {
+        $handler = $route['handler'];
+
+        // Run any middlewares that are callables
+        foreach ($route['middlewares'] as $m) {
+            if (is_callable($m)) {
+                $result = call_user_func($m, $_REQUEST);
+                // Middleware can return false to stop execution
+                if ($result === false) {
+                    return;
+                }
+            }
+        }
+
+        if (is_callable($handler)) {
+            call_user_func($handler);
             return;
         }
-        
-        // Handle the request
-        $this->handleRequest($requestMethod, $requestUri);
-    }
-    
-    private function isStaticAsset($uri)
-    {
-        $extensions = ['css', 'js', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'ico', 'woff', 'woff2', 'ttf'];
-        $extension = pathinfo($uri, PATHINFO_EXTENSION);
-        return in_array(strtolower($extension), $extensions);
-    }
-    
-    private function serveStaticAsset($uri)
-    {
-        $filePath = __DIR__ . '/..' . $uri;
-        
-        if (file_exists($filePath)) {
-            $extension = pathinfo($uri, PATHINFO_EXTENSION);
-            $mimeTypes = [
-                'css' => 'text/css',
-                'js' => 'application/javascript',
-                'png' => 'image/png',
-                'jpg' => 'image/jpeg',
-                'jpeg' => 'image/jpeg',
-                'gif' => 'image/gif',
-                'svg' => 'image/svg+xml',
-                'ico' => 'image/x-icon',
-                'woff' => 'font/woff',
-                'woff2' => 'font/woff2',
-                'ttf' => 'font/ttf'
-            ];
-            
-            $mimeType = $mimeTypes[strtolower($extension)] ?? 'application/octet-stream';
-            header('Content-Type: ' . $mimeType);
-            readfile($filePath);
-        } else {
-            http_response_code(404);
-            echo "Asset not found: " . htmlspecialchars($uri);
-        }
-    }
-    
-    private function handleRequest($method, $uri)
-    {
-        // Remove trailing slash and .php extension for consistency
-        $uri = rtrim($uri, '/');
-        $uri = preg_replace('/\.php$/', '', $uri);
-        
-        // Handle empty URI as home
-        if ($uri === '') {
-            $uri = '/';
-        }
-        
-        // Simple routing - handle all main pages
-        switch ($uri) {
-            case '/':
-            case '/index':
-                $this->serveView('index');
-                break;
-            case '/about':
-                $this->serveView('about');
-                break;
-            case '/kp-history':
-                $this->serveView('kp-history');
-                break;
-            case '/committee':
-                $this->serveView('committee');
-                break;
-            case '/bylaws':
-                $this->serveView('bylaws');
-                break;
-            case '/events':
-                $this->serveView('events');
-                break;
-            case '/events/cultural':
-                $this->serveView('events/cultural');
-                break;
-            case '/events/festivals':
-                $this->serveView('events/festivals');
-                break;
-            case '/indian-holidays':
-                $this->serveView('indian-holidays');
-                break;
-            case '/hindu-gods':
-                $this->serveView('hindu-gods');
-                break;
-            case '/hindu-rituals':
-                $this->serveView('hindu-rituals');
-                break;
-            case '/hindu-scriptures':
-                $this->serveView('hindu-scriptures');
-                break;
-            case '/gallery':
-                $this->serveView('gallery');
-                break;
-            case '/gallery/events':
-                $this->serveView('gallery/events');
-                break;
-            case '/gallery/community':
-                $this->serveView('gallery/community');
-                break;
-            case '/membership':
-                $this->serveView('membership');
-                break;
-            case '/members/families':
-                $this->serveView('members/families');
-                break;
-            case '/youth-corner':
-                $this->serveView('youth-corner');
-                break;
-            case '/matrimonial':
-                $this->serveView('matrimonial');
-                break;
-            case '/business-directory':
-                $this->serveView('business-directory');
-                break;
-            case '/donate':
-                $this->serveView('donate');
-                break;
-            case '/contact':
-                $this->serveView('contact');
-                break;
-            case '/access':
-                $this->serveView('access');
-                break;
-            case '/direction':
-                $this->serveView('direction');
-                break;
-            case '/facilities':
-                $this->serveView('facilities');
-                break;
 
-            case '/update-user':
-                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    $this->handleUpdateUser();
-                }
-                break;
-
-            case '/add-family-member':
-                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    $this->handleAddFamilyMember();
-                }
-                break;
-
-            case '/update-family-member':
-                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    $this->handleUpdateFamilyMember();
-                }
-                break;
-
-            case '/delete-family-member':
-                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    $this->handleDeleteFamilyMember();
-                }
-                break;
-
-            case '/logout':
-            case '/auth/logout':
-                $authController = new \App\Controllers\AuthController();
-                $authController->logout();
-                break;
-
-            case '/login':
-            case '/auth/login':
-                if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-                    $this->serveView('auth/login');
-                } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    $this->handleLogin();
-                }
-                
-                break;
-            case '/register':
-                if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-                    $this->serveView('auth/register');
-                } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    $this->handleRegistration();
-                }
-                break;
-            case '/auth/google':
-                $this->handleOAuthRedirect('google');
-                break;
-            case '/auth/google/callback':
-                $this->handleOAuthCallback('google');
-                break;
-            case '/auth/facebook':
-                $this->handleOAuthRedirect('facebook');
-                break;
-            case '/auth/facebook/callback':
-                $this->handleOAuthCallback('facebook');
-                break;
-            case '/auth/webauthn/register/challenge':
-                $this->handleWebAuthnRegistrationChallenge();
-                break;
-            case '/auth/webauthn/register':
-                $this->handleWebAuthnRegistration();
-                break;
-            case '/auth/webauthn/authenticate/challenge':
-                $this->handleWebAuthnAuthenticationChallenge();
-                break;
-            case '/auth/webauthn/authenticate':
-                $this->handleWebAuthnAuthentication();
-                break;
-            case '/auth/webauthn/credentials':
-                $this->handleWebAuthnCredentials();
-                break;
-            case '/forgot-password':
-                $this->handleForgotPasswordForm();
-                break;
-            case '/auth/forgot-password':
-                $this->handleForgotPassword();
-                break;
-            case '/reset-password':
-                $this->handleResetPasswordForm();
-                break;
-            case '/auth/reset-password':
-                $this->handleResetPassword();
-                break;
-            case '/api/events':
-                $this->handleApiEvents();
-                break;
-            case '/api/events/my-registrations':
-                $this->handleApiMyEventRegistrations();
-                break;
-            case (preg_match('/^\/api\/events\/(\d+)$/', $uri, $matches) ? true : false):
-                $this->handleApiEvent($matches[1]);
-                break;
-            case (preg_match('/^\/api\/events\/(\d+)\/register$/', $uri, $matches) ? true : false):
-                $this->handleApiEventRegister($matches[1]);
-                break;
-            case (preg_match('/^\/api\/events\/(\d+)\/registrations$/', $uri, $matches) ? true : false):
-                $this->handleApiEventRegistrations($matches[1]);
-                break;
-            case (preg_match('/^\/api\/events\/registrations\/(\d+)\/checkin$/', $uri, $matches) ? true : false):
-                $this->handleApiEventCheckIn($matches[1]);
-                break;
-            case '/dashboard':
-                $this->serveView('dashboard/index');
-                break;
-            case '/profile':
-                $this->serveView('members/profile');
-                break;
-            case '/family':
-                $this->serveView('members/family');
-                break;
-            case '/admin':
-            case '/admin/index':
-                $this->serveView('admin/users');
-                break;
-            case '/admin/users':
-                $this->serveView('admin/users');
-                break;
-            case '/admin/moderators':
-                $this->serveView('admin/moderators');
-                break;
-            case '/admin/events':
-                $this->serveView('admin/events');
-                break;
-            default:
-                $this->serve404();
-                break;
-        }
-    }
-    
-    private function serveView($view, $data = [], $middleware = [])
-    {
-        // Include the Layout class
-        require_once __DIR__ . '/Views/layouts/Layout.php';
-        
-        // Set up route-specific requirements
-        $routeConfig = $this->getRouteConfig($view);
-        
-        // Include required files for this route BEFORE executing logic
-        if (!empty($routeConfig['includes'])) {
-            Layout::includeFiles($routeConfig['includes']);
-        }
-        
-        // Execute route-specific logic after includes are loaded
-        if (is_callable($routeConfig['logic'])) {
-            $data = array_merge($data, $routeConfig['logic']());
-        }
-        
-        // Merge middleware from route config
-        $middleware = array_merge($middleware, $routeConfig['middleware']);
-        
-        // Render the view with layout
-        Layout::render($view . '.php', $data, $middleware, $routeConfig['options'] ?? []);
-    }
-    
-    private function getRouteConfig($view)
-    {
-        $configs = [
-            'index' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Welcome to Uma Shakti Dham - Hindu Temple & Community Center'],
-                'logic' => null
-            ],
-            'access' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Access Required - Uma Shakti Dham'],
-                'logic' => function() {
-                    $error = '';
-                    // Allow POST to validate access code
-                    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                        $code = $_POST['access_code'] ?? '';
-                        $next = $_POST['next'] ?? '/';
-                        if (trim($code) === 'jayumiya') {
-                            // grant access for 2 hours
-                            $_SESSION['access_granted_until'] = time() + (2 * 60 * 60);
-                            header('Location: ' . $next);
-                            exit();
-                        } else {
-                            $error = 'Invalid access code. Please try again.';
-                        }
-                    }
-                    return ['error' => $error];
-                }
-            ],
-            'about' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'About - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'kp-history' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Kadva Patidar Heritage - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'committee' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Leadership Committee - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'bylaws' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Bylaws & Constitution - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'events' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Events - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'events/cultural' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Cultural Programs - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'events/festivals' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Festival Celebrations - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'gallery' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Gallery - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'gallery/events' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Event Photos - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'gallery/community' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Community Photos - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'membership' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Membership - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'members/families' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Family Directory - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'youth-corner' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Youth Corner - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'matrimonial' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Business Network - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'business-directory' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Business Directory - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'donate' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Donate - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'contact' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Contact - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'direction' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Location & Hours - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'facilities' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Facilities & Rental - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'indian-holidays' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Indian Holidays - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'hindu-gods' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Hindu Gods - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'hindu-rituals' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Hindu Rituals - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'hindu-scriptures' => [
-                'middleware' => [],
-                'includes' => [],
-                'options' => ['title' => 'Hindu Scriptures - Uma Shakti Dham'],
-                'logic' => null
-            ],
-            'admin/users' => [
-                'middleware' => ['admin'],
-                'includes' => ['Models/User.php'],
-                'options' => ['title' => 'Manage Users - Admin'],
-                'logic' => function() {
-                    // Fetch all users with roles and family data
-                    $userModel = new \App\Models\User($GLOBALS['pdo']);
-                    $users = $userModel->getAllUsers();
-                    return ['users' => $users];
-                }
-            ],
-            'admin/moderators' => [
-                'middleware' => ['admin'],
-                'includes' => ['Models/User.php', 'Controllers/AdminController.php'],
-                'options' => ['title' => 'Manage Moderators - Admin'],
-                'logic' => function() {
-                    $adminController = new \App\Controllers\AdminController();
-                    return ['moderators' => []]; // Placeholder - AdminController::listModerators() renders view directly
-                }
-            ],
-            'dashboard/index' => [
-                'middleware' => ['authenticated'],
-                'includes' => ['Controllers/DashboardController.php'],
-                'options' => ['scripts' => ['dashboard.js'], 'title' => 'Dashboard - Uma Shakti Dham'],
-                'logic' => function() {
-                    $dashboardController = new \App\Controllers\DashboardController();
-                    return ['dashboardData' => $dashboardController->getDashboardData()];
-                }
-            ],
-            'members/profile' => [
-                'middleware' => ['authenticated'],
-                'includes' => ['Models/Member.php', 'Controllers/MemberController.php'],
-                'options' => ['title' => 'Profile - Uma Shakti Dham'],
-                'logic' => function() {
-                    $memberController = new \App\Controllers\MemberController();
-                    return ['member' => null]; // Placeholder - MemberController methods render views directly
-                }
-            ],
-            'members/family' => [
-                'middleware' => ['authenticated'],
-                'includes' => ['Models/Family.php', 'Controllers/FamilyController.php'],
-                'options' => ['title' => 'Family - Uma Shakti Dham'],
-                'logic' => function() {
-                    $familyController = new \App\Controllers\FamilyController();
-                    return ['family' => []]; // Placeholder - FamilyController methods render views directly
-                }
-            ]
-        ];
-        
-        return $configs[$view] ?? ['middleware' => [], 'includes' => [], 'logic' => null, 'options' => []];
-    }
-    
-    private function handleOAuthRedirect(string $provider)
-    {
-        try {
-            require_once __DIR__ . '/Services/OAuthService.php';
-            require_once __DIR__ . '/Services/SessionService.php';
-            require_once __DIR__ . '/Controllers/OAuthController.php';
-
-            // Initialize services (simplified - in production use DI container)
-            $pdo = $this->getPDO();
-            $sessionService = new \App\Services\SessionService($pdo);
-            $oauthService = new \App\Services\OAuthService($pdo, $this->getOAuthConfig(), $sessionService);
-            $oauthController = new \App\Controllers\OAuthController($oauthService, $sessionService);
-
-            $oauthController->redirect($provider);
-        } catch (\Exception $e) {
-            // Log the error and redirect to login with error message
-            if (function_exists('getLogger')) {
-                $logger = getLogger();
-                $logger->error("OAuth redirect error for $provider", [
-                    'error' => $e->getMessage(),
-                    'provider' => $provider,
-                    'trace' => $e->getTraceAsString()
-                ]);
-            } else {
-                LoggerService::error("OAuth redirect error for $provider: " . $e->getMessage());
+        if (is_array($handler) && count($handler) === 2) {
+            [$obj, $method] = $handler;
+            if (is_object($obj) && method_exists($obj, $method)) {
+                return $obj->$method();
             }
-            header('Location: /login?error=' . urlencode('OAuth configuration error. Please try again later.'));
-            exit;
-        }
-    }
-
-    private function handleOAuthCallback(string $provider)
-    {
-        try {
-            require_once __DIR__ . '/Services/OAuthService.php';
-            require_once __DIR__ . '/Services/SessionService.php';
-            require_once __DIR__ . '/Controllers/OAuthController.php';
-
-            // Initialize services
-            $pdo = $this->getPDO();
-            $sessionService = new \App\Services\SessionService($pdo);
-            $oauthService = new \App\Services\OAuthService($pdo, $this->getOAuthConfig(), $sessionService);
-            $oauthController = new \App\Controllers\OAuthController($oauthService, $sessionService);
-
-            $oauthController->callback($provider);
-        } catch (\Exception $e) {
-            // Log the error and redirect to login with error message
-            if (function_exists('getLogger')) {
-                $logger = getLogger();
-                $logger->error("OAuth callback error for $provider", [
-                    'error' => $e->getMessage(),
-                    'provider' => $provider,
-                    'trace' => $e->getTraceAsString()
-                ]);
-            } else {
-                LoggerService::error("OAuth callback error for $provider: " . $e->getMessage());
-            }
-            header('Location: /login?error=' . urlencode('OAuth authentication failed. Please try again.'));
-            exit;
-        }
-    }
-
-    private function handleWebAuthnRegistrationChallenge()
-    {
-        require_once __DIR__ . '/Services/WebAuthnService.php';
-        require_once __DIR__ . '/Controllers/WebAuthnController.php';
-
-        // Initialize services
-        $pdo = $this->getPDO();
-        $webauthnService = new \App\Services\WebAuthnService($pdo);
-        $webauthnController = new \App\Controllers\WebAuthnController($webauthnService);
-
-        $webauthnController->getRegistrationChallenge();
-    }
-
-    private function handleWebAuthnRegistration()
-    {
-        require_once __DIR__ . '/Services/WebAuthnService.php';
-        require_once __DIR__ . '/Controllers/WebAuthnController.php';
-
-        // Initialize services
-        $pdo = $this->getPDO();
-        $webauthnService = new \App\Services\WebAuthnService($pdo);
-        $webauthnController = new \App\Controllers\WebAuthnController($webauthnService);
-
-        $webauthnController->registerCredential();
-    }
-
-    private function handleWebAuthnAuthenticationChallenge()
-    {
-        require_once __DIR__ . '/Services/WebAuthnService.php';
-        require_once __DIR__ . '/Controllers/WebAuthnController.php';
-
-        // Initialize services
-        $pdo = $this->getPDO();
-        $webauthnService = new \App\Services\WebAuthnService($pdo);
-        $webauthnController = new \App\Controllers\WebAuthnController($webauthnService);
-
-        $webauthnController->getAuthenticationChallenge();
-    }
-
-    private function handleWebAuthnAuthentication()
-    {
-        require_once __DIR__ . '/Services/WebAuthnService.php';
-        require_once __DIR__ . '/Controllers/WebAuthnController.php';
-
-        // Initialize services
-        $pdo = $this->getPDO();
-        $webauthnService = new \App\Services\WebAuthnService($pdo);
-        $webauthnController = new \App\Controllers\WebAuthnController($webauthnService);
-
-        $webauthnController->authenticate();
-    }
-
-    private function handleWebAuthnCredentials()
-    {
-        require_once __DIR__ . '/Services/WebAuthnService.php';
-        require_once __DIR__ . '/Controllers/WebAuthnController.php';
-
-        // Initialize services
-        $pdo = $this->getPDO();
-        $webauthnService = new \App\Services\WebAuthnService($pdo);
-        $webauthnController = new \App\Controllers\WebAuthnController($webauthnService);
-
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $webauthnController->getCredentials();
-        } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-            $webauthnController->removeCredential();
-        }
-    }
-
-    private function handleForgotPasswordForm()
-    {
-        require_once __DIR__ . '/Services/PasswordResetService.php';
-        require_once __DIR__ . '/Controllers/PasswordResetController.php';
-
-        // Initialize services
-        $pdo = $this->getPDO();
-        $passwordResetService = new \App\Services\PasswordResetService($pdo);
-        $passwordResetController = new \App\Controllers\PasswordResetController($passwordResetService);
-
-        $passwordResetController->showForgotPasswordForm();
-    }
-
-    private function handleForgotPassword()
-    {
-        require_once __DIR__ . '/Services/PasswordResetService.php';
-        require_once __DIR__ . '/Controllers/PasswordResetController.php';
-
-        // Initialize services
-        $pdo = $this->getPDO();
-        $passwordResetService = new \App\Services\PasswordResetService($pdo);
-        $passwordResetController = new \App\Controllers\PasswordResetController($passwordResetService);
-
-        $passwordResetController->handleForgotPassword();
-    }
-
-  
-      private function handleLogin()
-    {
-        require_once __DIR__ . '/Controllers/AuthController.php';
-
-        // Initialize controller
-        $authController = new \App\Controllers\AuthController();
-        $authController->login();
-    }
-  
-    private function handleRegistration()
-    {
-        require_once __DIR__ . '/Controllers/AuthController.php';
-
-        // Initialize controller
-        $authController = new \App\Controllers\AuthController();
-        $authController->register();
-    }
-
-    private function handleResetPasswordForm()
-    {
-        require_once __DIR__ . '/Services/PasswordResetService.php';
-        require_once __DIR__ . '/Controllers/PasswordResetController.php';
-
-        // Initialize services
-        $pdo = $this->getPDO();
-        $passwordResetService = new \App\Services\PasswordResetService($pdo);
-        $passwordResetController = new \App\Controllers\PasswordResetController($passwordResetService);
-
-        $passwordResetController->showResetPasswordForm();
-    }
-
-    private function handleResetPassword()
-    {
-        require_once __DIR__ . '/Services/PasswordResetService.php';
-        require_once __DIR__ . '/Controllers/PasswordResetController.php';
-
-        // Initialize services
-        $pdo = $this->getPDO();
-        $passwordResetService = new \App\Services\PasswordResetService($pdo);
-        $passwordResetController = new \App\Controllers\PasswordResetController($passwordResetService);
-
-        $passwordResetController->handleResetPassword();
-    }
-
-    private function handleApiEvents()
-    {
-        require_once __DIR__ . '/Services/EventService.php';
-        require_once __DIR__ . '/Services/SessionService.php';
-        require_once __DIR__ . '/Controllers/EventController.php';
-
-        // Initialize services
-        $pdo = $this->getPDO();
-        $sessionService = new \App\Services\SessionService($pdo);
-        $eventService = new \App\Services\EventService($pdo);
-        $eventController = new \App\Controllers\EventController($eventService, $sessionService);
-
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $eventController->index();
-        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $eventController->create();
-        }
-    }
-
-    private function handleApiEvent($eventId)
-    {
-        require_once __DIR__ . '/Services/EventService.php';
-        require_once __DIR__ . '/Services/SessionService.php';
-        require_once __DIR__ . '/Controllers/EventController.php';
-
-        // Initialize services
-        $pdo = $this->getPDO();
-        $sessionService = new \App\Services\SessionService($pdo);
-        $eventService = new \App\Services\EventService($pdo);
-        $eventController = new \App\Controllers\EventController($eventService, $sessionService);
-
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $eventController->show($eventId);
-        } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
-            $eventController->update($eventId);
-        }
-    }
-
-    private function handleApiEventRegister($eventId)
-    {
-        require_once __DIR__ . '/Services/EventService.php';
-        require_once __DIR__ . '/Services/SessionService.php';
-        require_once __DIR__ . '/Controllers/EventController.php';
-
-        // Initialize services
-        $pdo = $this->getPDO();
-        $sessionService = new \App\Services\SessionService($pdo);
-        $eventService = new \App\Services\EventService($pdo);
-        $eventController = new \App\Controllers\EventController($eventService, $sessionService);
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $eventController->register($eventId);
-        }
-    }
-
-    private function handleApiMyEventRegistrations()
-    {
-        require_once __DIR__ . '/Services/EventService.php';
-        require_once __DIR__ . '/Services/SessionService.php';
-        require_once __DIR__ . '/Controllers/EventController.php';
-
-        // Initialize services
-        $pdo = $this->getPDO();
-        $sessionService = new \App\Services\SessionService($pdo);
-        $eventService = new \App\Services\EventService($pdo);
-        $eventController = new \App\Controllers\EventController($eventService, $sessionService);
-
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $eventController->myRegistrations();
-        }
-    }
-
-    private function handleApiEventRegistrations($eventId)
-    {
-        require_once __DIR__ . '/Services/EventService.php';
-        require_once __DIR__ . '/Services/SessionService.php';
-        require_once __DIR__ . '/Controllers/EventController.php';
-
-        // Initialize services
-        $pdo = $this->getPDO();
-        $sessionService = new \App\Services\SessionService($pdo);
-        $eventService = new \App\Services\EventService($pdo);
-        $eventController = new \App\Controllers\EventController($eventService, $sessionService);
-
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $eventController->getRegistrations($eventId);
-        }
-    }
-
-    private function handleApiEventCheckIn($registrationId)
-    {
-        require_once __DIR__ . '/Services/EventService.php';
-        require_once __DIR__ . '/Services/SessionService.php';
-        require_once __DIR__ . '/Controllers/EventController.php';
-
-        // Initialize services
-        $pdo = $this->getPDO();
-        $sessionService = new \App\Services\SessionService($pdo);
-        $eventService = new \App\Services\EventService($pdo);
-        $eventController = new \App\Controllers\EventController($eventService, $sessionService);
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $eventController->checkIn($registrationId);
-        }
-    }
-
-    private function handleUpdateUser()
-    {
-        require_once __DIR__ . '/Controllers/UserController.php';
-        $userController = new \App\Controllers\UserController();
-        $userController->updateUser();
-    }
-
-    private function handleAddFamilyMember()
-    {
-        require_once __DIR__ . '/Controllers/FamilyController.php';
-        $familyController = new \App\Controllers\FamilyController();
-        $familyController->addFamilyMember();
-    }
-
-    private function handleUpdateFamilyMember()
-    {
-        require_once __DIR__ . '/Controllers/FamilyController.php';
-        $familyController = new \App\Controllers\FamilyController();
-        $familyController->updateFamilyMember();
-    }
-
-    private function handleDeleteFamilyMember()
-    {
-        require_once __DIR__ . '/Controllers/FamilyController.php';
-        $familyController = new \App\Controllers\FamilyController();
-        $familyController->deleteFamilyMember();
-    }
-
-    private function getPDO()
-    {
-        // Get PDO instance (reuse existing pattern from config)
-        static $pdo = null;
-        if ($pdo === null) {
-            $cfg = __DIR__ . '/../config/database.php';
-            if (file_exists($cfg)) {
-                require $cfg;
-                if (isset($pdo) && $pdo instanceof PDO) {
-                    return $pdo;
+            if (is_string($obj) && class_exists($obj)) {
+                $inst = new $obj();
+                if (method_exists($inst, $method)) {
+                    return $inst->$method();
                 }
             }
-            // Fallback - create PDO directly (for development)
-            // In production, this should not happen - database config should be available
-            throw new \RuntimeException('Database configuration not found. Please check config/database.php');
         }
-        return $pdo;
+
+        // As a last resort, if handler is a string function name
+        if (is_string($handler) && function_exists($handler)) {
+            return $handler();
+        }
+
+        $this->serve404();
     }
 
     private function serve404()
     {
         http_response_code(404);
         echo "<h1>404 - Page Not Found</h1>";
-    }
-
-    private function getOAuthConfig()
-    {
-        // OAuth configuration using environment variables with fallbacks
-        $googleClientId = getenv('GOOGLE_CLIENT_ID') ?: GOOGLE_CLIENT_ID;
-        $googleClientSecret = getenv('GOOGLE_CLIENT_SECRET') ?: GOOGLE_CLIENT_SECRET;
-        $facebookClientId = getenv('FACEBOOK_CLIENT_ID') ?: FACEBOOK_CLIENT_ID;
-        $facebookClientSecret = getenv('FACEBOOK_CLIENT_SECRET') ?: FACEBOOK_CLIENT_SECRET;
-
-        // Validate required OAuth credentials
-        if (empty($googleClientId) || empty($googleClientSecret)) {
-            throw new \RuntimeException('Google OAuth credentials not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.');
-        }
-
-        // Allow explicit redirect URIs via environment variables to avoid
-        // redirect_uri_mismatch issues (exact match required by Google)
-        $config = [
-            'google' => [
-                'clientId' => $googleClientId,
-                'clientSecret' => $googleClientSecret,
-                'redirectUri' => getenv('GOOGLE_REDIRECT_URI') ?: BASE_URL . '/auth/google/callback',
-            ]
-        ];
-
-        // Only include Facebook config if credentials are available
-        if (!empty($facebookClientId) && !empty($facebookClientSecret)) {
-            $config['facebook'] = [
-                'clientId' => $facebookClientId,
-                'clientSecret' => $facebookClientSecret,
-                'redirectUri' => getenv('FACEBOOK_REDIRECT_URI') ?: BASE_URL . '/auth/facebook/callback',
-                'graphApiVersion' => 'v18.0' // Required for Facebook OAuth2 client
-            ];
-        }
-
-        return $config;
     }
 }

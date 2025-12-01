@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Services\EventService;
 use App\Services\SessionService;
+use App\Services\NotificationService;
 
 /**
  * EventController
@@ -160,6 +161,36 @@ class EventController
             $success = $this->eventService->registerForEvent($userId, $eventId, $registrationData);
 
             if ($success) {
+                // Attempt to notify the user about successful registration (best-effort)
+                try {
+                    // Load DB config so we can fetch fresh user/event details for the email
+                    require_once __DIR__ . '/../../config/database.php';
+                    // Create user model to fetch user record (if available)
+                    $user = null;
+                    try {
+                        $userModel = new \App\Models\User($pdo ?? null);
+                        $user = $userModel->find($userId);
+                    } catch (\Throwable $e) {
+                        // ignore - we will still attempt to notify with minimal info
+                        error_log('EventController: failed to load user for notification: ' . $e->getMessage());
+                    }
+
+                    // Fetch fresh event details
+                    $event = null;
+                    try {
+                        $event = $this->eventService->getEventById($eventId);
+                    } catch (\Throwable $e) {
+                        error_log('EventController: failed to load event for notification: ' . $e->getMessage());
+                    }
+
+                    // Create NotificationService (provider chosen by env MAIL_PROVIDER or default)
+                    $notif = new \App\Services\NotificationService();
+                    // Best-effort: if we have both user and event, send detailed template; otherwise pass minimal data
+                    $notif->sendEventRegistration(is_array($user) ? $user : ['id' => $userId, 'email' => $_SESSION['user_email'] ?? null], is_array($event) ? $event : ['id' => $eventId]);
+                } catch (\Throwable $e) {
+                    // Do not fail the registration if notification fails
+                    error_log('EventController: notification error: ' . $e->getMessage());
+                }
                 $this->jsonResponse(['success' => true, 'message' => 'Registration successful']);
             } else {
                 $this->jsonResponse(['success' => false, 'error' => 'Registration failed'], 500);

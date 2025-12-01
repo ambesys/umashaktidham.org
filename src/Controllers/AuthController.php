@@ -20,17 +20,19 @@ class AuthController
             exit;
         }
 
+        // Initialize variables
+        $registrationSuccess = false;
+        $error = null;
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Validate required fields
             if (empty($_POST['email']) || empty($_POST['password']) || empty($_POST['first_name']) || empty($_POST['last_name'])) {
                 $error = "All required fields must be filled.";
             } elseif ($_POST['password'] !== $_POST['confirm_password']) {
                 $error = "Passwords do not match.";
-            } elseif (!isset($_POST['terms']) || $_POST['terms'] !== 'on') {
+            } elseif (!isset($_POST['terms']) || (isset($_POST['terms']) && $_POST['terms'] !== 'on')) {
                 $error = "You must agree to the Terms & Conditions.";
             } else {
-                // Initialize $registrationSuccess to avoid undefined variable warning
-                $registrationSuccess = false;
 
                 $data = [
                     'username' => trim($_POST['email']), // Use email as username
@@ -46,6 +48,13 @@ class AuthController
                     $result = $this->authService->register($data);
                     if ($result) {
                         $registrationSuccess = true;
+                            // Send welcome email (best-effort)
+                            try {
+                                $notif = new \App\Services\NotificationService();
+                                $notif->sendRegistration($result);
+                            } catch (\Throwable $e) {
+                                error_log('AuthController: failed to send welcome email: ' . $e->getMessage());
+                            }
                     } else {
                         $error = "Registration failed. Please try again.";
                     }
@@ -61,6 +70,16 @@ class AuthController
             exit;
         }
 
+        // Render using layout helper when available so header/footer are applied
+        $data = [];
+        if (isset($error)) $data['error'] = $error;
+        if (isset($registrationSuccess)) $data['registrationSuccess'] = $registrationSuccess;
+
+        if (function_exists('render_view')) {
+            render_view('src/Views/auth/register.php', $data);
+            return;
+        }
+
         include 'src/Views/auth/register.php';
     }
 
@@ -71,7 +90,7 @@ class AuthController
             exit;
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
                 'email' => $_POST['email'],
                 'password' => $_POST['password'],
@@ -92,14 +111,26 @@ class AuthController
                     'last_name' => $user['last_name'],
                 ]);
 
-                error_log("Session data set, redirecting to dashboard");
-                // Redirect to dashboard
-                header('Location: /dashboard');
+                error_log("Session data set, redirecting to user dashboard");
+                // Redirect to user dashboard (routes are registered under /user group)
+                // Use 303 See Other so user agents convert the POST to a GET for the subsequent request
+                header('Location: /user/dashboard', true, 303);
                 exit;
             } else {
                 error_log("Login failed for email: " . $data['email']);
                 $error = "Invalid email or password. Please try again.";
             }
+        }
+
+        // Render using layout helper when available so header/footer are applied
+        $viewData = [];
+        if (isset($error)) $viewData['error'] = $error;
+        if (isset($_GET['message'])) $viewData['message'] = $_GET['message'];
+        if (isset($_GET['success'])) $viewData['success'] = $_GET['success'];
+
+        if (function_exists('render_view')) {
+            render_view('src/Views/auth/login.php', $viewData);
+            return;
         }
 
         include 'src/Views/auth/login.php';

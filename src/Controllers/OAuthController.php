@@ -119,7 +119,8 @@ class OAuthController
             LoggerService::debug("Session status after login: " . session_status());
             LoggerService::debug("Session ID: " . session_id());
             LoggerService::debug("Session save path: " . session_save_path());
-            LoggerService::debug("All session data: " . print_r($_SESSION, true));
+            // Avoid raw print_r in logs; serialize session data as JSON for structured logging
+            LoggerService::debug("All session data: " . json_encode($_SESSION));
 
             LoggerService::info("Redirecting to dashboard...");
             header('Location: /dashboard');

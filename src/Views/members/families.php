@@ -2,11 +2,16 @@
 $pageTitle = 'Family Directory - Uma Shakti Dham';
 ?>
 
+<div class="page-heading">
+    <div class="container">
+        <h1><i class="fas fa-home"></i> Family Directory</h1>
+        <p>Connect with community members using our family directory and contacts.</p>
+    </div>
+</div>
+
 <div class="under-construction-page">
     <div class="container">
         <div class="construction-content">
-
-            <h1><i class="fas fa-home"></i> Family Directory</h1>
 
             <div class="construction-message">
                 <h2>Page Under Construction</h2>
