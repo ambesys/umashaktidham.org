@@ -123,7 +123,7 @@ class OAuthController
             LoggerService::debug("All session data: " . json_encode($_SESSION));
 
             LoggerService::info("Redirecting to dashboard...");
-            header('Location: /dashboard');
+            header('Location: /user/dashboard');
             exit;
 
         } catch (\Exception $e) {

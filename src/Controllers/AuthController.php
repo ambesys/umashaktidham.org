@@ -17,7 +17,7 @@ class AuthController
     public function register()
     {
         if (isset($_SESSION['user'])) {
-            header('Location: /dashboard');
+            header('Location: /user/dashboard');
             exit;
         }
 
@@ -87,7 +87,7 @@ class AuthController
     public function login()
     {
         if (isset($_SESSION['user'])) {
-            header('Location: /dashboard');
+            header('Location: /user/dashboard');
             exit;
         }
 
