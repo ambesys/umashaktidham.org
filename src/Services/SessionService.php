@@ -211,10 +211,21 @@ class SessionService
         $_SESSION['user_role_id'] = $roleId;
         $_SESSION['user_role'] = $roleName ?? 'user'; // Store role name for middleware checks
 
+        // Debug log: session role assignment
+        try {
+            (new \App\Services\LoggerService())->info('SessionService setAuthenticatedUser', [
+                'user_id' => $userId,
+                'role_id' => $roleId,
+                'role_name' => $_SESSION['user_role']
+            ]);
+        } catch (\Throwable $e) {}
+
         // Update user's last_login_at timestamp
-        $stmt = $this->pdo->prepare("UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = :id");
-        $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
-        $stmt->execute();
+        if ($this->pdo instanceof PDO) {
+            $stmt = $this->pdo->prepare("UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = :id");
+            $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+        }
     }
 
     /**

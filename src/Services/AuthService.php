@@ -245,6 +245,8 @@ class AuthService
     private function getRoleName(?int $roleId): string
     {
         if (!$roleId) {
+            // Log default role fallback
+            try { (new \App\Services\LoggerService())->debug('getRoleName: no roleId provided, defaulting to user'); } catch (\Throwable $e) {}
             return 'user'; // Default role
         }
         
@@ -253,6 +255,16 @@ class AuthService
         $stmt->execute();
         $role = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        return $role['name'] ?? 'user';
+        $resolved = $role['name'] ?? 'user';
+        // Debug log resolution
+        try {
+            (new \App\Services\LoggerService())->info('getRoleName resolved', [
+                'role_id' => $roleId,
+                'role_name' => $resolved,
+                'found' => (bool)$role
+            ]);
+        } catch (\Throwable $e) {}
+
+        return $resolved;
     }
 }
