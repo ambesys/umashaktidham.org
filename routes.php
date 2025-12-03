@@ -252,6 +252,11 @@ $router->post('/contact_submit.php', function() use ($controllers) {
 
 $router->post('/access', [$controllers['auth'], 'handleAccess']);
 
+// Access gate page (GET) — render access view so users can grant access
+$router->get('/access', function() {
+	render_view('src/Views/access.php');
+});
+
 // Top-level API routes for dashboard AJAX (dashboard.js expects these paths)
 // These routes delegate to user controllers with authentication checks.
 //
