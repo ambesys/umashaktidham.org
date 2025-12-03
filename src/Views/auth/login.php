@@ -68,9 +68,9 @@
                     <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="social-icon">
                     Sign in with Google
                 </button>
-                <button class="social-btn facebook-btn" onclick="signInWithFacebook()">
+                <!-- <button class="social-btn facebook-btn" onclick="signInWithFacebook()">
                     <i class="fab fa-facebook"></i> Sign in with Facebook
-                </button>
+                </button> -->
             </div>
 
             <div class="divider">
