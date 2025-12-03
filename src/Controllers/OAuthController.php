@@ -101,7 +101,9 @@ class OAuthController
             ];
             if ($this->sessionService) {
                 // Get role name from role_id
+                LoggerService::info("Calling getRoleName with role_id: " . ($user['role_id'] ?? 'null'));
                 $roleName = $this->getRoleName($user['role_id'] ?? null);
+                LoggerService::info("getRoleName returned: $roleName");
                 LoggerService::info("Setting authenticated user - user_id: {$user['id']}, role_id: " . ($user['role_id'] ?? 'null') . ", role_name: $roleName");
                 $this->sessionService->setAuthenticatedUser($user['id'], $user['role_id'] ?? null, $roleName);
                 $this->sessionService->setSessionData('user', $userSession);
@@ -110,7 +112,9 @@ class OAuthController
             } else {
                 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
                 $_SESSION['user_id'] = $user['id'];
+                LoggerService::info("Calling getRoleName (fallback) with role_id: " . ($user['role_id'] ?? 'null'));
                 $_SESSION['user_role'] = $this->getRoleName($user['role_id'] ?? null); // Store role name
+                LoggerService::info("getRoleName (fallback) returned: " . $_SESSION['user_role']);
                 $_SESSION['user'] = $userSession;
                 $_SESSION['auth_type'] = $provider; // Store auth type for logout
                 LoggerService::info("Fallback session created - user_id: " . $_SESSION['user_id'] . ", session_id: " . session_id());
@@ -156,14 +160,14 @@ class OAuthController
     private function getRoleName(?int $roleId): string
     {
 
-        LoggerService::debug("getRoleName called with roleId: " . ($roleId ?? 'null'));
+        LoggerService::info("getRoleName called with roleId: " . ($roleId ?? 'null'));
         if (!$roleId) {
-            LoggerService::debug("No roleId provided, returning default 'user'");
+            LoggerService::info("No roleId provided, returning default 'user'");
             return 'user'; // Default role
         }
         
         if (!$this->pdo) {
-            LoggerService::debug("No PDO connection, returning default 'user'");
+            LoggerService::info("No PDO connection, returning default 'user'");
             return 'user'; // Fallback if no PDO
         }
         
@@ -173,7 +177,7 @@ class OAuthController
         $role = $stmt->fetch(\PDO::FETCH_ASSOC);
         
         $roleName = $role['name'] ?? 'user';
-        LoggerService::debug("Role lookup result - roleId: $roleId, roleName: $roleName");
+        LoggerService::info("Role lookup result - roleId: $roleId, roleName: $roleName");
         return $roleName;
     }
 }
