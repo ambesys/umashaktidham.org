@@ -20,7 +20,7 @@
                         <form method="post" action="/access">
                             <input type="hidden" name="next" value="<?php echo htmlspecialchars($_GET['next'] ?? '/'); ?>" />
                             <div class="mb-3">
-                                <input name="access_code" type="password" class="form-control form-control-lg" placeholder="Access code" required />
+                                <input name="access_password" type="password" class="form-control form-control-lg" placeholder="Access code" required />
                             </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary btn-lg fw-bold">Enter</button>

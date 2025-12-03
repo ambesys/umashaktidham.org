@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Services\AuthService;
+use App\Services\LoggerService;
 
 class AuthController
 {
@@ -165,10 +166,73 @@ class AuthController
             @session_start();
         }
 
-        // Grant access for configured lifetime (default 1 hour)
-        $lifetime = getenv('SESSION_LIFETIME') ?: 3600;
-        $lifetime = is_numeric($lifetime) ? intval($lifetime) : 3600;
-        $_SESSION['access_granted_until'] = time() + $lifetime;
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+
+            // Read posted password; support both 'access_password' and generic 'password'
+            $postedPassword = '';
+            if (isset($_POST['access_password'])) {
+                $postedPassword = (string)$_POST['access_password'];
+            } elseif (isset($_POST['password'])) {
+                $postedPassword = (string)$_POST['password'];
+            }
+            $postedPassword = trim($postedPassword);
+
+            // Debug: log what we received (safe, non-sensitive metadata)
+            LoggerService::debug('Access attempt', [
+                'has_post_access_password' => isset($_POST['access_password']),
+                'has_post_password' => isset($_POST['password']),
+                'posted_len' => strlen($postedPassword),
+                'post_keys' => array_keys($_POST)
+            ]);
+
+            // Resolve configured access password from env or config
+            $configuredPassword = getenv('ACCESS_PASSWORD');
+            if ($configuredPassword === false || $configuredPassword === null || $configuredPassword === '') {
+                // Optional: fallback to config/global
+                if (isset($GLOBALS['config']['access_password'])) {
+                    $configuredPassword = (string)$GLOBALS['config']['access_password'];
+                }
+            }
+
+            $next = isset($_GET['next']) ? $_GET['next'] : '/';
+
+            // Validate
+            if ($configuredPassword === null || $configuredPassword === false) {
+                $configuredPassword = '';
+            }
+            $configuredPassword = trim((string)$configuredPassword);
+
+            // Debug: log configured password status
+            LoggerService::debug('Access config check', [
+                'has_env_password' => getenv('ACCESS_PASSWORD') !== false,
+                'configured_len' => strlen($configuredPassword)
+            ]);
+
+            if ($configuredPassword === '') {
+                LoggerService::error('Access gate misconfigured: ACCESS_PASSWORD not set');
+                // Fail closed
+                header('Location: /access?next=' . urlencode($next) . '&error=Access%20not%20configured');
+                exit();
+            }
+
+            if (!hash_equals((string)$configuredPassword, (string)$postedPassword)) {
+                // Log metadata without exposing secrets
+                LoggerService::warning('Access denied: incorrect password', [
+                    'posted_len' => strlen($postedPassword),
+                    'configured_len' => strlen($configuredPassword)
+                ]);
+                header('Location: /access?next=' . urlencode($next) . '&error=Incorrect%20password');
+                exit();
+            }
+
+            // Success: set session flags
+            $_SESSION['access_granted'] = true;
+            $_SESSION['last_activity_ts'] = time();
+            LoggerService::info('Access granted; redirecting to next: ' . $next);
+            header('Location: ' . $next);
+            exit();
 
         // Optional: record acceptance
         if (function_exists('getLogger')) {

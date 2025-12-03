@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 $pageTitle = $pageTitle ?? 'Uma Shakti Dham';
+$isAccessPage = isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/access') === 0;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -165,7 +166,8 @@ $pageTitle = $pageTitle ?? 'Uma Shakti Dham';
         <!-- Header block: logo overlaps top bar and the navigation row (we keep only two rows) -->
         <div class="header-row">
 
-            <!-- Navigation Bar (this is the single row under the top contact bar) -->
+            <!-- Navigation Bar (hidden on access page to keep UI minimal) -->
+            <?php if (!$isAccessPage): ?>
             <nav class="main-navigation">
                 <div class="container nav-row">
                     <!-- brand-logo placed at beginning of the .container so it's aligned with container start -->
@@ -298,6 +300,7 @@ $pageTitle = $pageTitle ?? 'Uma Shakti Dham';
                     <!-- header actions moved to topbar; nav-actions removed to keep nav row focused on menu -->
                 </div> <!-- .container.nav-row -->
             </nav>
+            <?php endif; ?>
         </div> <!-- .header-row -->
         <!-- sticky helper removed; using CSS-only fixed header approach -->
         <!-- <script src="/assets/js/header-sticky.js" defer></script> -->

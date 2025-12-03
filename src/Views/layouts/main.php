@@ -1,4 +1,5 @@
 <?php
+
 use App\Services\LoggerService;
 
 // Main Layout Template
@@ -69,39 +70,56 @@ foreach ($allowPaths as $p) {
     }
 }
 
-// Check access session
-$accessUntil = $_SESSION['access_granted_until'] ?? 0;
-if (!$isAllowed && (empty($accessUntil) || time() > intval($accessUntil))) {
-    // remove expired flag if present
-    if (!empty($accessUntil) && time() > intval($accessUntil)) {
-        unset($_SESSION['access_granted_until']);
+// Access gate with inactivity timeout (10 minutes)
+// Rules:
+// - Require `access_granted` to be true to access any page except allowPaths
+// - Track `last_activity_ts`; expire after 10 minutes of inactivity
+// - Refresh `last_activity_ts` on each allowed request
+// - Clear access flags when expired
+if (!$isAllowed) {
+    $accessGranted = isset($_SESSION['access_granted']) && $_SESSION['access_granted'] === true;
+    $lastActivity = isset($_SESSION['last_activity_ts']) ? intval($_SESSION['last_activity_ts']) : 0;
+    $now = time();
+    $inactiveLimitSeconds = 10 * 60; // 10 minutes
+
+    $isInactive = ($lastActivity === 0) || (($now - $lastActivity) > $inactiveLimitSeconds);
+
+    if (!$accessGranted || $isInactive) {
+        // Clear stale flags if present
+        unset($_SESSION['access_granted']);
+        unset($_SESSION['last_activity_ts']);
+        // Preserve original path for redirect after successful access
+        $next = $_SERVER['REQUEST_URI'] ?? '/';
+        header('Location: /access?next=' . urlencode($next));
+        exit();
     }
-    // redirect to access page and include original path as next
-    $next = $_SERVER['REQUEST_URI'] ?? '/';
-    header('Location: /access?next=' . urlencode($next));
-    exit();
+
+    // Access is granted and session active; refresh activity timestamp
+    $_SESSION['last_activity_ts'] = $now;
 }
 
-// Determine if this is the access page so we can hide header/footer
-$isAccessPage = (strpos($currentPath, '/access') === 0);
+// Always include header so styles/assets load uniformly (access page needs CSS too)
 
-if (!$isAccessPage) {
     include __DIR__ . '/header.php';
-}
+
 ?>
 <div class="main-container">
-<?php 
-// Render the content without automatic container wrapper
-// Each view can decide its own container strategy
-if (isset($content)) {
-    echo $content;
-} elseif (isset($contentFile)) {
-    include $contentFile;
-}
-?>
+    <?php
+    // Render the content without automatic container wrapper
+    // Each view can decide its own container strategy
+    if (isset($content)) {
+        echo $content;
+    } elseif (isset($contentFile)) {
+        include $contentFile;
+    }
+    ?>
 </div>
 
-<?php if (!$isAccessPage) { include __DIR__ . '/footer.php'; } ?>
+
+<?php
+if (!$isAllowed) {
+    include __DIR__ . '/footer.php';
+} ?>
 
 <?php if (isset($pageScripts) && !empty($pageScripts)): ?>
     <!-- Page-specific JavaScript -->
