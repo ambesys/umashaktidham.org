@@ -3970,7 +3970,7 @@ select:focus {
 
 @media (max-width: 768px) {
   .page-heading {
-    padding: 10px 0;
+    padding: 25px 10px 0;
     /* margin-bottom: 10px; */
   }
   .page-heading h1 {
