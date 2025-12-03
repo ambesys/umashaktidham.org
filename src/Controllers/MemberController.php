@@ -12,7 +12,13 @@ class MemberController
 
     public function __construct()
     {
-        $this->memberModel = new Member();
+        // Prefer PDO-based model with explicit PDO when available
+        try {
+            $this->memberModel = new Member($GLOBALS['pdo'] ?? null);
+        } catch (\Throwable $e) {
+            // Fallback: instantiate without PDO
+            $this->memberModel = new Member();
+        }
         $this->authService = new AuthService();
     }
 
@@ -36,8 +42,31 @@ class MemberController
 
     public function profile($userId)
     {
-        // Fetch user profile details
-        $member = $this->memberModel->find($userId);
+        // Fetch user profile details using safe PDO query if needed
+        $member = null;
+        if (method_exists($this->memberModel, 'find')) {
+            $member = $this->memberModel->find($userId);
+        } else {
+            // Fallback to direct query
+            if (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof \PDO) {
+                $stmt = $GLOBALS['pdo']->prepare("SELECT * FROM users WHERE id = ?");
+                $stmt->execute([$userId]);
+                $user = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+                // Fetch 'self' family member record if any
+                $stmt = $GLOBALS['pdo']->prepare("SELECT * FROM family_members WHERE user_id = ? AND relationship = 'self' LIMIT 1");
+                $stmt->execute([$userId]);
+                $self = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+                // Merge user + self fields into a single array expected by the view
+                $member = array_merge($user ?: [], $self ?: []);
+            }
+        }
+
+        if (function_exists('render_view')) {
+            render_view('src/Views/members/profile.php', ['member' => $member]);
+            return;
+        }
         include '../src/Views/members/profile.php';
     }
 
