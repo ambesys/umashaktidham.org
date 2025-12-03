@@ -10,6 +10,17 @@ require_once __DIR__ . '/core/view_helpers.php';
 
 $router = new Router();
 
+if (function_exists('getLogger')) {
+	try {
+		getLogger()->info('Routes: initializing router', [
+			'method' => $_SERVER['REQUEST_METHOD'] ?? 'CLI',
+			'uri' => $_SERVER['REQUEST_URI'] ?? ''
+		]);
+	} catch (\Throwable $e) {
+		error_log('Routes: logger unavailable: ' . $e->getMessage());
+	}
+}
+
 // Ensure bootstrap provided controller instances array
 if (!isset($controllers) || !is_array($controllers)) {
 	throw new \RuntimeException('Missing $controllers array. Ensure bootstrap.php initializes $controllers with controller instances.');
@@ -616,5 +627,15 @@ if (!defined('SKIP_ROUTE_DISPATCH')) {
 		echo '<h1>404 - Page Not Found</h1><p>The requested page could not be found.</p>';
 	});
 
+	if (function_exists('getLogger')) {
+		try {
+			getLogger()->info('Routes: dispatching', [
+				'method' => $_SERVER['REQUEST_METHOD'] ?? 'CLI',
+				'uri' => $_SERVER['REQUEST_URI'] ?? ''
+			]);
+		} catch (\Throwable $e) {
+			// ignore
+		}
+	}
 	$router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
 }

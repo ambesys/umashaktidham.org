@@ -106,8 +106,9 @@ class AdminController
             $user->password = password_hash($_POST['password'], PASSWORD_DEFAULT);
             $user->save();
             header('Location: /admin/users');
+            exit;
         }
-        require_once '../src/Views/admin/create_user.php';
+        render_view('src/Views/admin/create_user.php');
     }
 
     public function editUser($id)
@@ -119,8 +120,9 @@ class AdminController
             $user->email = $_POST['email'];
             $user->save();
             header('Location: /admin/users');
+            exit;
         }
-        require_once '../src/Views/admin/edit_user.php';
+        render_view('src/Views/admin/edit_user.php', ['user' => $user]);
     }
 
     public function deleteUser($id = null)
@@ -206,7 +208,7 @@ class AdminController
     {
         // Retrieve and display a list of moderators
         $moderators = Moderator::all();
-        require_once '../src/Views/admin/moderators.php';
+        render_view('src/Views/admin/moderators.php', ['moderators' => $moderators]);
     }
 
     public function createModerator()
@@ -219,8 +221,9 @@ class AdminController
             $moderator->password = password_hash($_POST['password'], PASSWORD_DEFAULT);
             $moderator->save();
             header('Location: /admin/moderators');
+            exit;
         }
-        require_once '../src/Views/admin/create_moderator.php';
+        render_view('src/Views/admin/create_moderator.php');
     }
 
     public function editModerator($id)
@@ -232,8 +235,9 @@ class AdminController
             $moderator->email = $_POST['email'];
             $moderator->save();
             header('Location: /admin/moderators');
+            exit;
         }
-        require_once '../src/Views/admin/edit_moderator.php';
+        render_view('src/Views/admin/edit_moderator.php', ['moderator' => $moderator]);
     }
 
     public function deleteModerator($id)
@@ -242,6 +246,7 @@ class AdminController
         $moderator = Moderator::find($id);
         $moderator->delete();
         header('Location: /admin/moderators');
+        exit;
     }
 
     public function getDashboardStats()

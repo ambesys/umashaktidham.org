@@ -49,6 +49,9 @@ if (isset($envFile) && file_exists($envFile)) {
             $_ENV[$name] = $value;
         }
     }
+    error_log('Bootstrap: env loaded from ' . $envFile);
+} else {
+    error_log('Bootstrap: no env file found; relying on server env');
 }
 
 // Development convenience: when running on localhost, auto-grant temporary access so dev pages
@@ -95,6 +98,15 @@ function getLogger(): \App\Services\LoggerService {
 // Load database config to initialize $GLOBALS['pdo'] if possible
 try {
     require_once __DIR__ . '/config/database.php';
+    if (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof \PDO) {
+        getLogger()->info('Bootstrap: PDO initialized', [
+            'use_mysql' => getenv('USE_MYSQL'),
+            'db_host' => getenv('DB_HOST'),
+            'db_name' => getenv('DB_NAME')
+        ]);
+    } else {
+        getLogger()->warning('Bootstrap: PDO not initialized');
+    }
 } catch (\Throwable $e) {
     // If database config fails, continue without PDO (some controllers/services will fall back)
     error_log('Database config load failed in bootstrap: ' . $e->getMessage());
@@ -141,3 +153,10 @@ $controllers['dashboard'] = $safeInstantiate('\App\\Controllers\\DashboardContro
 $GLOBALS['controllers'] = $controllers;
 
 error_log('Bootstrap: controllers wired: ' . implode(',', array_keys($controllers)));
+if (function_exists('getLogger')) {
+    try {
+        getLogger()->info('Bootstrap: controllers wired', ['controllers' => array_keys($controllers)]);
+    } catch (\Throwable $e) {
+        // ignore
+    }
+}
