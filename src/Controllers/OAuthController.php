@@ -23,11 +23,23 @@ class OAuthController
         $this->sessionService = $sessionService;
         
         // Initialize PDO for role lookup
-        $cfg = __DIR__ . '/../config/database.php';
-        if (file_exists($cfg)) {
-            require $cfg; // expects $pdo
-            if (isset($pdo) && $pdo instanceof \PDO) {
-                $this->pdo = $pdo;
+        // Prefer the PDO initialized by bootstrap in $GLOBALS
+        if (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof \PDO) {
+            $this->pdo = $GLOBALS['pdo'];
+            LoggerService::info('OAuthController: Using PDO from $GLOBALS');
+        } else {
+            // Fallback: attempt to load local database config
+            $cfg = __DIR__ . '/../config/database.php';
+            if (file_exists($cfg)) {
+                require $cfg; // expects $pdo
+                if (isset($pdo) && $pdo instanceof \PDO) {
+                    $this->pdo = $pdo;
+                    LoggerService::info('OAuthController: Using PDO from local config include');
+                } else {
+                    LoggerService::info('OAuthController: PDO not available (no $GLOBALS and local include failed)');
+                }
+            } else {
+                LoggerService::info('OAuthController: database.php not found; proceeding without PDO');
             }
         }
     }
