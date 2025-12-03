@@ -1,0 +1,30 @@
+{
+  "timestamp": 1762733806,
+  "users": {
+    "testuser1762733806@example.com": {
+      "password": "TestPass123!",
+      "first_name": "Test1762733806",
+      "last_name": "User",
+      "role": "user"
+    },
+    "testadmin1762733806@example.com": {
+      "password": "AdminPass123!",
+      "first_name": "TestAdmin1762733806",
+      "last_name": "Admin",
+      "role": "admin"
+    }
+  },
+  "test_results": [
+    {
+      "user": "testuser1762733806@example.com",
+      "test": "Login",
+      "status": "FAILED"
+    },
+    {
+      "user": "testadmin1762733806@example.com",
+      "test": "Login",
+      "status": "FAILED"
+    }
+  ],
+  "created_at": "2025-11-09T18:17:04.921217"
+}

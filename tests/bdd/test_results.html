@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BDD Test Suite Results Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        /* Summary Section */
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .summary-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .summary-item.success {
+            border-left-color: #28a745;
+        }
+
+        .summary-item.failed {
+            border-left-color: #dc3545;
+        }
+
+        .summary-item.skipped {
+            border-left-color: #ffc107;
+        }
+
+        .summary-item h3 {
+            color: #667eea;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            opacity: 0.7;
+        }
+
+        .summary-item .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .summary-item.success .value {
+            color: #28a745;
+        }
+
+        .summary-item.failed .value {
+            color: #dc3545;
+        }
+
+        .summary-item.skipped .value {
+            color: #ffc107;
+        }
+
+        /* Filters */
+        .filters {
+            padding: 20px 30px;
+            background: white;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 0.95em;
+            cursor: pointer;
+            background: white;
+        }
+
+        .filter-group input {
+            cursor: text;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Results Table */
+        .results {
+            padding: 30px;
+        }
+
+        .results h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.5em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        thead {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.95em;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+            transition: background 0.2s ease;
+        }
+
+        /* Status Badges */
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status.passed {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.failed {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.skipped {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        /* Category Badge */
+        .category-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #e7f3ff;
+            color: #0066cc;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        /* Timestamp */
+        .timestamp {
+            color: #6c757d;
+            font-size: 0.85em;
+            white-space: nowrap;
+        }
+
+        /* Details */
+        .details {
+            color: #6c757d;
+            font-size: 0.9em;
+            max-width: 300px;
+            word-break: break-word;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 30px;
+            color: #6c757d;
+        }
+
+        .empty-state svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        .footer {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            .filter-group select,
+            .filter-group input {
+                width: 100%;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .filters {
+                display: none;
+            }
+
+            table {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px 20px;
+            border-radius: 4px;
+            margin: 20px 30px;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Success Message */
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px 20px;
+            border-radius: 4px;
+            margin: 20px 30px;
+            border: 1px solid #c3e6cb;
+        }
+
+        /* Duration Bar */
+        .duration {
+            font-size: 0.85em;
+            color: #6c757d;
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        /* Sorting Indicator */
+        .sort-indicator {
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 0.8em;
+            opacity: 0.5;
+        }
+
+        .sort-indicator.active {
+            opacity: 1;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🧪 BDD Test Suite Results Dashboard</h1>
+            <p>Comprehensive Test Results from Umashaktidham.org</p>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="summary" id="summary">
+            <div class="summary-item">
+                <h3>Total Tests</h3>
+                <div class="value">0</div>
+            </div>
+            <div class="summary-item success">
+                <h3>Passed</h3>
+                <div class="value">0</div>
+            </div>
+            <div class="summary-item failed">
+                <h3>Failed</h3>
+                <div class="value">0</div>
+            </div>
+            <div class="summary-item skipped">
+                <h3>Skipped</h3>
+                <div class="value">0</div>
+            </div>
+            <div class="summary-item">
+                <h3>Success Rate</h3>
+                <div class="value">0%</div>
+            </div>
+            <div class="summary-item">
+                <h3>Last Updated</h3>
+                <div class="value" style="font-size: 1em;">-</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-group">
+                <label for="statusFilter">Status:</label>
+                <select id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="passed">Passed</option>
+                    <option value="failed">Failed</option>
+                    <option value="skipped">Skipped</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="categoryFilter">Category:</label>
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="searchInput">Search:</label>
+                <input type="text" id="searchInput" placeholder="Search test name...">
+            </div>
+            <div class="filter-group" style="margin-left: auto;">
+                <button onclick="location.reload()" style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">Refresh</button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results">
+            <h2>Test Results</h2>
+            <div id="loadingState" class="loading">
+                <div class="spinner"></div>
+                <p>Loading test results...</p>
+            </div>
+            <div id="resultsContainer" style="display: none;">
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th style="cursor: pointer;" onclick="sortTable('testName')">
+                                Test Name <span class="sort-indicator" data-sort="testName">↕️</span>
+                            </th>
+                            <th>Category</th>
+                            <th style="cursor: pointer;" onclick="sortTable('status')">
+                                Status <span class="sort-indicator" data-sort="status">↕️</span>
+                            </th>
+                            <th style="cursor: pointer;" onclick="sortTable('timestamp')">
+                                Timestamp <span class="sort-indicator" data-sort="timestamp">↕️</span>
+                            </th>
+                            <th>Duration</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                    </tbody>
+                </table>
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <h3>No test results found</h3>
+                    <p>Run your test suite to generate results</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>
+                Last Generated: <span id="generatedTime">-</span> | 
+                <a href="#" onclick="exportToCSV(); return false;" style="color: #667eea; text-decoration: none;">Export CSV</a> |
+                <a href="#" onclick="window.print(); return false;" style="color: #667eea; text-decoration: none;">Print</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let allTests = [];
+        let currentSort = { field: 'timestamp', direction: 'desc' };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTestResults();
+            setupFilters();
+        });
+
+        // Load test results from JSON files
+        async function loadTestResults() {
+            try {
+                const response = await fetch('./');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Get all test-results JSON files
+                const jsonFiles = Array.from(doc.querySelectorAll('a'))
+                    .map(a => a.href)
+                    .filter(href => href.includes('test-results') && href.endsWith('.json'))
+                    .sort()
+                    .reverse();
+
+                if (jsonFiles.length === 0) {
+                    showNoResults();
+                    return;
+                }
+
+                // Load the latest JSON file
+                const latestFile = jsonFiles[0];
+                const data = await fetch(latestFile).then(r => r.json());
+                
+                processTestResults(data);
+                updateLastGenerated(latestFile);
+            } catch (error) {
+                console.error('Error loading test results:', error);
+                showError('Failed to load test results: ' + error.message);
+            }
+        }
+
+        // Process and organize test results
+        function processTestResults(data) {
+            const testMap = {};
+
+            // Process results from different sources
+            if (data.results) {
+                // From run_all_bdd_tests.py
+                for (const [testFile, result] of Object.entries(data.results)) {
+                    const testName = testFile.replace('.py', '').replace(/_/g, ' ');
+                    const key = testName.toLowerCase();
+                    
+                    if (!testMap[key] || new Date(result.timestamp || 0) > new Date(testMap[key].timestamp || 0)) {
+                        testMap[key] = {
+                            testName: testName,
+                            category: 'Test Suite',
+                            status: result.passed ? 'passed' : 'failed',
+                            timestamp: result.timestamp || new Date().toISOString(),
+                            duration: result.elapsed || 0,
+                            details: result.details || (result.passed ? 'Passed' : 'Failed')
+                        };
+                    }
+                }
+            }
+
+            // From ComprehensiveRoleBasedTest results
+            if (data.test_results) {
+                for (const [category, tests] of Object.entries(data.test_results || {})) {
+                    if (Array.isArray(tests)) {
+                        tests.forEach(test => {
+                            const key = (test.test || test.name || '').toLowerCase();
+                            if (key) {
+                                if (!testMap[key] || new Date(test.timestamp || 0) > new Date(testMap[key].timestamp || 0)) {
+                                    testMap[key] = {
+                                        testName: test.test || test.name || 'Unknown',
+                                        category: category || 'General',
+                                        status: test.passed ? 'passed' : 'failed',
+                                        timestamp: test.timestamp || new Date().toISOString(),
+                                        duration: test.duration || 0,
+                                        details: test.details || (test.passed ? 'Passed' : 'Failed')
+                                    };
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+
+            // Fallback: create test items from top-level properties
+            for (const [key, value] of Object.entries(data)) {
+                if (typeof value === 'object' && value !== null && !['results', 'test_results', 'config', 'timestamp', 'elapsed'].includes(key)) {
+                    const testKey = key.toLowerCase();
+                    if (!testMap[testKey] && (value.passed !== undefined || value.status)) {
+                        testMap[testKey] = {
+                            testName: key.replace(/_/g, ' '),
+                            category: 'General',
+                            status: value.passed ? 'passed' : (value.status || 'unknown'),
+                            timestamp: value.timestamp || new Date().toISOString(),
+                            duration: value.elapsed || value.duration || 0,
+                            details: value.details || ''
+                        };
+                    }
+                }
+            }
+
+            allTests = Object.values(testMap);
+            
+            if (allTests.length === 0) {
+                showNoResults();
+                return;
+            }
+
+            updateSummary();
+            populateCategoryFilter();
+            sortTable(currentSort.field);
+            displayResults(allTests);
+            
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+        }
+
+        // Update summary statistics
+        function updateSummary() {
+            const total = allTests.length;
+            const passed = allTests.filter(t => t.status === 'passed').length;
+            const failed = allTests.filter(t => t.status === 'failed').length;
+            const skipped = allTests.filter(t => t.status === 'skipped').length;
+            const successRate = total > 0 ? Math.round((passed / total) * 100) : 0;
+
+            const summaryItems = document.querySelectorAll('.summary-item .value');
+            summaryItems[0].textContent = total;
+            summaryItems[1].textContent = passed;
+            summaryItems[2].textContent = failed;
+            summaryItems[3].textContent = skipped;
+            summaryItems[4].textContent = successRate + '%';
+            summaryItems[5].textContent = new Date().toLocaleString();
+        }
+
+        // Populate category filter
+        function populateCategoryFilter() {
+            const categories = [...new Set(allTests.map(t => t.category))].sort();
+            const select = document.getElementById('categoryFilter');
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                select.appendChild(option);
+            });
+        }
+
+        // Display results in table
+        function displayResults(tests) {
+            const tbody = document.getElementById('resultsBody');
+            tbody.innerHTML = '';
+
+            if (tests.length === 0) {
+                document.getElementById('emptyState').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('emptyState').style.display = 'none';
+
+            tests.forEach(test => {
+                const row = document.createElement('tr');
+                
+                const durationText = test.duration > 0 ? `${test.duration.toFixed(2)}s` : '-';
+                const timestamp = new Date(test.timestamp).toLocaleString();
+                
+                row.innerHTML = `
+                    <td><strong>${escapeHtml(test.testName)}</strong></td>
+                    <td><span class="category-badge">${escapeHtml(test.category)}</span></td>
+                    <td><span class="status ${test.status}">${test.status.toUpperCase()}</span></td>
+                    <td class="timestamp">${timestamp}</td>
+                    <td><span class="duration">${durationText}</span></td>
+                    <td class="details">${escapeHtml(test.details || '-')}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Setup filters
+        function setupFilters() {
+            const statusFilter = document.getElementById('statusFilter');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const searchInput = document.getElementById('searchInput');
+
+            statusFilter.addEventListener('change', applyFilters);
+            categoryFilter.addEventListener('change', applyFilters);
+            searchInput.addEventListener('input', applyFilters);
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const status = document.getElementById('statusFilter').value;
+            const category = document.getElementById('categoryFilter').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = allTests.filter(test => {
+                const matchStatus = !status || test.status === status;
+                const matchCategory = !category || test.category === category;
+                const matchSearch = !search || test.testName.toLowerCase().includes(search) || 
+                                   test.category.toLowerCase().includes(search) ||
+                                   test.details.toLowerCase().includes(search);
+                
+                return matchStatus && matchCategory && matchSearch;
+            });
+
+            displayResults(filtered);
+        }
+
+        // Sort table
+        function sortTable(field) {
+            if (currentSort.field === field) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.field = field;
+                currentSort.direction = 'asc';
+            }
+
+            // Update sort indicators
+            document.querySelectorAll('.sort-indicator').forEach(indicator => {
+                indicator.classList.remove('active');
+            });
+            document.querySelector(`[data-sort="${field}"]`).classList.add('active');
+
+            allTests.sort((a, b) => {
+                let aVal = a[field];
+                let bVal = b[field];
+
+                if (field === 'timestamp') {
+                    aVal = new Date(aVal).getTime();
+                    bVal = new Date(bVal).getTime();
+                } else if (field === 'duration') {
+                    aVal = parseFloat(aVal) || 0;
+                    bVal = parseFloat(bVal) || 0;
+                } else if (typeof aVal === 'string') {
+                    aVal = aVal.toLowerCase();
+                    bVal = bVal.toLowerCase();
+                }
+
+                if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            displayResults(allTests);
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            let csv = 'Test Name,Category,Status,Timestamp,Duration,Details\n';
+            
+            allTests.forEach(test => {
+                csv += `"${test.testName}","${test.category}","${test.status}","${test.timestamp}","${test.duration}","${test.details}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `test-results-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        // Update last generated time
+        function updateLastGenerated(filename) {
+            const match = filename.match(/(\d+)(?=\.json)/);
+            if (match) {
+                const timestamp = parseInt(match[0]);
+                const date = new Date(timestamp * 1000);
+                document.getElementById('generatedTime').textContent = date.toLocaleString();
+            }
+        }
+
+        // Show no results
+        function showNoResults() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'block';
+        }
+
+        // Show error
+        function showError(message) {
+            document.getElementById('loadingState').innerHTML = `
+                <div class="error-message">
+                    <strong>Error:</strong> ${message}
+                </div>
+            `;
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text || '').replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(function() {
+            // Uncomment to enable auto-refresh
+            // location.reload();
+        }, 30000);
+    </script>
+</body>
+</html>

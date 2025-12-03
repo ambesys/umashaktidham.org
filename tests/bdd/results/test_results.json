@@ -1,0 +1,75 @@
+{
+  "metadata": {
+    "created": "2025-11-10T22:43:06.979797",
+    "updated": "2025-11-10T22:43:20.319690",
+    "version": "1.0.0"
+  },
+  "test_suites": {
+    "family_management": {
+      "name": "family_management",
+      "tests": [
+        {
+          "id": "FAM-001",
+          "name": "Register and Login",
+          "suite": "family_management",
+          "status": "FAIL",
+          "duration": 12.968146800994873,
+          "timestamp": "2025-11-10T22:43:19.948011",
+          "details": "Login error: Complete your profile\nYour profile is 38% complete. Completing your profile helps the community know you better.\nEDIT PROFILE\nADD FAMILY MEMBER | Welcome to Umashakti Dham! \ud83c\udf89\nThank you for joining our community! Get started by completing your profile and adding family members. | Welcome to Umashakti Dham! \ud83c\udf89"
+        },
+        {
+          "id": "FAM-002",
+          "name": "Add Family Member (AJAX)",
+          "suite": "family_management",
+          "status": "FAIL",
+          "duration": 9.5367431640625e-07,
+          "timestamp": "2025-11-10T22:43:20.034703",
+          "details": "User not logged in"
+        },
+        {
+          "id": "FAM-003",
+          "name": "Add Family Members (Form)",
+          "suite": "family_management",
+          "status": "FAIL",
+          "duration": 1.1920928955078125e-06,
+          "timestamp": "2025-11-10T22:43:20.133217",
+          "details": "User not logged in"
+        },
+        {
+          "id": "FAM-004",
+          "name": "Edit Family Member",
+          "suite": "family_management",
+          "status": "FAIL",
+          "duration": 2.1457672119140625e-06,
+          "timestamp": "2025-11-10T22:43:20.225574",
+          "details": "User not logged in"
+        },
+        {
+          "id": "FAM-005",
+          "name": "Delete Family Member",
+          "suite": "family_management",
+          "status": "FAIL",
+          "duration": 1.9073486328125e-06,
+          "timestamp": "2025-11-10T22:43:20.319677",
+          "details": "User not logged in"
+        }
+      ],
+      "metadata": {
+        "created": "2025-11-10T22:43:06.979817",
+        "updated": "2025-11-10T22:43:20.319686",
+        "total": 5,
+        "passed": 0,
+        "failed": 5,
+        "pass_rate": 0.0,
+        "duration": 12.96815299987793
+      }
+    }
+  },
+  "summary": {
+    "total_suites": 1,
+    "total_tests": 5,
+    "total_passed": 0,
+    "total_failed": 5,
+    "pass_rate": 0.0
+  }
+}

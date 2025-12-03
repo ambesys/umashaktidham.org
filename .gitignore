@@ -65,6 +65,44 @@ database/migrations/*sqlite.sql
 *.temp
 /tmp/
 
+# Local dev/server pid caches
+.server.pid
+.phpunit.result.cache
+
+# Debug and temporary scripts/pages
+debug_*.php
+scripts/debug*/
+prod_debug.php
+public/test-functions.html
+tmp_*.php
+tmp*/
+
+# Test artifacts and reports (HTML/PNG/JSON)
+test-*.sh
+test-*.html
+test-*.png
+tests/debug/
+tests/results/
+tests/__pycache__/
+tests/test_results.*
+
+# Exception and failure captures
+login-failure-*.html
+login-failure-*.png
+form-*-exception-*.html
+form-*-exception-*.png
+test-*-exception-*.html
+test-*-exception-*.png
+
+# Registration result captures
+REG-*-*.html
+REG-*-*.png
+
+# View backups or remote sync files
+*.remote
+*.remote-backup
+*.backup-*
+
 # Local test helpers
 scripts/test_render_dashboard.php
 
