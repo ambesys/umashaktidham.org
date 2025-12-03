@@ -157,6 +157,36 @@ class AuthController
     }
 
     /**
+     * Access gate handler: grants temporary access and redirects
+     */
+    public function handleAccess()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            @session_start();
+        }
+
+        // Grant access for configured lifetime (default 1 hour)
+        $lifetime = getenv('SESSION_LIFETIME') ?: 3600;
+        $lifetime = is_numeric($lifetime) ? intval($lifetime) : 3600;
+        $_SESSION['access_granted_until'] = time() + $lifetime;
+
+        // Optional: record acceptance
+        if (function_exists('getLogger')) {
+            try {
+                getLogger()->info('Access granted', [
+                    'until' => $_SESSION['access_granted_until'] ?? null,
+                    'remote' => $_SERVER['REMOTE_ADDR'] ?? ''
+                ]);
+            } catch (\Throwable $e) {}
+        }
+
+        // Redirect to next path if provided
+        $next = $_POST['next'] ?? $_GET['next'] ?? '/';
+        header('Location: ' . (string)$next);
+        exit;
+    }
+
+    /**
      * Format phone number to E.164 format
      */
     private function formatPhoneNumber($phone)
